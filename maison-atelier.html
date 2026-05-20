@@ -1,0 +1,4182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maison Atelier — AI 팝업스토어 기획 프로토타입</title>
+
+<!-- Pretendard via CDN (single-file prototype) -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<!-- Cormorant Garamond — editorial italic serif for moodboard annotations -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400;1,500&display=swap">
+<!-- html2pdf — captures DOM + images into a downloadable multi-page PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+
+<style>
+/* =========================================================================
+   DESIGN TOKENS — strict per design spec
+   ========================================================================= */
+:root {
+  --bg:        #FFFFFF;
+  --surface:   #F9F9F9;
+  --text:      #111111;
+  --text-2:    #666666;
+  --text-3:    #999999;
+  --accent:    #000000;
+  --moss:      #1E5128;
+  --moss-2:    #2E7D32;
+  --border:    #EEEEEE;
+  --border-2:  #DDDDDD;
+
+  --ease:      cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-luxe: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --max:       1280px;
+  --pad:       40px;
+
+  --shadow-1:  0 1px 2px rgba(0,0,0,0.03);
+  --shadow-2:  0 8px 24px rgba(0,0,0,0.06);
+  --shadow-glass: 0 24px 60px rgba(0,0,0,0.32);
+
+  --font: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
+          "Apple SD Gothic Neo", "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+
+::selection { background: var(--text); color: var(--bg); }
+
+/* =========================================================================
+   LAYOUT
+   ========================================================================= */
+.shell { max-width: var(--max); margin: 0 auto; padding: 0 var(--pad); }
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.divider { height: 1px; background: var(--border); border: 0; }
+
+/* =========================================================================
+   NAV
+   ========================================================================= */
+nav.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+nav.nav .inner {
+  height: 72px;
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  align-items: center;
+  gap: 24px;
+}
+nav.nav .logo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+nav.nav .logo .ko {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+nav.nav .logo .en {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+nav.nav .menu {
+  display: flex;
+  justify-content: center;
+  gap: 36px;
+}
+nav.nav .menu a {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  transition: color 200ms var(--ease);
+  position: relative;
+}
+nav.nav .menu a:hover { color: var(--text); }
+nav.nav .actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 20px;
+  border-radius: 8px;
+  transition: all 220ms var(--ease);
+  letter-spacing: 0.01em;
+}
+.btn-join {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-join:hover {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+}
+.btn-text {
+  color: var(--text);
+  padding: 12px 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+}
+.btn-text:hover { border-bottom-color: var(--text); }
+.btn-ai {
+  background: linear-gradient(135deg, #1E5128 0%, #111111 100%);
+  color: #fff;
+  padding: 16px 28px;
+  border-radius: 999px;
+  box-shadow: 0 16px 32px rgba(30,81,40,0.20);
+  font-size: 14px;
+}
+.btn-ai:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 44px rgba(30,81,40,0.32);
+}
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--text);
+}
+.btn-outline:hover { background: var(--text); color: #fff; }
+
+/* =========================================================================
+   HERO + INPUT
+   ========================================================================= */
+.hero {
+  padding: 120px 0 80px;
+}
+.hero .top-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+.hero .top-meta .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--moss);
+  animation: pulse 2.4s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+.hero h1 {
+  font-size: clamp(40px, 6.4vw, 88px);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: var(--text);
+  max-width: 1100px;
+}
+.hero h1 .light { font-weight: 300; color: var(--text-2); }
+.hero h1 .moss { color: var(--moss); }
+.hero .deck {
+  margin-top: 28px;
+  max-width: 720px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.hero .deck strong { color: var(--text); font-weight: 600; }
+
+/* INPUT panel */
+.input-panel {
+  margin-top: 56px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: var(--shadow-2);
+}
+.input-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 24px;
+}
+.input-head h2 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.input-head .step {
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Capsule segmented tabs */
+.tabs {
+  display: inline-flex;
+  padding: 4px;
+  background: var(--surface);
+  border-radius: 999px;
+  gap: 2px;
+  margin-bottom: 28px;
+}
+.tabs button {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 11px 22px;
+  border-radius: 999px;
+  color: var(--text-2);
+  transition: all 220ms var(--ease);
+  letter-spacing: 0.01em;
+}
+.tabs button.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+}
+.tabs button:not(.active):hover { color: var(--text); }
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ----- NEW: stacked input sections (all 3 categories visible) ----- */
+.input-section { padding: 28px 0; border-top: 1px solid var(--border); }
+.input-section:first-of-type { padding-top: 8px; border-top: 0; }
+.input-section .sec-head {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 18px;
+}
+.input-section .sec-head .num {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.22em; color: var(--moss);
+  font-variant-numeric: tabular-nums;
+}
+.input-section .sec-head h3 {
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.01em; color: var(--text);
+}
+.input-section .sec-head .pick {
+  margin-left: auto; font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+.input-section .sec-head .pick b { color: var(--text); font-weight: 600; }
+
+/* Ambassador card-grid */
+.amb-input-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.suggest-row { margin-top: 16px; }
+.suggest-row .suggest-lab {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-2); margin-bottom: 8px;
+}
+
+.amb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.amb-card {
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 220ms var(--ease);
+}
+.amb-card:hover { transform: translateY(-2px); border-color: var(--border-2); }
+.amb-card.active { background: #fff; border-color: var(--text); box-shadow: var(--shadow-2); }
+.amb-card .ph {
+  aspect-ratio: 1/1.15;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  position: relative;
+}
+.amb-card .ph::after {
+  content: ""; position: absolute; inset: 0; border-radius: 8px;
+  background: radial-gradient(circle at 50% 30%, rgba(255,255,255,0.18), transparent 60%);
+}
+.amb-card .nm {
+  font-size: 13px; font-weight: 600; padding: 2px 4px 0;
+  color: var(--text); letter-spacing: -0.005em;
+}
+.amb-card .role {
+  font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-2); padding: 2px 4px 4px;
+}
+.amb-card.active .role { color: var(--moss); }
+
+/* Product list */
+.prod-list { display: flex; flex-direction: column; gap: 8px; }
+.prod-row {
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 16px; align-items: center;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 200ms var(--ease);
+  text-align: left;
+}
+.prod-row:hover { border-color: var(--border-2); }
+.prod-row.active { background: #111; color: #fff; border-color: #111; }
+.prod-row .l-name { font-size: 14px; font-weight: 600; letter-spacing: -0.005em; }
+.prod-row .l-sub {
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-2); margin-top: 3px;
+}
+.prod-row.active .l-sub { color: #B8C9A8; }
+.prod-row .price {
+  font-size: 14px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.prod-row .radio {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+}
+.prod-row.active .radio {
+  border-color: #fff;
+  background:
+    radial-gradient(circle, #fff 0 4px, transparent 5px);
+}
+
+/* Collection row */
+.coll-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tone-row { margin-top: 16px; }
+.tone-row .lab {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-2); margin-bottom: 8px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.field input, .field select {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text);
+  transition: all 200ms var(--ease);
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field input:focus, .field select:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--text);
+}
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 10px;
+  padding-right: 36px;
+}
+
+/* Chips for collection / reference */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.chip {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--border-2);
+  color: var(--text);
+  transition: all 200ms var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip:hover { border-color: var(--text); }
+.chip.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.cta-row {
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cta-row .note {
+  font-size: 12px;
+  color: var(--text-2);
+}
+.cta-row .note .moss { color: var(--moss); font-weight: 600; }
+
+/* ----- Track A/B indicators inside gen-card ----- */
+.gen-tracks {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-top: 14px;
+  font-size: 11px; letter-spacing: 0.04em;
+}
+.gen-track {
+  display: flex; align-items: center; gap: 10px;
+  color: rgba(255,255,255,0.55);
+  transition: color 220ms var(--ease);
+}
+.gen-track .ico {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.3);
+  position: relative;
+  flex-shrink: 0;
+}
+.gen-track.done { color: rgba(255,255,255,0.95); }
+.gen-track.done .ico { background: var(--moss-2); border-color: var(--moss-2); }
+.gen-track.done .ico::after {
+  content: ""; position: absolute;
+  left: 3.5px; top: 0.5px;
+  width: 4px; height: 7px;
+  border-right: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  transform: rotate(45deg);
+}
+.gen-track.active .ico {
+  border-color: #fff;
+  animation: pulse-ring 1.4s var(--ease) infinite;
+}
+.gen-track.error .ico { background: #5C1A1B; border-color: #5C1A1B; }
+.gen-track.error .ico::after {
+  content: "!"; position: absolute;
+  inset: 0; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 9px; font-weight: 700;
+}
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+}
+
+/* =========================================================================
+   GENERATING STATE
+   ========================================================================= */
+.generating {
+  display: none;
+  padding: 60px 0;
+}
+.generating.is-on { display: block; animation: fadeIn 400ms var(--ease); }
+.generating .gen-card {
+  background: linear-gradient(135deg, rgba(40,40,40,0.95), rgba(15,15,15,1));
+  color: #fff;
+  border-radius: 16px;
+  padding: 48px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 32px;
+  align-items: center;
+  box-shadow: var(--shadow-glass);
+}
+.gen-spinner {
+  width: 48px; height: 48px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-card .ttl {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.gen-card .stp {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+}
+.gen-card .stp span { color: #fff; font-weight: 500; }
+.gen-card .pct {
+  font-size: 56px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.gen-card .pct .u { font-size: 16px; color: rgba(255,255,255,0.5); margin-left: 4px; font-weight: 400; }
+
+/* =========================================================================
+   OUTPUT — RESULT GRID
+   ========================================================================= */
+.results {
+  display: none;
+  padding: 40px 0 120px;
+}
+.results.is-on { display: block; animation: fadeIn 600ms var(--ease-luxe); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.results-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.results-head .left h2 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 8px;
+}
+.results-head .left h2 em { font-style: italic; color: var(--moss); }
+.results-head .left .meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+.results-head .left .meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.results-head .left .meta b {
+  color: var(--text);
+  font-weight: 600;
+  background: var(--surface);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.results-head .actions {
+  display: flex;
+  gap: 10px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Generic card */
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid transparent;
+  transition: all 320ms var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.card:hover { transform: translateY(-4px); }
+.card .label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 18px;
+}
+.card .label .star { color: var(--moss); }
+.card h3 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-bottom: 12px;
+}
+.card p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-2);
+}
+
+/* Dark glass card — AI premium result */
+.card.glass {
+  background: linear-gradient(135deg, rgba(60,60,60,0.92), rgba(20,20,20,1));
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  color: #fff;
+  box-shadow: var(--shadow-glass);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.card.glass:hover { transform: translateY(-6px); box-shadow: 0 32px 72px rgba(0,0,0,0.42); }
+.card.glass .label { color: rgba(255,255,255,0.6); }
+.card.glass h3 { color: #fff; }
+.card.glass p { color: rgba(255,255,255,0.72); }
+
+/* Mood image — gradient placeholder per concept */
+.moodimg {
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  position: relative;
+  background: #2a2a2a;
+}
+.moodimg.exterior {
+  background:
+    radial-gradient(circle at 75% 30%, rgba(184,153,104,0.4), transparent 60%),
+    radial-gradient(circle at 20% 80%, rgba(30,81,40,0.5), transparent 60%),
+    linear-gradient(160deg, #1a1a1a 0%, #0a0a0a 100%);
+}
+.moodimg.interior {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(217,198,165,0.45), transparent 55%),
+    radial-gradient(circle at 80% 80%, rgba(40,40,40,0.4), transparent 60%),
+    linear-gradient(135deg, #3a3530 0%, #1f1c18 100%);
+}
+.moodimg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none;
+}
+.moodimg .stamp {
+  position: absolute;
+  bottom: 16px; left: 16px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  padding: 7px 12px;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.moodimg .stamp .dot { color: var(--moss-2); margin-right: 4px; }
+
+/* Color palette chips */
+.palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.04em;
+}
+.swatch .blk {
+  width: 56px; height: 56px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.swatch .nm { font-weight: 500; color: rgba(255,255,255,0.85); }
+.swatch .hex { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10px; }
+
+/* Concept tag row */
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+.tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* =========================================================================
+   FLOORPLAN — CSS GRID VIZ
+   ========================================================================= */
+.floorplan {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/2.6;
+  background: #fff;
+  border: 1px dashed var(--border-2);
+  border-radius: 8px;
+  margin: 16px 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr;
+  grid-template-rows: 1fr 1fr 0.5fr;
+  gap: 6px;
+  padding: 14px;
+}
+.zone {
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 10.5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-weight: 500;
+  position: relative;
+  transition: all 260ms var(--ease);
+}
+.zone .num {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--text-3);
+}
+.zone .nm {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+.zone:hover { transform: scale(1.02); z-index: 1; }
+.zone.z1 { background: rgba(30,81,40,0.10); grid-column: 1; grid-row: 1; }
+.zone.z2 { background: rgba(0,0,0,0.05); grid-column: 2; grid-row: 1 / span 2; border: 1px solid rgba(0,0,0,0.06); }
+.zone.z3 { background: rgba(184,153,104,0.18); grid-column: 3; grid-row: 1; }
+.zone.z4 { background: rgba(30,81,40,0.05); grid-column: 1; grid-row: 2; }
+.zone.z5 { background: rgba(0,0,0,0.04); grid-column: 3; grid-row: 2; }
+.zone.z6 { background: #111; color: #fff; grid-column: 1 / span 3; grid-row: 3; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 16px; }
+.zone.z6 .nm { color: #fff; }
+.zone.z6 .num { color: rgba(255,255,255,0.4); }
+
+/* Floor list */
+.floor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 8px;
+}
+.floor-list li {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  align-items: baseline;
+}
+.floor-list li:last-child { border-bottom: 0; }
+.floor-list .ord {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--moss);
+  letter-spacing: 0.04em;
+}
+.floor-list .nm { color: var(--text); font-weight: 500; }
+.floor-list .desc { color: var(--text-2); font-size: 12px; }
+
+/* ----- POWERED BY GEMINI — callout band above moodboards ----- */
+.gemini-band {
+  position: relative;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(184,153,104,0.22), transparent 55%),
+    radial-gradient(circle at 90% 80%, rgba(30,81,40,0.32), transparent 55%),
+    linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  border-radius: 18px;
+  padding: 36px;
+  color: #fff;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-glass);
+}
+.gemini-band::before {
+  content: "";
+  position: absolute; top: -30%; right: -10%;
+  width: 380px; height: 380px;
+  background: conic-gradient(from 220deg, rgba(184,153,104,0.18), rgba(30,81,40,0.20), rgba(217,198,165,0.16), rgba(184,153,104,0.18));
+  filter: blur(60px);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: spin-slow 24s linear infinite;
+}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.gemini-band > * { position: relative; z-index: 1; }
+.gemini-band .left .eb {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: #D9C6A5;
+  margin-bottom: 12px;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.gemini-band .left .eb .gem {
+  width: 14px; height: 14px;
+  background: conic-gradient(from 0deg, #4285F4, #9B72CB, #D96570, #F9AB00, #4285F4);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(155,114,203,0.6);
+}
+.gemini-band .left h3 {
+  font-size: 30px; font-weight: 500;
+  line-height: 1.12; letter-spacing: -0.02em;
+  color: #fff;
+}
+.gemini-band .left h3 .it { font-style: italic; color: #D9C6A5; font-weight: 400; }
+.gemini-band .left p {
+  margin-top: 16px;
+  font-size: 14px; line-height: 1.7;
+  color: rgba(255,255,255,0.78);
+  max-width: 540px;
+}
+.gemini-band .left p strong { color: #fff; font-weight: 600; }
+.gemini-band .left .switch {
+  margin-top: 18px;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  font-size: 11.5px; color: rgba(255,255,255,0.85);
+  font-weight: 500; letter-spacing: 0.04em;
+}
+.gemini-band .left .switch .from { color: rgba(255,255,255,0.45); text-decoration: line-through; }
+.gemini-band .left .switch .arrow { color: rgba(255,255,255,0.4); }
+.gemini-band .left .switch .to { color: #D9C6A5; font-weight: 600; }
+
+.gemini-band .right {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.gem-feat {
+  padding: 18px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: all 220ms var(--ease);
+}
+.gem-feat:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+  transform: translateY(-2px);
+}
+.gem-feat .ic {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(184,153,104,0.3), rgba(30,81,40,0.4));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.gem-feat .ttl {
+  font-size: 12.5px; font-weight: 600; color: #fff;
+  letter-spacing: -0.005em;
+}
+.gem-feat .ds {
+  font-size: 11px; line-height: 1.5;
+  color: rgba(255,255,255,0.62);
+}
+
+/* =========================================================================
+   MOODBOARD COLLAGE — magazine-style asymmetric layout
+   ========================================================================= */
+.moodboard-section {
+  background: #FBFAF7;
+  border-radius: 18px;
+  padding: 32px 32px 28px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  position: relative;
+}
+.mb-header { margin-bottom: 24px; max-width: 720px; }
+.mb-header .mb-eb {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 12px;
+}
+.mb-header .mb-eb .star { color: var(--moss); }
+.mb-header h3 {
+  font-size: 30px; font-weight: 500;
+  line-height: 1.12; letter-spacing: -0.02em;
+  color: var(--text);
+}
+.mb-header h3 .it { font-style: italic; color: var(--moss); font-weight: 400; }
+.mb-header p {
+  font-size: 13.5px; line-height: 1.65;
+  color: var(--text-2); margin-top: 10px;
+  max-width: 600px;
+}
+
+.moodboard-canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 11/9.5;
+  min-height: 420px;
+}
+
+/* ----- NEW: Editorial moodboard grid (replaces absolute-positioned canvas) ----- */
+.mb-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+  aspect-ratio: 16/11;
+  min-height: 520px;
+}
+/* Layout map — magazine spread:
+   ┌──────────────┬────────┬────────┐
+   │              │ AERIAL │        │
+   │     HERO     ├────────┤ ATRIUM │
+   │              │  VMD   │        │
+   ├──────┬───────┴────────┴────────┤
+   │ INT  │         MODEL           │
+   └──────┴─────────────────────────┘  */
+.c-hero     { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+.c-aerial   { grid-column: 3 / span 1; grid-row: 1 / span 1; }
+.c-atrium   { grid-column: 4 / span 1; grid-row: 1 / span 2; }
+.c-vmd      { grid-column: 3 / span 1; grid-row: 2 / span 1; }
+.c-interior { grid-column: 1 / span 1; grid-row: 3 / span 1; }
+.c-model    { grid-column: 2 / span 3; grid-row: 3 / span 1; }
+
+.mb-cell {
+  position: relative;
+  margin: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(184,153,104,0.10), transparent 55%),
+    radial-gradient(circle at 75% 70%, rgba(31,61,44,0.08), transparent 55%),
+    linear-gradient(135deg, #ECE8DF 0%, #D9D3C5 100%);
+  cursor: zoom-in;
+  transition: transform 360ms var(--ease-luxe), box-shadow 360ms var(--ease-luxe), z-index 0s;
+}
+.mb-cell:hover {
+  transform: translateY(-2px) scale(1.01);
+  z-index: 5;
+  box-shadow: 0 18px 40px rgba(41,38,27,0.18);
+}
+.mb-cell .tile-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-luxe), transform 1200ms var(--ease-luxe);
+  z-index: 2;
+}
+.mb-cell .tile-img.loaded { opacity: 1; }
+.mb-cell:hover .tile-img.loaded { transform: scale(1.03); }
+.mb-cell .tile-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    110deg,
+    rgba(255,255,255,0.05) 20%,
+    rgba(255,255,255,0.22) 40%,
+    rgba(255,255,255,0.05) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.2s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+.mb-cell.has-image .tile-shimmer { display: none; }
+
+/* Caption — magazine-style, bottom-left over a soft gradient scrim */
+.mb-cell figcaption {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 4;
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 14px 14px 12px;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%);
+  color: #fff;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+  pointer-events: none;
+}
+.mb-cell.has-image figcaption,
+.mb-cell:hover figcaption {
+  opacity: 1;
+  transform: translateY(0);
+}
+.mb-cell figcaption .cap-n {
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  font-variant-numeric: tabular-nums;
+}
+.mb-cell figcaption .cap-t {
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.16em;
+}
+
+/* Palette strip — clean horizontal bars under the grid */
+.mb-palette-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  margin-top: 14px;
+  height: 28px;
+}
+.mb-palette-strip[hidden] { display: none; }
+.mb-palette-strip .bar {
+  border-radius: 2px;
+  border: 1px solid rgba(41,38,27,0.08);
+}
+
+/* =========================================================================
+   CHAPTERS — magazine editorial moodboard, divided into Exterior · Interior
+   · Ambassador. Each chapter has its own asymmetric canvas, italic serif
+   annotations, and palette bars.
+   ========================================================================= */
+.mb-chapter {
+  margin-top: 56px;
+  padding-top: 36px;
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+.mb-chapter:first-of-type {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.ch-head {
+  margin-bottom: 26px;
+  max-width: 640px;
+}
+.ch-num {
+  display: inline-block;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--moss);
+  margin-bottom: 10px;
+}
+.ch-head h3 {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: var(--text);
+  line-height: 1.1;
+}
+.ch-head h3 em {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--moss);
+  margin-left: 4px;
+  font-size: 30px;
+}
+.ch-head p {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
+  letter-spacing: 0.005em;
+}
+
+.ch-canvas {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+.ch-canvas .mb-cell { min-height: 180px; }
+
+/* ----- EXTERIOR canvas — hero landscape · vertical atrium · detail · annot ----- */
+.ch-canvas-ext {
+  grid-template-columns: 1.5fr 0.9fr 1fr;
+  grid-template-rows: 1.5fr 0.55fr 0.55fr;
+  min-height: 560px;
+}
+.ch-canvas-ext .mb-cell[data-slot="ext_hero"]   { grid-column: 1;        grid-row: 1; }
+.ch-canvas-ext .mb-cell[data-slot="ext_atrium"] { grid-column: 3;        grid-row: 1 / span 3; }
+.ch-canvas-ext .mb-cell[data-slot="ext_detail"] { grid-column: 2;        grid-row: 1; }
+.ch-canvas-ext .ch-annot-a                       { grid-column: 1;        grid-row: 2; }
+.ch-canvas-ext .ch-annot-b                       { grid-column: 2;        grid-row: 2; }
+.ch-canvas-ext .ch-palette                       { grid-column: 1 / span 2; grid-row: 3; }
+
+/* ----- INTERIOR canvas — material tall · vista wide · VMD tall ----- */
+.ch-canvas-int {
+  grid-template-columns: 0.85fr 1.35fr 0.85fr;
+  grid-template-rows: 1.4fr 0.55fr 0.55fr;
+  min-height: 540px;
+}
+.ch-canvas-int .mb-cell[data-slot="int_material"] { grid-column: 1; grid-row: 1; }
+.ch-canvas-int .mb-cell[data-slot="int_vista"]    { grid-column: 2; grid-row: 1; }
+.ch-canvas-int .mb-cell[data-slot="int_vmd"]      { grid-column: 3; grid-row: 1 / span 3; }
+.ch-canvas-int .ch-annot-a                         { grid-column: 1; grid-row: 2; }
+.ch-canvas-int .ch-annot-b                         { grid-column: 2; grid-row: 2; }
+.ch-canvas-int .ch-palette                         { grid-column: 1 / span 2; grid-row: 3; }
+
+/* ----- AMBASSADOR canvas — 4 editorial shots: beauty · half · full · detail ----- */
+.ch-canvas-amb {
+  grid-template-columns: 0.95fr 0.95fr 0.75fr 1.15fr;
+  grid-template-rows: 1.45fr 0.7fr 0.45fr 0.45fr;
+  min-height: 700px;
+}
+.ch-canvas-amb .mb-cell[data-slot="amb_beauty"] { grid-column: 1; grid-row: 1 / span 2; }
+.ch-canvas-amb .mb-cell[data-slot="amb_half"]   { grid-column: 2; grid-row: 1 / span 2; }
+.ch-canvas-amb .mb-cell[data-slot="amb_detail"] { grid-column: 3; grid-row: 1; }
+.ch-canvas-amb .mb-cell[data-slot="amb_full"]   { grid-column: 4; grid-row: 1 / span 2; }
+.ch-canvas-amb .ch-annot-a                       { grid-column: 3; grid-row: 2; align-self: end; }
+.ch-canvas-amb .ch-annot-b                       { grid-column: 1 / span 2; grid-row: 3; }
+.ch-canvas-amb .ch-palette                       { grid-column: 3 / span 2; grid-row: 3 / span 2; align-self: start; }
+
+/* ----- Annotations — italic serif, editorial Vogue-style ----- */
+.ch-annot {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--text-2);
+  letter-spacing: 0.005em;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--border-2);
+  max-width: 360px;
+  align-self: start;
+  position: relative;
+}
+.ch-annot::before {
+  content: "";
+  position: absolute;
+  top: -1px; left: 0;
+  width: 18px; height: 1px;
+  background: var(--moss);
+}
+
+/* ----- Per-chapter palette bars (column layout, varied widths) ----- */
+.ch-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 6px 0;
+  align-self: end;
+}
+.ch-palette .bar {
+  display: block;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--text);
+  border: 1px solid rgba(41,38,27,0.06);
+}
+.ch-palette .bar:nth-child(1) { width: 72%; }
+.ch-palette .bar:nth-child(2) { width: 92%; }
+.ch-palette .bar:nth-child(3) { width: 58%; }
+.ch-palette .bar:nth-child(4) { width: 84%; }
+.mb-connectors {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: visible;
+}
+.mb-connectors line {
+  stroke: #B6B0A4;
+  stroke-width: 0.13;
+  vector-effect: non-scaling-stroke;
+}
+.mb-connectors circle { fill: #6D6A60; }
+
+.mb-tile {
+  position: absolute;
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 2;
+  background-color: #ECE8DF;
+  transition: transform 320ms var(--ease), z-index 0s;
+}
+.mb-tile:hover { transform: scale(1.03); z-index: 5; }
+
+/* Gemini image fills tile when loaded; CSS gradient stays as fallback */
+.mb-tile > .tile-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-luxe);
+  z-index: 2;
+}
+.mb-tile > .tile-img.loaded { opacity: 1; }
+/* Shimmer placeholder over gradient while loading */
+.mb-tile > .tile-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    110deg,
+    rgba(255,255,255,0.04) 20%,
+    rgba(255,255,255,0.18) 40%,
+    rgba(255,255,255,0.04) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+.mb-tile.has-image > .tile-shimmer { display: none; }
+/* Suppress decorative ::after / child overlays once Gemini image arrives */
+.mb-tile.has-image::after { display: none; }
+.mb-tile.has-image .prod-bottle,
+.mb-tile.has-image .prod-label { display: none; }
+/* Subtle warm tint overlay to keep editorial mood when images are loaded */
+.mb-tile.has-image::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(41,38,27,0) 60%, rgba(41,38,27,0.18) 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.mb-label {
+  position: absolute;
+  z-index: 3;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--text-2);
+  letter-spacing: -0.005em;
+  font-weight: 400;
+}
+
+/* ----- Tile renderings (gradient placeholders) ----- */
+.t1-ceramic {
+  background: radial-gradient(circle at 50% 60%, #ECE6D6, #D2CCBC 60%, #B0AB9F 100%);
+}
+.t1-ceramic::after {
+  content: ""; position: absolute;
+  left: 28%; bottom: 18%; width: 44%; height: 50%;
+  border: 1px solid rgba(0,0,0,0.55);
+  border-radius: 50% 50% 4px 4px;
+}
+.t2-copper {
+  background:
+    radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.15), transparent 60%),
+    linear-gradient(180deg, #F0A269 0%, #C46A33 35%, #5C2A1A 75%, #2A140D 100%);
+}
+.t3-bw-prod {
+  background: linear-gradient(160deg, #4A4A4A 0%, #1F1F1F 60%, #0A0A0A 100%);
+  display: flex; align-items: center; justify-content: center;
+}
+.t3-bw-prod::before {
+  content: "ATELIER";
+  position: absolute; top: 42%;
+  font-size: 7px; color: rgba(255,255,255,0.78);
+  letter-spacing: 0.32em; font-weight: 500;
+}
+.t3-bw-prod::after {
+  content: ""; position: absolute;
+  left: 28%; top: 14%; width: 44%; height: 72%;
+  background: radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.18), transparent 65%);
+  border-radius: 50% 50% 14% 14%;
+}
+.t4-model {
+  background:
+    radial-gradient(circle at 35% 38%, #6B4A2A, transparent 55%),
+    radial-gradient(circle at 72% 28%, #3A251A, transparent 50%),
+    linear-gradient(135deg, #8A6E4A 0%, #2A1A10 80%);
+}
+.t4-model::after {
+  content: ""; position: absolute;
+  right: 20%; top: 32%; width: 14%; height: 10%;
+  background: radial-gradient(circle, #C8A165 30%, #8A6E4A 70%);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(184,153,104,0.55);
+}
+.t5-flower {
+  background:
+    radial-gradient(ellipse at 28% 38%, #C73E3A 4%, rgba(199,62,58,0.55) 14%, transparent 28%),
+    radial-gradient(ellipse at 62% 60%, #E89B5D 6%, rgba(232,155,93,0.5) 18%, transparent 32%),
+    radial-gradient(ellipse at 80% 30%, #F4ECE0 8%, transparent 30%),
+    linear-gradient(135deg, #E8DBC5 0%, #B89968 100%);
+  filter: blur(0.4px);
+}
+.t6-strip {
+  background:
+    repeating-linear-gradient(180deg,
+      #5C2A1A 0px, #8A4520 4px, #C46A33 8px, #8A4520 12px,
+      #5C2A1A 16px, #2A140D 20px, #5C2A1A 24px);
+  filter: blur(0.6px);
+}
+.t7-word {
+  background: #F4ECE0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-2);
+}
+.t7-word .wm-text {
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  font-size: clamp(16px, 2.4vw, 30px);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  color: #0A0A0A;
+  line-height: 0.9;
+}
+.t8-silk {
+  background:
+    radial-gradient(ellipse at 50% 30%, #E89B5D 8%, #C46A33 30%, transparent 60%),
+    radial-gradient(ellipse at 30% 70%, rgba(92,42,26,0.7) 10%, transparent 40%),
+    linear-gradient(135deg, #2A140D, #5C2A1A);
+}
+.t9-grain {
+  background:
+    radial-gradient(circle at 25% 50%, #6B5944 3%, transparent 18%),
+    radial-gradient(circle at 65% 28%, #5C4A3A 4%, transparent 20%),
+    radial-gradient(circle at 50% 70%, #7B6B54 3%, transparent 18%),
+    radial-gradient(circle at 18% 22%, #4A3A2A 5%, transparent 22%),
+    radial-gradient(circle at 82% 82%, #8A7864 4%, transparent 22%),
+    #3D3025;
+  filter: blur(0.5px) contrast(1.1);
+}
+.t10-product {
+  background: #E8DBC5;
+}
+.t10-product .prod-bottle {
+  position: absolute;
+  width: 26%; height: 70%;
+  background: linear-gradient(180deg, #1A0A04 0%, #4A1F0A 50%, #2A140D 100%);
+  transform: rotate(-14deg);
+  top: 14%; left: 38%;
+  border-radius: 2px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.32);
+}
+.t10-product .prod-label {
+  position: absolute;
+  bottom: 12%; right: 12%;
+  font-size: 8px; font-weight: 600;
+  letter-spacing: 0.28em;
+  color: rgba(0,0,0,0.5);
+}
+
+.mb-palette {
+  position: absolute;
+  z-index: 2;
+  display: flex; flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  padding-left: 6%;
+}
+.mb-palette .bar {
+  display: block;
+  height: 11%;
+  min-height: 8px;
+  border-radius: 1px;
+}
+
+.mb-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.mb-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-pill {
+  font-size: 11px; font-weight: 500;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  letter-spacing: 0.02em;
+  border: 1px solid var(--border);
+}
+.mb-foot-note {
+  font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.02em;
+}
+
+/* ----- LARGE MOODBOARD CARDS (full-width, image-prominent) ----- */
+.mood-large {
+  background: linear-gradient(135deg, rgba(40,40,40,0.95), rgba(15,15,15,1));
+  border-radius: 18px;
+  overflow: hidden;
+  color: #fff;
+  box-shadow: var(--shadow-glass);
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  min-height: 460px;
+  transition: all 360ms var(--ease);
+}
+.mood-large:hover { transform: translateY(-4px); box-shadow: 0 36px 80px rgba(0,0,0,0.42); }
+.mood-large .img-area {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+.mood-large .img-area::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(to right, transparent 60%, rgba(15,15,15,0.4) 100%);
+  pointer-events: none;
+}
+.mood-large.exterior .img-area {
+  background:
+    radial-gradient(circle at 70% 30%, rgba(184,153,104,0.5), transparent 60%),
+    radial-gradient(circle at 20% 80%, rgba(30,81,40,0.55), transparent 60%),
+    linear-gradient(160deg, #1a1a1a 0%, #050505 100%);
+}
+.mood-large.interior .img-area {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(217,198,165,0.55), transparent 55%),
+    radial-gradient(circle at 75% 75%, rgba(60,40,30,0.55), transparent 60%),
+    linear-gradient(135deg, #3a3530 0%, #1a1612 100%);
+}
+.mood-large .img-area .stamp {
+  position: absolute; top: 20px; left: 20px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.9);
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.mood-large .img-area .stamp .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--moss-2);
+  animation: pulse 2.4s infinite;
+}
+.mood-large .img-area .shotno {
+  position: absolute; bottom: 20px; left: 20px;
+  font-size: 56px; font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  color: rgba(255,255,255,0.85);
+  line-height: 0.9;
+}
+.mood-large .img-area .shotno .of {
+  font-size: 14px; color: rgba(255,255,255,0.45);
+  margin-left: 6px;
+}
+.mood-large .body {
+  padding: 32px;
+  display: flex; flex-direction: column; gap: 18px;
+  justify-content: space-between;
+}
+.mood-large .body .label {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+}
+.mood-large .body .label .star { color: #B8C9A8; }
+.mood-large .body h3 {
+  font-size: 28px; font-weight: 500;
+  line-height: 1.1; letter-spacing: -0.02em;
+  color: #fff;
+}
+.mood-large .body p {
+  font-size: 14px; line-height: 1.65;
+  color: rgba(255,255,255,0.72);
+}
+.mood-large .tag-row { margin-top: 4px; }
+.mood-large .palette { margin-top: 0; padding-top: 18px; }
+
+/* =========================================================================
+   BM TABLE
+   ========================================================================= */
+.bm-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.bm-table thead th {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  text-align: left;
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--text);
+}
+.bm-table thead th:last-child, .bm-table tbody td:last-child { text-align: right; padding-right: 0; }
+.bm-table tbody td {
+  padding: 14px 12px 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+  vertical-align: middle;
+}
+.bm-table tbody tr:last-child td { border-bottom: 0; }
+.bm-table tbody tr:hover td { background: rgba(0,0,0,0.015); }
+.bm-table .name { font-weight: 500; }
+.bm-table .desc { font-size: 12px; color: var(--text-2); }
+.bm-table .amt {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+.bm-table .share { color: var(--moss); font-weight: 600; font-variant-numeric: tabular-nums; }
+.bm-table tfoot td {
+  padding: 18px 12px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  border-top: 2px solid var(--text);
+}
+
+/* Concept summary card (above results) */
+.summary {
+  background: linear-gradient(135deg, rgba(60,60,60,0.95), rgba(15,15,15,1));
+  color: #fff;
+  border-radius: 16px;
+  padding: 36px;
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 32px;
+  align-items: center;
+  box-shadow: var(--shadow-glass);
+}
+.summary .left .eb {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.summary .left .eb .moss { color: #B8C9A8; }
+.summary .left h2 {
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+.summary .left h2 .it { font-style: italic; font-weight: 400; color: #D9C6A5; }
+.summary .left p {
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.72);
+  max-width: 460px;
+}
+.summary .right {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 22px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+}
+.summary .stat .lab {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 6px;
+}
+.summary .stat .v {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.summary .stat .v .u { font-size: 13px; color: rgba(255,255,255,0.5); margin-left: 3px; font-weight: 400; }
+.summary .stat .delta { font-size: 11px; color: #B8C9A8; margin-top: 3px; font-weight: 500; }
+
+/* =========================================================================
+   KEYWORD CHIPS + CURATOR VOICE — Gemini-generated editorial accents
+   shared by Summary card and Hero Render card.
+   ========================================================================= */
+.kw-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 14px;
+}
+.kw-row:empty { display: none; }
+.kw-row .kw {
+  font-size: 11px; font-weight: 500;
+  padding: 5px 11px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.88);
+  border: 1px solid rgba(255,255,255,0.14);
+  white-space: nowrap;
+}
+.kw-row.dark .kw {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.88);
+  border-color: rgba(255,255,255,0.14);
+}
+.curator-voice {
+  margin-top: 12px;
+  font-size: 12.5px;
+  font-style: italic;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.62);
+  letter-spacing: 0.005em;
+}
+.curator-voice:empty { display: none; }
+.curator-voice::before {
+  content: "— ";
+  color: rgba(255,255,255,0.42);
+}
+
+/* =========================================================================
+   HERO RENDER CARD — Gemini Image Track output
+   ========================================================================= */
+.hero-render {
+  background: linear-gradient(135deg, rgba(41,38,27,0.92), rgba(31,61,44,0.86));
+  backdrop-filter: saturate(140%) blur(22px);
+  -webkit-backdrop-filter: saturate(140%) blur(22px);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-glass);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+.hero-render .img-area {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(184,153,104,0.18), transparent 55%),
+    radial-gradient(circle at 75% 70%, rgba(217,198,165,0.12), transparent 55%),
+    linear-gradient(135deg, #2a2620 0%, #14110b 100%);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.hero-render .img-area img {
+  width: 100%; height: 100%; object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 520ms var(--ease-luxe);
+}
+.hero-render .img-area img.loaded { opacity: 1; }
+.hero-render .img-area .ph-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    110deg,
+    rgba(255,255,255,0.03) 20%,
+    rgba(255,255,255,0.10) 40%,
+    rgba(255,255,255,0.03) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+.hero-render .img-area img.loaded ~ .ph-shimmer { display: none; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.hero-render .img-area .stamp {
+  position: absolute; top: 16px; left: 16px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.9);
+  padding: 7px 12px;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  z-index: 2;
+}
+.hero-render .img-area .stamp .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--moss-2);
+  animation: pulse 2.4s infinite;
+}
+.hero-render .body {
+  display: flex; flex-direction: column; gap: 14px;
+  justify-content: center;
+}
+.hero-render .body .eb {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: #D9C6A5;
+}
+.hero-render .body .eb .gem {
+  width: 12px; height: 12px;
+  background: conic-gradient(from 0deg, #4285F4, #9B72CB, #D96570, #F9AB00, #4285F4);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(155,114,203,0.5);
+}
+.hero-render .body h3 {
+  font-size: 28px; font-weight: 500;
+  line-height: 1.12; letter-spacing: -0.02em;
+  color: #fff;
+}
+.hero-render .body h3 .it { font-style: italic; color: #D9C6A5; font-weight: 400; }
+.hero-render .body p {
+  font-size: 13.5px; line-height: 1.65;
+  color: rgba(255,255,255,0.74);
+}
+.hero-render .body .api-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.04em;
+  align-self: flex-start;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* =========================================================================
+   GEMINI INSIGHTS — Strategy JSON output rendered inside BM card
+   ========================================================================= */
+.gemini-insights {
+  margin-top: 8px;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.gemini-insights .ig-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--moss);
+}
+.gemini-insights .ig-head .gem {
+  width: 10px; height: 10px;
+  background: conic-gradient(from 0deg, #4285F4, #9B72CB, #D96570, #F9AB00, #4285F4);
+  border-radius: 50%;
+}
+.gemini-insights .ig-row { margin-bottom: 12px; }
+.gemini-insights .ig-row:last-child { margin-bottom: 0; }
+.gemini-insights .ig-k {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+.gemini-insights .ig-v {
+  font-size: 13px; line-height: 1.6;
+  color: var(--text);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.gemini-insights ol {
+  list-style: none; margin: 0; padding: 0;
+}
+.gemini-insights ol li {
+  display: grid; grid-template-columns: 28px 1fr; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.55;
+  align-items: baseline;
+}
+.gemini-insights ol li:last-child { border-bottom: 0; }
+.gemini-insights ol li .ord {
+  font-size: 10.5px; font-weight: 600;
+  color: var(--moss);
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+.gemini-insights .ig-empty {
+  font-size: 12px; color: var(--text-3); font-style: italic;
+}
+
+/* =========================================================================
+   FAQ
+   ========================================================================= */
+.faq { padding: 100px 0 120px; border-top: 1px solid var(--border); }
+.faq h2 {
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin-bottom: 48px;
+  max-width: 700px;
+}
+.faq h2 em { font-style: italic; color: var(--moss); }
+.faq-list { border-top: 1px solid var(--text); }
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+.faq-q {
+  width: 100%;
+  text-align: left;
+  padding: 26px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  transition: color 220ms var(--ease);
+}
+.faq-q:hover { color: var(--moss); }
+.faq-q .icon {
+  width: 24px; height: 24px;
+  border: 1px solid var(--text);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 400;
+  flex-shrink: 0;
+  transition: all 260ms var(--ease);
+}
+.faq-item.open .faq-q .icon {
+  background: var(--text);
+  color: #fff;
+  transform: rotate(45deg);
+}
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 360ms var(--ease-luxe);
+}
+.faq-a-inner {
+  padding: 0 48px 28px 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-2);
+  max-width: 720px;
+}
+.faq-a-inner .moss { color: var(--moss); font-weight: 600; }
+.faq-item.open .faq-a { max-height: 220px; }
+
+/* =========================================================================
+   FOOTER
+   ========================================================================= */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 48px 0 40px;
+}
+footer .ft-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+footer .ft-row .copy {
+  font-size: 12px;
+  color: var(--text-2);
+}
+footer .ft-row .links {
+  display: flex;
+  gap: 28px;
+  font-size: 12px;
+}
+footer .ft-row .links a {
+  color: var(--text-2);
+  transition: color 200ms var(--ease);
+}
+footer .ft-row .links a:hover { color: var(--text); }
+
+/* =========================================================================
+   PDF EXPORT MODE — html2canvas can't render backdrop-filter, so replace
+   glass surfaces with solid gradients and force clean page breaks.
+   ========================================================================= */
+body.pdf-export { background: var(--paper) !important; }
+body.pdf-export nav.nav,
+body.pdf-export .hero,
+body.pdf-export .generating,
+body.pdf-export footer,
+body.pdf-export .results-head .actions { display: none !important; }
+body.pdf-export .results { padding: 0 !important; }
+body.pdf-export .results-head { margin-bottom: 18px; }
+body.pdf-export .summary,
+body.pdf-export .hero-render,
+body.pdf-export .gen-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body.pdf-export .mb-cell figcaption {
+  opacity: 1 !important;
+  transform: none !important;
+}
+body.pdf-export .mb-cell .tile-shimmer { display: none !important; }
+body.pdf-export .summary,
+body.pdf-export .hero-render,
+body.pdf-export .moodboard-section,
+body.pdf-export .card {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+body.pdf-export .moodboard-section { page-break-before: auto; }
+body.pdf-export .grid-2            { page-break-before: auto; }
+
+/* PDF cover sheet — injected dynamically before capture */
+.pdf-cover {
+  display: none;
+  padding: 60px 48px;
+  background: linear-gradient(160deg, #29261B 0%, #1F3D2C 100%);
+  color: #fff;
+  border-radius: 0;
+  margin-bottom: 24px;
+  page-break-after: always;
+}
+body.pdf-export .pdf-cover { display: block; }
+.pdf-cover .pc-eb {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.32em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 18px;
+}
+.pdf-cover .pc-eb .star { color: #D9C6A5; margin-right: 8px; }
+.pdf-cover .pc-mark {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 30px;
+}
+.pdf-cover h1 {
+  font-size: 48px; font-weight: 500;
+  line-height: 1.08; letter-spacing: -0.025em;
+  margin-bottom: 18px;
+}
+.pdf-cover h1 .it { font-style: italic; color: #D9C6A5; font-weight: 400; }
+.pdf-cover .pc-deck {
+  font-size: 15px; line-height: 1.65;
+  color: rgba(255,255,255,0.78);
+  max-width: 560px;
+}
+.pdf-cover .pc-meta {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 28px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.pdf-cover .pc-meta .k {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 4px;
+}
+.pdf-cover .pc-meta .v {
+  font-size: 14px; font-weight: 500;
+  color: #fff;
+  letter-spacing: -0.005em;
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+@media (max-width: 980px) {
+  :root { --pad: 24px; }
+  nav.nav .inner { grid-template-columns: 1fr auto; }
+  nav.nav .menu { display: none; }
+  .hero { padding: 64px 0 48px; }
+  .input-panel { padding: 24px; }
+  .input-grid { grid-template-columns: 1fr; }
+  .tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+  .tabs button { white-space: nowrap; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .mood-large { grid-template-columns: 1fr !important; min-height: 0; }
+  .mood-large .img-area { aspect-ratio: 16/10; }
+  .gemini-band { grid-template-columns: 1fr; padding: 24px; gap: 20px; }
+  .gemini-band .right { grid-template-columns: 1fr 1fr; }
+  .gemini-band .left h3 { font-size: 22px; }
+  .moodboard-section { padding: 20px; }
+  .moodboard-canvas { aspect-ratio: 1/1.2; min-height: 520px; }
+  .mb-label { font-size: 9.5px; }
+  .mb-header h3 { font-size: 22px; }
+  /* Editorial grid → 2-col stack on mobile (legacy + per-chapter) */
+  .mb-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(6, minmax(160px, auto));
+    aspect-ratio: auto;
+    min-height: 0;
+    gap: 10px;
+  }
+  .c-hero     { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+  .c-aerial   { grid-column: 1 / span 1; grid-row: 3; }
+  .c-atrium   { grid-column: 2 / span 1; grid-row: 3 / span 2; }
+  .c-vmd      { grid-column: 1 / span 1; grid-row: 4; }
+  .c-interior { grid-column: 1 / span 1; grid-row: 5; }
+  .c-model    { grid-column: 1 / span 2; grid-row: 6; }
+  .mb-cell figcaption { font-size: 9.5px; padding: 10px 10px 8px; }
+
+  /* CHAPTER mobile — 2-col stacked tiles + annotations below */
+  .mb-chapter { margin-top: 36px; padding-top: 24px; }
+  .ch-head h3 { font-size: 22px; }
+  .ch-head h3 em { font-size: 23px; }
+
+  .ch-canvas-ext, .ch-canvas-int, .ch-canvas-amb {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-auto-rows: minmax(160px, auto);
+    min-height: 0;
+  }
+  .ch-canvas-ext .mb-cell[data-slot="ext_hero"]   { grid-column: 1 / span 2; grid-row: auto; }
+  .ch-canvas-ext .mb-cell[data-slot="ext_detail"] { grid-column: 1; grid-row: auto; }
+  .ch-canvas-ext .mb-cell[data-slot="ext_atrium"] { grid-column: 2; grid-row: auto; min-height: 320px; }
+  .ch-canvas-ext .ch-annot-a, .ch-canvas-ext .ch-annot-b { grid-column: 1 / span 2; }
+  .ch-canvas-ext .ch-palette { grid-column: 1 / span 2; }
+
+  .ch-canvas-int .mb-cell[data-slot="int_material"] { grid-column: 1; grid-row: auto; }
+  .ch-canvas-int .mb-cell[data-slot="int_vista"]    { grid-column: 2; grid-row: auto; }
+  .ch-canvas-int .mb-cell[data-slot="int_vmd"]      { grid-column: 1 / span 2; grid-row: auto; min-height: 240px; }
+  .ch-canvas-int .ch-annot-a, .ch-canvas-int .ch-annot-b { grid-column: 1 / span 2; }
+  .ch-canvas-int .ch-palette { grid-column: 1 / span 2; }
+
+  .ch-canvas-amb .mb-cell[data-slot="amb_beauty"] { grid-column: 1; grid-row: auto; }
+  .ch-canvas-amb .mb-cell[data-slot="amb_half"]   { grid-column: 2; grid-row: auto; }
+  .ch-canvas-amb .mb-cell[data-slot="amb_detail"] { grid-column: 1; grid-row: auto; }
+  .ch-canvas-amb .mb-cell[data-slot="amb_full"]   { grid-column: 2; grid-row: auto; }
+  .ch-canvas-amb .ch-annot-a, .ch-canvas-amb .ch-annot-b { grid-column: 1 / span 2; }
+  .ch-canvas-amb .ch-palette { grid-column: 1 / span 2; }
+
+  .ch-annot { font-size: 14px; max-width: 100%; }
+  .amb-grid { grid-template-columns: repeat(2, 1fr); }
+  .coll-row { grid-template-columns: 1fr; }
+  .input-section .sec-head { flex-wrap: wrap; }
+  .input-section .sec-head .pick { margin-left: 0; flex-basis: 100%; margin-top: 4px; }
+  .summary { grid-template-columns: 1fr; padding: 24px; gap: 20px; }
+  .summary .left h2 { font-size: 28px; }
+  .gen-card { grid-template-columns: 1fr; text-align: left; gap: 16px; padding: 28px; }
+  .gen-card .pct { font-size: 36px; }
+  .results-head { flex-direction: column; align-items: flex-start; }
+  .hero-render { grid-template-columns: 1fr; padding: 20px; gap: 18px; }
+  .hero-render .body h3 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<!-- =========================== NAV =========================== -->
+<nav class="nav">
+  <div class="shell inner">
+    <a href="#top" class="logo">
+      <span class="ko">메종 아틀리에</span>
+      <span class="en">Maison Atelier</span>
+    </a>
+    <div class="menu">
+      <a href="#why">Why Glow-up</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="actions">
+      <a href="#" class="btn btn-text">Sign in</a>
+      <a href="#join" class="btn btn-join">Join Now</a>
+    </div>
+  </div>
+</nav>
+
+<!-- =========================== HERO + INPUT =========================== -->
+<section class="hero" id="top">
+  <div class="shell">
+    <div class="top-meta">
+      <span class="dot"></span>
+      <span class="eyebrow" style="color: var(--moss)">AI · POP-UP · SPACE EXPERIENCE</span>
+      <span class="eyebrow">High-end Department Stores</span>
+    </div>
+
+    <h1>
+      Your appearance <span class="light">impacts</span><br>
+      your life in <span class="moss">many ways.</span>
+    </h1>
+
+    <p class="deck">
+      AI를 활용한 <strong>High-end 백화점 팝업 스토어</strong> 경험 설계 플랫폼. 이제 <strong style="color: var(--moss)">Google Gemini API</strong>로 전환 — 모델 · 히어로 상품 · 컴렉션을 선택하면 <strong>Gemini 2.5 Pro</strong>가 공간 컨셉 · 동선 · 개설 예산을 설계하고, <strong>Imagen 4</strong>가 대리석 · 조명 · 에지 디테일을 렌더링합니다. <strong>5분 안에 통합 기획안.</strong>
+    </p>
+
+    <!-- INPUT PANEL -->
+    <div class="input-panel" id="how">
+      <div class="input-head">
+        <h2>The Brief.</h2>
+        <span class="step">한 화면에서 · 세 가지를 선택</span>
+      </div>
+
+      <!-- ① 모델 / 앰배서더 -->
+      <div class="input-section">
+        <div class="sec-head">
+          <span class="num">① 모델 · 앰배서더</span>
+          <h3>누가 이 팝업의 얼굴인가.</h3>
+          <span class="pick">자유 입력 · <b id="pick-amb">정해인</b></span>
+        </div>
+
+        <div class="amb-input-row">
+          <div class="field" style="flex: 2 1 320px">
+            <label>앰배서더 이름 — 자유 입력</label>
+            <input id="ambInput" type="text" value="정해인"
+              placeholder="예: 정해인, 변우석, 한소희, NewJeans 민지, Jisoo …" autocomplete="off" />
+          </div>
+          <div class="field" style="flex: 1 1 240px">
+            <label>분위기 / 무드 — 자유 입력</label>
+            <input id="moodInput" type="text" value="Quiet Luxury — 정제된"
+              placeholder="예: Quiet Luxury, Editorial Minimal, Sculptural Monochrome…"
+              autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="suggest-row">
+          <span class="suggest-lab">앰배서더 추천 · 클릭하면 입력됩니다</span>
+          <div class="chip-row" id="ambSuggest">
+            <button class="chip" data-name="정해인" data-mood="jhi">정해인</button>
+            <button class="chip" data-name="김다미" data-mood="kdm">김다미</button>
+            <button class="chip" data-name="아이유" data-mood="iu">아이유</button>
+            <button class="chip" data-name="RM" data-mood="rm">RM</button>
+            <button class="chip" data-name="변우석" data-mood="jhi">변우석</button>
+            <button class="chip" data-name="차은우" data-mood="kdm">차은우</button>
+            <button class="chip" data-name="한소희" data-mood="iu">한소희</button>
+            <button class="chip" data-name="NewJeans 민지" data-mood="iu">NewJeans 민지</button>
+            <button class="chip" data-name="제니" data-mood="rm">제니</button>
+            <button class="chip" data-name="박서준" data-mood="rm">박서준</button>
+          </div>
+        </div>
+
+        <div class="suggest-row" style="margin-top: 12px">
+          <span class="suggest-lab">무드 추천 · 클릭하면 입력됩니다</span>
+          <div class="chip-row" id="moodSuggest">
+            <button class="chip" data-mood="jhi" data-text="Quiet Luxury — 정제된">Quiet Luxury</button>
+            <button class="chip" data-mood="kdm" data-text="Editorial Minimal — 모노크롬">Editorial Minimal</button>
+            <button class="chip" data-mood="iu"  data-text="Soft Romantic — 파스텔">Soft Romantic</button>
+            <button class="chip" data-mood="rm"  data-text="Bold Heritage — 흑단·모스">Bold Heritage</button>
+            <button class="chip" data-mood="rm"  data-text="Sculptural Monochrome — 조각적 단색">Sculptural Monochrome</button>
+            <button class="chip" data-mood="iu"  data-text="Bohemian Heritage — 보헤미안 헤리티지">Bohemian Heritage</button>
+            <button class="chip" data-mood="kdm" data-text="Avant-garde Editorial — 실험적 에디토리얼">Avant-garde Editorial</button>
+            <button class="chip" data-mood="jhi" data-text="Atelier Salon — 살롱풍 정적">Atelier Salon</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② 히어로 상품 -->
+      <div class="input-section">
+        <div class="sec-head">
+          <span class="num">② 히어로 상품</span>
+          <h3>무엇이 중심에 놓이는가.</h3>
+          <span class="pick">자유 입력 · <b id="pick-prod">Eau de Maison 100ml</b></span>
+        </div>
+
+        <!-- Free input — 상품명 + 카테고리 -->
+        <div class="amb-input-row">
+          <div class="field" style="flex: 2 1 320px">
+            <label>상품명 — 자유 입력</label>
+            <input id="prodInput" type="text" value="Eau de Maison 100ml"
+              placeholder="예: Eau de Maison 100ml, Atelier Tote · Calf, Carré Silk · Hanji …"
+              autocomplete="off" />
+          </div>
+          <div class="field" style="flex: 1 1 200px">
+            <label>카테고리</label>
+            <select id="prodCatSelect">
+              <option value="Fragrance">Fragrance · 향수</option>
+              <option value="Leather">Leather · 가죽</option>
+              <option value="Silk">Silk · 실크</option>
+              <option value="Jewelry">Jewelry · 주얼리</option>
+              <option value="Beauty">Beauty · 코스메틱</option>
+              <option value="Ready-to-Wear">Ready-to-Wear · 의류</option>
+              <option value="Eyewear">Eyewear · 아이웨어</option>
+              <option value="Watch">Watch · 시계</option>
+              <option value="Lifestyle">Lifestyle · 라이프스타일</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Free input — 재질 + 가격 -->
+        <div class="amb-input-row" style="margin-top: 10px">
+          <div class="field" style="flex: 2 1 280px">
+            <label>재질 / 마감 — 자유 입력</label>
+            <input id="prodMatInput" type="text" value="Glass · Brushed Brass"
+              placeholder="예: Calf Leather · Walnut Handle"
+              autocomplete="off" />
+          </div>
+          <div class="field" style="flex: 1 1 160px">
+            <label>가격대 — KRW</label>
+            <input id="prodPriceInput" type="text" value="₩220,000"
+              placeholder="예: ₩2,400,000"
+              autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Suggestion list — clicking populates the inputs above -->
+        <div class="suggest-row">
+          <span class="suggest-lab">추천 · 클릭하면 입력됩니다</span>
+          <div class="prod-list" id="prodList">
+            <button class="prod-row active" data-prod="perfume" data-name="Eau de Maison 100ml"
+              data-cat="Fragrance" data-price="₩220,000" data-mat="Glass · Brushed Brass">
+              <div>
+                <div class="l-name">Eau de Maison 100ml</div>
+                <div class="l-sub">Fragrance · No.3 · Glass + Brass</div>
+              </div>
+              <div class="price">₩220,000</div>
+              <div class="radio"></div>
+            </button>
+            <button class="prod-row" data-prod="bag" data-name="Atelier Tote · Calf"
+              data-cat="Leather" data-price="₩2,400,000" data-mat="Calf Leather · Walnut Handle">
+              <div>
+                <div class="l-name">Atelier Tote · Calf</div>
+                <div class="l-sub">Leather · SS26 · Calf + Walnut</div>
+              </div>
+              <div class="price">₩2,400,000</div>
+              <div class="radio"></div>
+            </button>
+            <button class="prod-row" data-prod="scarf" data-name="Carré Silk · Hanji"
+              data-cat="Silk" data-price="₩680,000" data-mat="Silk · Hanji Print">
+              <div>
+                <div class="l-name">Carré Silk · Hanji</div>
+                <div class="l-sub">Silk · Limited · Hanji Print</div>
+              </div>
+              <div class="price">₩680,000</div>
+              <div class="radio"></div>
+            </button>
+            <button class="prod-row" data-prod="watch" data-name="Atelier Chronograph · Walnut"
+              data-cat="Watch" data-price="₩8,200,000" data-mat="Walnut Dial · Rose Gold">
+              <div>
+                <div class="l-name">Atelier Chronograph · Walnut</div>
+                <div class="l-sub">Watch · Limited · Walnut + Rose Gold</div>
+              </div>
+              <div class="price">₩8,200,000</div>
+              <div class="radio"></div>
+            </button>
+            <button class="prod-row" data-prod="jewel" data-name="Hanji Pearl Necklace"
+              data-cat="Jewelry" data-price="₩4,600,000" data-mat="Akoya Pearl · 18K Gold">
+              <div>
+                <div class="l-name">Hanji Pearl Necklace</div>
+                <div class="l-sub">Jewelry · Heritage · Akoya + 18K</div>
+              </div>
+              <div class="price">₩4,600,000</div>
+              <div class="radio"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ 브랜드 컬렉션 -->
+      <div class="input-section">
+        <div class="sec-head">
+          <span class="num">③ 브랜드 컬렉션</span>
+          <h3>어떤 시즌의 톤을 입을 것인가.</h3>
+          <span class="pick">택 1 · <b id="pick-coll">Spring · Summer 2026</b></span>
+        </div>
+        <div class="coll-row">
+          <div class="field">
+            <label>컬렉션</label>
+            <select id="collSelect">
+              <option>Spring · Summer 2026</option>
+              <option>Resort 2026</option>
+              <option>Fall · Winter 2025</option>
+              <option>Heritage Archive</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>위치</label>
+            <select id="locSelect">
+              <option>현대백화점 본점 · 5F Atrium</option>
+              <option>The Hyundai Seoul · 1F Boulevard</option>
+              <option>Shinsegae Gangnam · 6F Court</option>
+              <option>Galleria · East Wing</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" style="margin-top: 8px">
+
+      <div class="cta-row">
+        <p class="note">
+          <span class="moss">●</span>&nbsp; 평균 소요&nbsp;<strong style="color:var(--text)">5분</strong> · Google Gemini API · 결과는 세션에 자동 저장
+        </p>
+        <button class="btn btn-ai" id="generateBtn">
+          <span>✦</span>&nbsp; Curate with AI
+        </button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =========================== GENERATING =========================== -->
+<section class="generating" id="generating">
+  <div class="shell">
+    <div class="gen-card">
+      <div class="gen-spinner"></div>
+      <div>
+        <div class="ttl" id="genTtl">컨셉을 분석하는 중…</div>
+        <div class="stp">Gemini 2.5 Pro · <span id="genStep">스타일 분석</span> · Imagen 4 큐 대기 중</div>
+        <div class="gen-tracks">
+          <div class="gen-track" id="trackA"><span class="ico"></span><span>Track A · Imagen 무드보드 렌더</span></div>
+          <div class="gen-track" id="trackB"><span class="ico"></span><span>Track B · VMD · BM 구조 JSON</span></div>
+        </div>
+      </div>
+      <div class="pct"><span id="genPct">0</span><span class="u">%</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== RESULTS =========================== -->
+<section class="results" id="results">
+  <div class="shell">
+
+    <!-- summary -->
+    <div class="summary">
+      <div class="left">
+        <div class="eb"><span class="moss">✦</span> <span id="editionLabel">AI CURATED · NO. 06</span></div>
+        <h2 id="summaryTitle">An Editorial <span class="it">Boudoir.</span></h2>
+        <p id="summaryDesc">
+          정해인 × Eau de Maison 100ml 기반 — 흑단(ebony) 외관과 황동 디테일, 내부는 따뜻한 트래버틴과 벨벳. <strong style="color:#fff">35+ 프리미엄</strong> 여성 타깃의 정제된 무드.
+        </p>
+        <div class="kw-row dark" id="summaryKeywords"></div>
+      </div>
+      <div class="right">
+        <div class="stat">
+          <div class="lab">Brand Match</div>
+          <div class="v" id="stat-match">98<span class="u">%</span></div>
+          <div class="delta">+12% vs 시즌 평균</div>
+        </div>
+        <div class="stat">
+          <div class="lab">예상 방문</div>
+          <div class="v" id="stat-visit">12.4<span class="u">K / 2wk</span></div>
+          <div class="delta">▲ 31% vs 동일 매장</div>
+        </div>
+        <div class="stat">
+          <div class="lab">개설 예산</div>
+          <div class="v" id="stat-budget">₩710<span class="u">M</span></div>
+          <div class="delta">2주 운영 · 60평 기준</div>
+        </div>
+        <div class="stat">
+          <div class="lab">전환율</div>
+          <div class="v" id="stat-conv">3.8<span class="u">%</span></div>
+          <div class="delta">▲ 0.9pt vs 카테고리</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-head">
+      <div class="left">
+        <span class="eyebrow">OUTPUT · 02</span>
+        <h2>The <em>full</em> brief.</h2>
+        <div class="meta">
+          <span>👤&nbsp;&nbsp;<b id="meta-amb">정해인</b></span>
+          <span>🎁&nbsp;&nbsp;<b id="meta-prod">Eau de Maison 100ml</b></span>
+          <span>📍&nbsp;&nbsp;<b id="meta-loc">현대 본점 · 5F</b></span>
+          <span>📅&nbsp;&nbsp;<b>2026.03.14 – 03.27</b></span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" id="editBriefBtn">Edit brief</button>
+        <button class="btn btn-join" id="exportBtn">Export PDF&nbsp; ↓</button>
+      </div>
+    </div>
+
+    <!-- ==== MOODBOARD COLLAGE — magazine layout ==== -->
+    <div class="moodboard-section">
+      <div class="mb-header">
+        <div class="mb-eb"><span class="star">✦</span> MOODBOARD · IMAGEN 4 · GEMINI</div>
+        <h3 id="mbTitle">An Editorial <span class="it">Boudoir.</span></h3>
+        <p id="mbSubtitle">정해인 × Eau de Maison 100ml — 흑단·황동·트래버틴의 정제된 살롱. 외관과 내관, 재질, 빛, 동선을 한 페이지에 모은 에디토리얼 보드.</p>
+      </div>
+
+      <!-- ====================== CHAPTER 01 · EXTERIOR ====================== -->
+      <article class="mb-chapter" data-chapter="exterior">
+        <header class="ch-head">
+          <span class="ch-num">CHAPTER · 01</span>
+          <h3>외관 <em>Exterior.</em></h3>
+          <p>The first edge — facade, atrium, threshold. 브랜드의 첫 인상이 결정되는 가장자리.</p>
+        </header>
+
+        <div class="ch-canvas ch-canvas-ext">
+          <figure class="mb-cell" data-slot="ext_hero">
+            <img class="tile-img" alt="storefront elevation"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">01</span><span class="cap-t">Storefront · Atrium</span></figcaption>
+          </figure>
+          <figure class="mb-cell" data-slot="ext_atrium">
+            <img class="tile-img" alt="atrium pavilion"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">02</span><span class="cap-t">Pavilion · Multi-story</span></figcaption>
+          </figure>
+          <figure class="mb-cell" data-slot="ext_detail">
+            <img class="tile-img" alt="facade material detail"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">03</span><span class="cap-t">Material · Threshold</span></figcaption>
+          </figure>
+          <aside class="ch-annot ch-annot-a">An atrium pavilion as silent gravitas.</aside>
+          <aside class="ch-annot ch-annot-b">Brushed brass meets matte ebony at the threshold.</aside>
+          <div class="ch-palette" data-pal-target>
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+          </div>
+        </div>
+      </article>
+
+      <!-- ====================== CHAPTER 02 · INTERIOR ====================== -->
+      <article class="mb-chapter" data-chapter="interior">
+        <header class="ch-head">
+          <span class="ch-num">CHAPTER · 02</span>
+          <h3>내관 <em>Interior.</em></h3>
+          <p>Surfaces, light, gesture — the room as quiet stage. 재질과 빛이 만나는 정적인 무대.</p>
+        </header>
+
+        <div class="ch-canvas ch-canvas-int">
+          <figure class="mb-cell" data-slot="int_material">
+            <img class="tile-img" alt="material macro study"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">04</span><span class="cap-t">Material · Macro</span></figcaption>
+          </figure>
+          <figure class="mb-cell" data-slot="int_vista">
+            <img class="tile-img" alt="interior vista"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">05</span><span class="cap-t">Vista · Showroom</span></figcaption>
+          </figure>
+          <figure class="mb-cell" data-slot="int_vmd">
+            <img class="tile-img" alt="VMD hero display"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">06</span><span class="cap-t">VMD · Hero Display</span></figcaption>
+          </figure>
+          <aside class="ch-annot ch-annot-a">Travertine veining as the room's signature.</aside>
+          <aside class="ch-annot ch-annot-b">5500K diffuse light, raking across the surface.</aside>
+          <div class="ch-palette" data-pal-target>
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+          </div>
+        </div>
+      </article>
+
+      <!-- ====================== CHAPTER 03 · AMBASSADOR ====================== -->
+      <article class="mb-chapter" data-chapter="ambassador">
+        <header class="ch-head">
+          <span class="ch-num">CHAPTER · 03</span>
+          <h3>앰배서더 <em>Ambassador.</em></h3>
+          <p id="ambChapterDeck">Face, gesture, presence — the brand made human. 얼굴·몸·디테일이 만드는 화보 시리즈.</p>
+        </header>
+
+        <div class="ch-canvas ch-canvas-amb">
+          <figure class="mb-cell" data-slot="amb_beauty">
+            <img class="tile-img" alt="beauty portrait"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">07</span><span class="cap-t" id="capAmbBeauty">Beauty · Close-up</span></figcaption>
+          </figure>
+          <figure class="mb-cell" data-slot="amb_half">
+            <img class="tile-img" alt="half-body editorial"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">08</span><span class="cap-t">Half-body · Editorial</span></figcaption>
+          </figure>
+          <figure class="mb-cell" data-slot="amb_full">
+            <img class="tile-img" alt="full body environmental"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">09</span><span class="cap-t">Full Body · Environmental</span></figcaption>
+          </figure>
+          <figure class="mb-cell" data-slot="amb_detail">
+            <img class="tile-img" alt="detail crop"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">10</span><span class="cap-t">Detail · Hand · Fabric</span></figcaption>
+          </figure>
+          <aside class="ch-annot ch-annot-a">The face as the first signature of the campaign.</aside>
+          <aside class="ch-annot ch-annot-b">Body and gesture, framed by the room.</aside>
+          <div class="ch-palette" data-pal-target>
+            <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+          </div>
+        </div>
+      </article>
+
+      <!-- (Compat) hidden palette element kept so legacy renderResults() can still write to it -->
+      <div class="mb-palette-strip" id="mbPalette" hidden></div>
+
+      <!-- Footer tags -->
+      <div class="mb-footer">
+        <div class="mb-tags" id="mbTags">
+          <span class="tag-pill">Matte Ebony</span>
+          <span class="tag-pill">Brushed Brass</span>
+          <span class="tag-pill">Warm Travertine</span>
+          <span class="tag-pill">Moss Velvet</span>
+          <span class="tag-pill">5500K Light</span>
+        </div>
+        <span class="mb-foot-note">↑ Imagen 4 · 8K 디테일 · 외관/내관 통합 무드보드</span>
+      </div>
+    </div>
+
+    <!-- ==== 2-COL — 동선 + 개설 예산 ==== -->
+    <div class="grid-2">
+
+      <!-- 동선 / 배치 전략 -->
+      <div class="card">
+        <div class="label">Gemini 2.5 Pro · 동선 · 배치 전략</div>
+        <h3 id="flowTitle">왼쪽으로 흐르는 럭셔리 동선.</h3>
+        <p id="flowDesc" style="margin-bottom: 4px">
+          입장 후 시계 반대 방향의 자연스러운 흐름을 따라 6개 존을 순차 배치. 미끼상품은 좌측, 한정판 굿즈는 중앙 백 바(back bar)에서 시각적 정점을 형성한다.
+        </p>
+
+        <div class="floorplan" aria-label="floorplan" id="floorplan">
+          <div class="zone z1" data-zone="1"><div class="num">01</div><div class="nm">엔트런스<br>· 향 디퓨저</div></div>
+          <div class="zone z2" data-zone="2"><div class="num">02 · BACKBAR</div><div class="nm">한정판<br>굿즈 · 백 바</div></div>
+          <div class="zone z3" data-zone="3"><div class="num">03</div><div class="nm">포토존<br>· 거울 살롱</div></div>
+          <div class="zone z4" data-zone="4"><div class="num">04</div><div class="nm">VIP 컨설팅<br>스위트</div></div>
+          <div class="zone z5" data-zone="5"><div class="num">05</div><div class="nm">언박싱<br>체험존</div></div>
+          <div class="zone z6" data-zone="6"><div class="num">06 · EXIT</div><div class="nm">결제 · 픽업 카운터 (백화점 본관 연결)</div></div>
+        </div>
+
+        <ul class="floor-list" id="floorList">
+          <li><span class="ord">01</span><span class="nm">엔트런스</span><span class="desc">향 디퓨저 · 1.2m 폭</span></li>
+          <li><span class="ord">02</span><span class="nm">한정판 백 바</span><span class="desc">중앙 시선 집중 · 조명 4000K</span></li>
+          <li><span class="ord">03</span><span class="nm">포토존 · 거울 살롱</span><span class="desc">우측 깊이감 형성</span></li>
+          <li><span class="ord">04</span><span class="nm">VIP 컨설팅 스위트</span><span class="desc">예약 전용 · 60분</span></li>
+        </ul>
+      </div>
+
+      <!-- 개설 예산 -->
+      <div class="card">
+        <div class="label">Gemini 2.5 Pro · 개설 예산 · OPENING BUDGET</div>
+        <h3 id="budgetTitle">2주 운영 · 약 ₩7.1억.</h3>
+        <p id="budgetDesc" style="margin-bottom: 8px">
+          하이엔드 백화점 5F 아트리움 약 60평 기준 · 마감재 비중이 전체 예산의 39%를 차지하며, 운영·인력은 14일 풀가동 가정.
+        </p>
+
+        <!-- Gemini Strategy JSON insights (location · vmdRouting · bmItems) -->
+        <div class="gemini-insights" id="geminiInsights" style="display:none">
+          <div class="ig-head"><span class="gem"></span> GEMINI · STRATEGY JSON</div>
+          <div class="ig-row">
+            <div class="ig-k">추천 위치 · LOCATION</div>
+            <div class="ig-v" id="igLocation">—</div>
+          </div>
+          <div class="ig-row">
+            <div class="ig-k">VMD 동선 · ROUTING</div>
+            <div class="ig-v" id="igRouting">—</div>
+          </div>
+          <div class="ig-row">
+            <div class="ig-k">비즈니스 모델 · BM ITEMS</div>
+            <ol id="igBmList"><li class="ig-empty">대기 중…</li></ol>
+          </div>
+        </div>
+
+        <table class="bm-table">
+          <thead>
+            <tr><th>항목</th><th>세부 내역</th><th style="text-align:right">예산 (KRW)</th><th style="text-align:right">비중</th></tr>
+          </thead>
+          <tbody id="bmTableBody">
+            <tr>
+              <td><div class="name">공간 디자인 · 설계</div><div class="desc">컨셉 · 도면 · 3D</div></td>
+              <td><div class="desc">VMD · 설계사 외주</div></td>
+              <td class="amt">₩42M</td>
+              <td class="share">6%</td>
+            </tr>
+            <tr>
+              <td><div class="name">마감재 · 시공</div><div class="desc">흑단 · 황동 · 트래버틴</div></td>
+              <td><div class="desc">14일 단기 시공</div></td>
+              <td class="amt">₩278M</td>
+              <td class="share">39%</td>
+            </tr>
+            <tr>
+              <td><div class="name">가구 · 조명 · 디스플레이</div><div class="desc">벤치 · 백바 · 4000K 트랙</div></td>
+              <td><div class="desc">렌탈 + 일부 구매</div></td>
+              <td class="amt">₩92M</td>
+              <td class="share">13%</td>
+            </tr>
+            <tr>
+              <td><div class="name">미디어 · AV · 디지털</div><div class="desc">LED 월 · 사운드 · iPad</div></td>
+              <td><div class="desc">렌탈 · 운영 포함</div></td>
+              <td class="amt">₩58M</td>
+              <td class="share">8%</td>
+            </tr>
+            <tr>
+              <td><div class="name">브랜딩 · 그래픽 · 사이니지</div><div class="desc">간판 · 포스터 · 라벨</div></td>
+              <td><div class="desc">인쇄 + 시공</div></td>
+              <td class="amt">₩28M</td>
+              <td class="share">4%</td>
+            </tr>
+            <tr>
+              <td><div class="name">운영 · 스태프</div><div class="desc">매니저 2 · BA 4 · 보안</div></td>
+              <td><div class="desc">14일 · 4대 보험 포함</div></td>
+              <td class="amt">₩54M</td>
+              <td class="share">8%</td>
+            </tr>
+            <tr>
+              <td><div class="name">한정판 굿즈 · 패키지</div><div class="desc">초도 5,000ea</div></td>
+              <td><div class="desc">제작 + 운송</div></td>
+              <td class="amt">₩46M</td>
+              <td class="share">6%</td>
+            </tr>
+            <tr>
+              <td><div class="name">마케팅 · 콘텐츠 제작</div><div class="desc">화보 · SNS · KOL</div></td>
+              <td><div class="desc">2주 캠페인</div></td>
+              <td class="amt">₩68M</td>
+              <td class="share">10%</td>
+            </tr>
+            <tr>
+              <td><div class="name">예비비 · Contingency</div><div class="desc">총 예산의 약 6%</div></td>
+              <td><div class="desc">변동 대응</div></td>
+              <td class="amt">₩44M</td>
+              <td class="share">6%</td>
+            </tr>
+          </tbody>
+          <tfoot id="bmTableFoot">
+            <tr><td colspan="2">합계 · 개설 예산</td><td class="amt" style="text-align:right" id="bmTotalAmt">₩710M</td><td class="share" style="text-align:right">100%</td></tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =========================== FAQ =========================== -->
+<section class="faq" id="faq">
+  <div class="shell">
+    <span class="eyebrow">FAQ · 자주 묻는 질문</span>
+    <h2>모두가 묻는 것들,<br><em>정확하게.</em></h2>
+
+    <div class="faq-list">
+      <div class="faq-item open">
+        <button class="faq-q"><span>5분 만에 정말 도출이 가능한가요?</span><span class="icon">+</span></button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            평균 응답 시간은 <span class="moss">3분 40초</span>입니다. Gemini 2.5 Pro가 스타일·동선·예산을 병렬로 생성하고, Imagen 4가 무드보드 이미지를 동시에 큐잉합니다. 네트워크 상태에 따라 ±60초 편차가 있습니다.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>Google AI Studio / Gemini API 키는 어떻게 보관되나요?</span><span class="icon">+</span></button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            키는 <span class="moss">브라우저 sessionStorage</span>에만 저장됩니다. 서버 전송 · 영구 저장이 일절 없으며, 탭을 닫으면 즉시 폐기됩니다.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>실제 백화점에서 바로 사용 가능한가요?</span><span class="icon">+</span></button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            현 버전은 <span class="moss">초기 기획 단계</span>를 위한 워크벤치입니다. 시공 도면·자재 단가·법규 검토는 별도 VMD 외주가 필요하지만, 외주 발주 전 단계의 컨셉·BM·동선을 5분 안에 검증할 수 있습니다.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>여러 시안을 비교할 수 있나요?</span><span class="icon">+</span></button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            한 번의 큐레이션마다 <span class="moss">3개 컨셉 방향</span>이 생성되며, 각각의 무드보드 · 동선 · BM을 나란히 비교할 수 있습니다. 통합 기획서 PDF에는 선택된 1안만 포함됩니다.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span>한국어 외 다른 언어도 지원되나요?</span><span class="icon">+</span></button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Gemini 2.5 Pro의 다국어 능력에 의해 한국어 · 영어 · 일본어 · 중국어(번체) 입력을 그대로 받습니다. 결과 기획서의 언어는 입력 언어를 따라갑니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================== FOOTER =========================== -->
+<footer id="join">
+  <div class="shell ft-row">
+    <span class="copy">© 2026 Maison Atelier · 주제 개요서 v3 · Seoul</span>
+    <div class="links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
+      <a href="#">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =========================================================================
+   INTERACTIONS — Vanilla JS, no deps
+   ========================================================================= */
+(function () {
+  /* ---------- STATE ---------- */
+  const state = {
+    ambassador: { id: 'jhi', name: '정해인', role: 'Actor',
+      tone: 'Quiet Luxury — 정제된, 따뜻한 ebony · brass' },
+    product: { id: 'perfume', name: 'Eau de Maison 100ml',
+      cat: 'Fragrance', price: '₩220,000', mat: 'Glass · Brushed Brass' },
+    collection: 'Spring · Summer 2026',
+    location:   '현대백화점 본점 · 5F Atrium',
+  };
+
+  /* Concept dictionaries — drive output text from selections */
+  const concepts = {
+    jhi: {
+      title: 'An Editorial <span class="it">Boudoir.</span>',
+      desc: '정제된 흑단·황동 외장 + 따뜻한 트래버틴 내부. <strong style="color:#fff">35+ 프리미엄</strong> 여성 타깃의 정적인 살롱 무드.',
+      ext: { title: '흑단의 외관, 황동의 문턱.',
+        desc: '매트 흑단 외장과 브러시드 황동의 사선 패널이 아트리움 입구에 수직 리듬을 만든다.',
+        tags: ['Matte Ebony', 'Brushed Brass', 'Vertical Rhythm', 'Salon Threshold'] },
+      int: { title: '트래버틴과 벨벳의 살롱.',
+        desc: '웜 트래버틴 바닥에 모스 벨벳 벤치 — 5500K 천장 그레이즈가 향수병의 유리에 반사된다.',
+        palette: [['#1A1A1A','Matte Ebony'],['#B89968','Brushed Brass'],['#D9C6A5','Travertine'],['#1E5128','Moss Velvet'],['#5C1A1B','Burgundy']] },
+      flow: { title: '왼쪽으로 흐르는 럭셔리 동선.',
+        desc: '시계 반대 방향의 자연스러운 흐름 — 미끼상품은 좌측, 한정판은 중앙 백 바에서 정점을 형성한다.' },
+    },
+    kdm: {
+      title: 'A Monochrome <span class="it">Salon.</span>',
+      desc: '그레이 콘크리트와 거울의 차분한 살롱 — 김다미의 에디토리얼 톤을 정적인 공간으로 옮긴다.',
+      ext: { title: '회색 콘크리트의 단면.',
+        desc: '연마된 그레이 콘크리트 외장에 단일 슬릿 윈도우 — 절제된 진입을 위한 침묵의 파사드.',
+        tags: ['Polished Concrete', 'Slit Window', 'Editorial Silence', 'Charcoal Steel'] },
+      int: { title: '거울과 그림자의 메자닌.',
+        desc: '풀-하이트 미러월에 따뜻한 그레이 페인트와 차콜 스틸 디테일. 단일 다운라이트가 상품에만 집중된다.',
+        palette: [['#0F0F0F','Charcoal'],['#3D3A36','Warm Grey'],['#A8A29A','Stone'],['#E6E1D8','Plaster'],['#1E5128','Moss']] },
+      flow: { title: '직선의 동선, 절제된 흐름.',
+        desc: '정중앙 직선축으로 진입 → 좌측 미러월에서 시선을 분산, 우측 미끼상품에서 머무름.' },
+    },
+    iu: {
+      title: 'A Pastel <span class="it">Atelier.</span>',
+      desc: '연한 트래버틴과 실크의 살롱 — 아이유의 부드러운 톤이 자연광과 만나는 공간.',
+      ext: { title: '아이보리 베일의 진입.',
+        desc: '아이보리 트래버틴 외장에 셔링된 실크 베일이 입구에 부드러운 그늘을 드리운다.',
+        tags: ['Ivory Travertine', 'Silk Veil', 'Soft Filter', 'Powdered Light'] },
+      int: { title: '실크와 빛의 룸.',
+        desc: '파스텔 핑크 실크 커튼에 5500K 자연광 모방 조명. 향수병이 옅은 분홍 빛에 잠긴다.',
+        palette: [['#F4ECE0','Ivory'],['#E8C5B8','Blush'],['#D9C6A5','Travertine'],['#B89968','Champagne'],['#1E5128','Moss']] },
+      flow: { title: '원형으로 도는 부드러운 동선.',
+        desc: '원형 회전 동선 — 중앙 분수 같은 디스플레이를 6개 존이 둘러싸는 형태. 정체 없이 흐른다.' },
+    },
+    rm: {
+      title: 'A Heritage <span class="it">Gallery.</span>',
+      desc: '흑단·황동·모스 벨벳의 헤리티지 갤러리 — 아카이브적 무게감을 가진 공간.',
+      ext: { title: '흑단과 모스의 격자.',
+        desc: '깊은 흑단 격자 외장에 황동 띠가 수평으로 흐른다. 헤리티지 출판물의 표지처럼 묵직하다.',
+        tags: ['Deep Ebony', 'Brass Band', 'Heritage Grid', 'Moss Velvet'] },
+      int: { title: '아카이브의 정적.',
+        desc: '벽 전체가 모스 벨벳, 천장에서 단일 핀스폿이 굿즈를 비춘다. 도서관 같은 침묵.',
+        palette: [['#0A0A0A','Deep Ebony'],['#1E5128','Moss Velvet'],['#B89968','Brushed Brass'],['#5C1A1B','Burgundy'],['#D9C6A5','Travertine']] },
+      flow: { title: '갤러리 동선 — 챕터처럼.',
+        desc: '챕터별 진입 — 6개 존을 ‘서장 → 본문 → 결말’의 내러티브 순서로 배치.' },
+    },
+  };
+
+  /* ---------- DOM hooks ---------- */
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+  const pickAmb  = $('#pick-amb');
+  const pickProd = $('#pick-prod');
+  const pickColl = $('#pick-coll');
+
+  /* ---------- INPUT: ambassador (free typing + free-typed mood + suggestions) ---------- */
+  const ambInput  = $('#ambInput');
+  const moodInput = $('#moodInput');
+
+  /* Map mood id ↔ default preset text (used when ambassador chip clicked) */
+  const MOOD_PRESETS = {
+    jhi: 'Quiet Luxury — 정제된',
+    kdm: 'Editorial Minimal — 모노크롬',
+    iu:  'Soft Romantic — 파스텔',
+    rm:  'Bold Heritage — 흑단·모스',
+  };
+
+  /* Free-typed mood text → concept id (controls fallback render only;
+     the actual typed text is still passed to Gemini as the real tone) */
+  function detectMoodId(text) {
+    const t = (text || '').toLowerCase();
+    if (/heritage|ebony|bold|burgundy|sculptural|모스|흑단|헤리티지|보헤미안/.test(t)) return 'rm';
+    if (/soft|romantic|pastel|blush|bohemian|파스텔|로맨틱/.test(t))                  return 'iu';
+    if (/minimal|mono|monochrome|avant|edit|모노/.test(t))                            return 'kdm';
+    return 'jhi'; // Quiet Luxury default
+  }
+
+  function syncAmbState() {
+    const name     = (ambInput.value  || '').trim() || '정해인';
+    const moodText = (moodInput.value || '').trim() || 'Quiet Luxury — 정제된';
+    const moodId   = detectMoodId(moodText);
+    state.ambassador = {
+      id:   moodId,                      // for concept fallback rendering
+      name,
+      role: 'Ambassador',
+      tone: moodText,                    // raw typed text → forwarded to Gemini
+    };
+    pickAmb.textContent = name;
+
+    /* Highlight any matching ambassador chip */
+    $$('#ambSuggest .chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.name === name);
+    });
+    /* Highlight any matching mood chip (exact text match) */
+    $$('#moodSuggest .chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.text === moodText);
+    });
+  }
+
+  ambInput.addEventListener('input', syncAmbState);
+  moodInput.addEventListener('input', syncAmbState);
+
+  /* Ambassador chip → fills ambassador name AND seeds the mood input with
+     that ambassador's preset tone */
+  $$('#ambSuggest .chip').forEach(c => {
+    c.addEventListener('click', e => {
+      e.stopPropagation();
+      ambInput.value  = c.dataset.name;
+      moodInput.value = MOOD_PRESETS[c.dataset.mood] || MOOD_PRESETS.jhi;
+      syncAmbState();
+    });
+  });
+
+  /* Mood chip → only updates the mood input (ambassador stays as-is) */
+  $$('#moodSuggest .chip').forEach(c => {
+    c.addEventListener('click', e => {
+      e.stopPropagation();
+      moodInput.value = c.dataset.text || '';
+      syncAmbState();
+    });
+  });
+
+  syncAmbState();
+
+  /* ---------- INPUT: product — free typing + category + material + price ---------- */
+  const prodInput      = $('#prodInput');
+  const prodCatSelect  = $('#prodCatSelect');
+  const prodMatInput   = $('#prodMatInput');
+  const prodPriceInput = $('#prodPriceInput');
+
+  function syncProdState({ markRow = null } = {}) {
+    const name  = (prodInput.value || '').trim() || 'Hero Product';
+    const cat   = prodCatSelect.value;
+    const mat   = (prodMatInput.value || '').trim();
+    const price = (prodPriceInput.value || '').trim();
+    state.product = {
+      id:    markRow ? markRow.dataset.prod : 'custom',
+      name, cat, mat, price,
+    };
+    pickProd.textContent = name;
+
+    /* Match against existing suggestion rows. If the typed values match a
+       known row exactly, mark that row active; otherwise clear all. */
+    $$('#prodList .prod-row').forEach(r => {
+      const match =
+        r.dataset.name === name &&
+        r.dataset.cat  === cat;
+      r.classList.toggle('active', !!(markRow ? r === markRow : match));
+    });
+  }
+
+  /* Free-input typing — clears row selection unless it happens to match */
+  prodInput.addEventListener('input',      () => syncProdState());
+  prodCatSelect.addEventListener('change', () => syncProdState());
+  prodMatInput.addEventListener('input',   () => syncProdState());
+  prodPriceInput.addEventListener('input', () => syncProdState());
+
+  /* Clicking a suggestion row populates the inputs */
+  $$('#prodList .prod-row').forEach(row => {
+    row.addEventListener('click', e => {
+      e.preventDefault();
+      prodInput.value      = row.dataset.name || '';
+      prodCatSelect.value  = row.dataset.cat  || prodCatSelect.value;
+      prodMatInput.value   = row.dataset.mat  || '';
+      prodPriceInput.value = row.dataset.price || '';
+      syncProdState({ markRow: row });
+    });
+  });
+
+  /* Initial sync */
+  syncProdState();
+
+  /* ---------- INPUT: collection select + location ---------- */
+  $('#collSelect').addEventListener('change', e => {
+    state.collection = e.target.value;
+    pickColl.textContent = state.collection;
+  });
+  $('#locSelect').addEventListener('change', e => {
+    state.location = e.target.value;
+  });
+
+  /* ---------- FAQ accordion ---------- */
+  $$('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      $$('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+
+  /* ---------- Render results from state ---------- */
+  function renderResults() {
+    const c = concepts[state.ambassador.id] || concepts.jhi;
+
+    // Summary
+    $('#summaryTitle').innerHTML = c.title;
+    $('#summaryDesc').innerHTML =
+      `${state.ambassador.name} × ${state.product.name} 기반 — ${c.desc}`;
+
+    // Hero Render card title — mirrors concept title for cohesion
+    const hrT = $('#heroRenderTitle');
+    if (hrT) hrT.innerHTML = c.title;
+
+    // Edition label fallback — Gemini brief.editionLabel will overlay this
+    const edFallback = $('#editionLabel');
+    if (edFallback) {
+      const seasonCode = /Spring/.test(state.collection) ? 'SS26'
+                      : /Fall/.test(state.collection)   ? 'FW25'
+                      : /Resort/.test(state.collection) ? 'RS26' : 'SS26';
+      const editionWord = (c.title.match(/[A-Za-z]+/g) || []).filter(w => !/^(a|an|the)$/i.test(w))[0] || 'ATELIER';
+      edFallback.textContent = `AI CURATED · ${editionWord.toUpperCase()} EDITION · ${seasonCode}`;
+    }
+
+    // Meta line
+    $('#meta-amb').textContent  = state.ambassador.name;
+    $('#meta-prod').textContent = state.product.name;
+    $('#meta-loc').textContent  = state.location.split(' · ')[0] + ' · ' + (state.location.split(' · ')[1]||'');
+
+    // Stats (slight variation per ambassador for credibility)
+    const matchMap  = { jhi: 98, kdm: 94, iu: 96, rm: 92 };
+    const visitMap  = { jhi: '12.4', kdm: '10.8', iu: '14.2', rm: '9.6' };
+    const convMap   = { jhi: '3.8', kdm: '3.2', iu: '4.1', rm: '2.9' };
+    $('#stat-match').innerHTML  = `${matchMap[state.ambassador.id]}<span class="u">%</span>`;
+    $('#stat-visit').innerHTML  = `${visitMap[state.ambassador.id]}<span class="u">K / 2wk</span>`;
+    $('#stat-conv').innerHTML   = `${convMap[state.ambassador.id]}<span class="u">%</span>`;
+
+    // Exterior
+    const extEl = $('#extTitle');
+    if (extEl) {
+      extEl.textContent = c.ext.title;
+      $('#extDesc').textContent = c.ext.desc;
+      $('#extTags').innerHTML   = c.ext.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    }
+
+    // Interior
+    const intEl = $('#intTitle');
+    if (intEl) {
+      intEl.textContent = c.int.title;
+      $('#intDesc').textContent = c.int.desc;
+      $('#intPalette').innerHTML = c.int.palette.map(([hex,nm]) =>
+        `<div class="swatch"><div class="blk" style="background:${hex}"></div><span class="nm">${nm}</span><span class="hex">${hex}</span></div>`
+      ).join('');
+    }
+
+    // Flow
+    $('#flowTitle').textContent = c.flow.title;
+    $('#flowDesc').textContent  = c.flow.desc;
+
+    // Moodboard collage — title + subtitle + palette + tags driven by concept
+    const mbT = $('#mbTitle');
+    if (mbT) {
+      mbT.innerHTML = c.title;
+      $('#mbSubtitle').textContent =
+        `${state.ambassador.name} × ${state.product.name} — ${c.desc.replace(/<[^>]+>/g,'')}`;
+      // Palette strip driven by concept palette (legacy #mbPalette + new per-chapter palettes)
+      const palEl = $('#mbPalette');
+      if (palEl) {
+        palEl.innerHTML = c.int.palette.map(([hex]) =>
+          `<span class="bar" style="background:${hex}"></span>`
+        ).join('');
+      }
+      /* Each chapter has its own .ch-palette with 4 .bar cells — paint them
+         with the concept palette so all three sections share visual DNA */
+      const palHexes = (c.int.palette || []).map(p => p[0]);
+      document.querySelectorAll('.ch-palette').forEach(pl => {
+        const bars = pl.querySelectorAll('.bar');
+        bars.forEach((bar, i) => {
+          const hex = palHexes[i % palHexes.length] || '#29261B';
+          bar.style.background = hex;
+        });
+      });
+
+      // Ambassador chapter — caption + deck name the actual ambassador
+      const capB = $('#capAmbBeauty');
+      if (capB) capB.textContent = `Beauty · ${state.ambassador.name}`;
+      const ambDeck = $('#ambChapterDeck');
+      if (ambDeck) ambDeck.innerHTML =
+        `Face, gesture, presence — <em>${escapeHTML(state.ambassador.name)}</em>. 얼굴·몸·디테일 네 컷의 화보 시리즈.`;
+      // Tags
+      const tagsEl = $('#mbTags');
+      if (tagsEl) tagsEl.innerHTML = c.ext.tags.map(t => `<span class="tag-pill">${t}</span>`).join('');
+    }
+
+    // Repaint mood-large gradient based on first 2 palette colors (only if elements exist)
+    const pal = c.int.palette;
+    const extImg = document.querySelector('#moodExterior .img-area');
+    if (extImg) {
+      extImg.style.background =
+        `radial-gradient(circle at 70% 30%, ${pal[2][0]}55, transparent 60%),
+         radial-gradient(circle at 20% 80%, ${pal[3][0]}aa, transparent 60%),
+         linear-gradient(160deg, ${pal[0][0]} 0%, #050505 100%)`;
+    }
+    const intImg = document.querySelector('#moodInterior .img-area');
+    if (intImg) {
+      intImg.style.background =
+        `radial-gradient(circle at 30% 25%, ${pal[2][0]}aa, transparent 55%),
+         radial-gradient(circle at 75% 75%, ${pal[1][0]}88, transparent 60%),
+         linear-gradient(135deg, ${pal[0][0]} 0%, ${pal[3][0]} 100%)`;
+    }
+  }
+
+  /* =====================================================================
+     GLOW-UP CORE PIPELINE — Gemini parallel tracks
+     - Track A : gemini-3.1-flash-image-preview  → Hero Render image
+     - Track B : gemini-2.5-flash + JSON schema  → location · vmdRouting · bmItems
+     The fake-progress STAGES animation is preserved and runs in parallel
+     with the real API calls. Real results overlay the concept-driven render.
+     ===================================================================== */
+  const API_KEY   = "AIzaSyACrp9M56rAKqsomyrgv_lLT3OKP7vEGfM";
+  const getApiKey = () => API_KEY;
+
+  function setTrack(id, status) {
+    const el = $('#track' + id);
+    if (!el) return;
+    el.classList.remove('active', 'done', 'error');
+    if (status) el.classList.add(status);
+  }
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  /* Build a rich prompt from current INPUT state */
+  function buildUserPrompt() {
+    const c    = concepts[state.ambassador.id] || concepts.jhi;
+    const tone = (state.ambassador.tone || '').trim() || 'editorial minimal';
+    return [
+      `앰배서더: ${state.ambassador.name} (${c.ext?.title || ''})`,
+      `히어로 상품: ${state.product.name} · ${state.product.cat} · ${state.product.mat}${state.product.price ? ' · ' + state.product.price : ''}`,
+      `컬렉션: ${state.collection}`,
+      `위치: ${state.location}`,
+      `톤: ${tone}`,
+    ].join(' / ');
+  }
+
+  /* ---------- [TRACK A] Image — gemini-3.1-flash-image-preview (multi-slot fan-out) ---------- */
+  const IMAGE_URL = () =>
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${getApiKey()}`;
+
+  /* =====================================================================
+     CATEGORY HINTS — each product category has a distinct architectural
+     vocabulary, material signature, and VMD style. Differentiating these
+     is what makes a Fragrance pop-up visually distinct from a Watch pop-up.
+     ===================================================================== */
+  function categoryHints() {
+    const cat  = (state.product.cat || '').toLowerCase();
+    const name = state.product.name || 'hero product';
+    const mat  = state.product.mat  || 'glass and brass';
+
+    if (/fragrance|beauty/.test(cat)) return {
+      label: 'Fragrance · Beauty',
+      pallet: 'opal glass, brushed brass, warm travertine, amber halo light, ivory marble',
+      keywords: ['Apothecary', 'Scent Library', 'Atomizer Pedestals', 'Amber Halo'],
+      storefront: 'apothecary-style storefront with brass-rimmed display windows holding rows of crystal perfume bottles backlit from behind, opal glass signage panel, soft mist diffuser at the threshold',
+      pavilion:   'rounded glass pavilion resembling a scent atomizer chamber, amber interior glow, perfume bottle library visible through curved glass walls',
+      facade:     'brushed brass-rimmed vitrine framing a row of cut crystal perfume bottles with a single amber droplet suspended on a brass nozzle, soft halo lighting',
+      interior:   'curved travertine walls with built-in perfume bottle library niches, brass atomizer pedestals, scent-strip drawer station with paper testers, single amber halo cove light',
+      material:   'macro of cut crystal perfume bottle edge meeting a brushed brass nozzle, single amber liquid droplet about to fall, refracted light',
+      vmdSubject: `a single ${name} (${mat}) on a sculptural travertine pedestal with a fine mist plume diffuser nearby, amber backdrop, paper scent strip resting beside`,
+      ambStyle:   'holding the perfume bottle near the cheek or spraying it into the air, soft amber mist visible',
+    };
+    if (/leather/.test(cat)) return {
+      label: 'Leather Goods',
+      pallet: 'walnut, cognac leather, brushed brass, ivory marble, deep burgundy',
+      keywords: ['Hand-Stitched', 'Walnut · Brass', 'Monogramming', 'Cognac Patina'],
+      storefront: 'rich walnut and brushed brass storefront, cognac leather-wrapped door handle, single hero handbag spotlit in window vitrine on a brass armature',
+      pavilion:   'sculptural walnut pavilion with stitched cognac leather wall panels and brass-trimmed door, warm cognac interior glow spilling into the atrium',
+      facade:     'stitched cognac leather panel meeting a brushed brass edge with visible hand-stitching, single brass rivet detail, raking warm light',
+      interior:   'walnut display tables, stitched cognac leather wall panels, brass monogramming station with hot-stamp tools laid out, leather-wrapped ottoman, polished walnut floor',
+      material:   'macro of hand-stitched cognac leather edge with white waxed thread, brass rivet, soft raking warm light revealing grain',
+      vmdSubject: `a single hero handbag ${name} (${mat}) on a walnut plinth with brass hardware visible, leather care kit beside, warm chiaroscuro lighting`,
+      ambStyle:   'carrying or holding the handbag confidently at the elbow or by the brass handle, brand silhouette emphasized',
+    };
+    if (/silk|lifestyle/.test(cat)) return {
+      label: 'Silk · Lifestyle',
+      pallet: 'ivory plaster, blush silk, brushed brass, watercolor pastels, soft mulberry',
+      keywords: ['Silk Drape', 'Hanji Print', 'Watercolor Veil', 'Soft Folds'],
+      storefront: 'sheer silk veil curtain at entrance, watercolor pattern panels softly visible through fabric, brushed brass signage frame',
+      pavilion:   'sculptural pavilion wrapped in long flowing silk panels in soft pastel tones, watercolor projection on inner walls',
+      facade:     'sheer silk veil draped from above meeting a brushed brass armature, watercolor pattern subtly visible through translucent fabric',
+      interior:   'long silk scarf draping installation as a feature wall, brass armatures, watercolor printing live demo station with brushes and ink trays, fabric swatch wall, ivory plaster surfaces',
+      material:   'macro of silk fabric folds with watercolor print bleeding gently into the weave, soft fiber detail, natural directional light',
+      vmdSubject: `a single silk square ${name} (${mat}) draped over a brushed brass armature with soft natural folds, watercolor pattern fully visible, soft pastel light`,
+      ambStyle:   'wearing the silk scarf draped around the neck, shoulders, or hair in an editorial gesture',
+    };
+    if (/watch/.test(cat)) return {
+      label: 'Timepieces',
+      pallet: 'mahogany, brushed brass, dark velvet, smoked glass, deep burgundy',
+      keywords: ['Sealed Vitrines', 'Mahogany · Brass', 'Pin-spot', 'Watchmaker'],
+      storefront: 'dark walnut storefront with a single oversized brass clock motif above the entrance, sealed glass entry, a single timepiece spotlit in the window vitrine',
+      pavilion:   'dark mahogany pavilion with sealed glass vitrines around the perimeter, low theatrical lighting, brass detailing throughout, very few but precise spotlights',
+      facade:     'sealed brass-rimmed glass showcase with a single timepiece floating on a velvet armature, magnifying loupe resting nearby',
+      interior:   'sealed vitrines in a row, mahogany counter with a magnifying lamp and watchmaker tools laid out, brass-rimmed showcases, dark walnut walls, single pin-spot lighting per piece',
+      material:   'macro of polished brass watch case meeting a mahogany surface with fine engraving detail and a magnifier glass partially visible',
+      vmdSubject: `a single timepiece ${name} (${mat}) on a dark velvet tray with a magnifying loupe beside it, single museum pin-spot from above, mahogany backdrop`,
+      ambStyle:   'wrist visible with the timepiece worn naturally, the dial subtly catching the key light, refined gesture',
+    };
+    if (/jewelry|jewellery/.test(cat)) return {
+      label: 'Jewelry',
+      pallet: 'matte ebony, dark velvet, brushed brass, pearl ivory, single pin-spot',
+      keywords: ['Sealed Cases', 'Dark Velvet', 'Pin-spot', 'Museum Hush'],
+      storefront: 'sealed black-painted storefront with a brass keyhole entry, a single sealed window vitrine showing one jewelry piece on dark velvet',
+      pavilion:   'dark ebony pavilion with sealed glass cases, single pin-spot per piece, mysterious closed-room atmosphere visible only through small openings',
+      facade:     'sealed museum-style display case with a single jewel on dark velvet, brass frame, single pin-spot from directly above',
+      interior:   'velvet-lined display trays, museum-style sealed glass cases, dark ebony walls, single pin-spot per piece, gallery-grade hush, polished black marble floor',
+      material:   'macro of a single pearl or diamond on dark velvet with a single specular highlight, soft falloff into deep black',
+      vmdSubject: `a single jewelry piece ${name} (${mat}) on a dark velvet tray inside a sealed glass case, single museum pin-spot, ebony backdrop`,
+      ambStyle:   'profile crop showing jawline, ear, and the jewelry piece worn with elegance, dramatic dark backdrop',
+    };
+    if (/ready-to-wear|rtw|wear/.test(cat)) return {
+      label: 'Ready-to-Wear',
+      pallet: 'travertine, brushed brass, walnut, moss velvet, ivory plaster',
+      keywords: ['Brass Rails', 'Walnut Hangers', 'Fitting Room', 'Mirror Veil'],
+      storefront: 'large window display with a single garment on a walnut hanger by a brass clip on a brass rail, travertine plinth at entrance',
+      pavilion:   'open-front pavilion with brass clothing rails along the inside, full-length mirrors in walnut frames at the back',
+      facade:     'travertine plinth with a single brass clothing rail, one garment displayed on a walnut hanger with a brass clip, soft directional light',
+      interior:   'brass clothing rails along the walls, oversized full-length mirrors in walnut frames, fabric swatch wall, large fitting room with moss-green velvet curtain, polished marble floor',
+      material:   'macro of fabric weave at a tailored collar meeting a brushed brass clip closure, raking warm light revealing thread detail',
+      vmdSubject: `a single garment ${name} (${mat}) on a walnut hanger with brass clip on a single brass rail, soft directional light, generous negative space`,
+      ambStyle:   'wearing the full outfit in a confident editorial stance, full silhouette emphasized',
+    };
+    if (/eyewear/.test(cat)) return {
+      label: 'Eyewear',
+      pallet: 'mirrored glass, brushed brass, travertine, smoked acetate',
+      keywords: ['Mirrored Walls', 'Eye-level Pedestal', 'Brass Armature', 'Soft Reflection'],
+      storefront: 'mirrored glass facade with a single signature eyewear silhouette displayed at eye level, brushed brass framing',
+      pavilion:   'mirrored pavilion with eye-level travertine pedestals showing eyewear pieces, soft reflective ambient light',
+      facade:     'mirrored panel meeting a brushed brass armature holding a single pair of sunglasses, soft reflection',
+      interior:   'mirrored display walls, brass eyewear armatures at eye level, travertine pedestals each holding a single pair, polished marble floor, subtle soft directional light',
+      material:   'macro of brushed brass eyewear hinge meeting transparent acetate, soft reflection from a mirror behind',
+      vmdSubject: `a single pair of sunglasses ${name} (${mat}) on a travertine pedestal with a mirror behind for a double-image effect, soft directional light`,
+      ambStyle:   'wearing the sunglasses with a confident editorial expression, face emphasized, signature silhouette visible',
+    };
+    /* default fallback */
+    return {
+      label: 'Luxury',
+      pallet: 'matte ebony, brushed brass, warm travertine, moss-green velvet, ivory marble',
+      keywords: ['Matte Ebony', 'Brushed Brass', 'Travertine', 'Moss Velvet'],
+      storefront: 'matte ebony facade with brushed brass detailing, polished marble floor, fluted vertical panels',
+      pavilion:   'sculptural ebony pavilion with brass detailing, warm ambient glow spilling from openings',
+      facade:     'brushed brass meeting matte ebony fluted panels with warm raking light',
+      interior:   'sculptural travertine niches, brass display fixtures, moss-green velvet ottoman, polished marble floor',
+      material:   'macro of travertine veining meeting a brushed brass edge, raking warm light revealing stone grain',
+      vmdSubject: `a single ${name} (${mat}) on a travertine pedestal under a museum spotlight, dark warm backdrop`,
+      ambStyle:   'holding or near the product in a refined editorial gesture',
+    };
+  }
+
+  /* =====================================================================
+     IMAGE SLOTS — 10 prompts organized into 3 chapters:
+       ▸ Exterior (3)  · facade · atrium pavilion · threshold detail
+       ▸ Interior (3)  · material macro · vista · VMD hero display
+       ▸ Ambassador (4) · beauty close-up · half-body · full body · detail
+     Every prompt is woven with categoryHints() so a Fragrance brief looks
+     unmistakably different from a Watch / Leather / Jewelry brief.
+     ===================================================================== */
+  function imageSlots(userPrompt) {
+    const amb    = state.ambassador.name;
+    const prod   = state.product.name;
+    const mat    = state.product.mat || "glass and brass";
+    const coll   = state.collection;
+    const loc    = state.location;
+    const tones  = (state.ambassador.tone || '').trim() || "editorial minimal";
+    const H      = categoryHints();
+
+    /* Reusable style blocks */
+    const STYLE_ARCH = `Architectural Digest / Vogue Living editorial photography, photorealistic, magazine-quality, sharp 8K detail, warm slightly desaturated palette, soft natural ambient light, refined luxury aesthetic in the spirit of Maison Margiela · CHANEL · DIOR · CELINE pop-ups`;
+    const STYLE_FASHION = `Vogue Korea / W Korea / Harper's Bazaar Korea high-fashion editorial photography, photorealistic, magazine-cover quality, sharp 8K skin and fabric detail, cinematic warm slightly desaturated tones, soft directional cinematic lighting, refined luxury fashion aesthetic`;
+    const NEG    = `no text, no typography, no signage lettering, no watermarks, no logos, no captions, no UI overlays`;
+    const PALLET = H.pallet;
+
+    return [
+      /* =========== CHAPTER 01 · EXTERIOR — category-specific facade =========== */
+
+      /* 01 · ext_hero — full storefront elevation */
+      {
+        slot: "ext_hero",
+        target: () => document.querySelector('[data-slot="ext_hero"] .tile-img'),
+        aspect: "16:9",
+        prompt:
+          `Wide-angle architectural photograph of a luxury ${H.label} brand pop-up storefront installed inside the central atrium of a high-end Korean department store (${loc}). ` +
+          `${H.storefront}. Surrounding mall context softly out-of-focus. ` +
+          `Palette: ${PALLET}. Mood: ${tones}. Concept: "${userPrompt}". Empty space, no people. ${STYLE_ARCH}. ${NEG}.`
+      },
+
+      /* 02 · ext_atrium — vertical pavilion */
+      {
+        slot: "ext_atrium",
+        target: () => document.querySelector('[data-slot="ext_atrium"] .tile-img'),
+        aspect: "9:16",
+        prompt:
+          `Vertical wide-angle architectural photograph of a luxury ${H.label} brand pavilion in the multi-story atrium of a Seoul flagship department store. ` +
+          `${H.pavilion}. Visible mall escalators and balconies in soft focus around. Evening ambient lighting. ` +
+          `Palette: ${PALLET}. Concept: "${userPrompt}". Empty pavilion, no shoppers. ${STYLE_ARCH}. ${NEG}.`
+      },
+
+      /* 03 · ext_detail — facade close-up */
+      {
+        slot: "ext_detail",
+        target: () => document.querySelector('[data-slot="ext_detail"] .tile-img'),
+        aspect: "1:1",
+        prompt:
+          `Architectural facade detail close-up of a luxury ${H.label} pop-up: ${H.facade}. ` +
+          `Abstract editorial composition, soft falloff shadow, shallow depth of field. Palette: ${PALLET}. ${STYLE_ARCH}. ${NEG}.`
+      },
+
+      /* =========== CHAPTER 02 · INTERIOR — category-specific room =========== */
+
+      /* 04 · int_material — macro material study */
+      {
+        slot: "int_material",
+        target: () => document.querySelector('[data-slot="int_material"] .tile-img'),
+        aspect: "3:4",
+        prompt:
+          `Macro material study photograph from a luxury ${H.label} pop-up interior: ${H.material}. ` +
+          `Soft falloff shadow, shallow depth of field, abstract editorial macro photography. ${STYLE_ARCH}. ${NEG}.`
+      },
+
+      /* 05 · int_vista — interior vista */
+      {
+        slot: "int_vista",
+        target: () => document.querySelector('[data-slot="int_vista"] .tile-img'),
+        aspect: "16:9",
+        prompt:
+          `Interior vista of a luxury ${H.label} pop-up boutique: ${H.interior}. ` +
+          `Palette: ${PALLET}. Mood: ${tones}, ${coll} season. Empty room, no people. ${STYLE_ARCH}. ${NEG}.`
+      },
+
+      /* 06 · int_vmd — single hero product display */
+      {
+        slot: "int_vmd",
+        target: () => document.querySelector('[data-slot="int_vmd"] .tile-img'),
+        aspect: "9:16",
+        prompt:
+          `Luxury ${H.label} VMD hero display inside the pop-up boutique: ${H.vmdSubject}. ` +
+          `Dramatic chiaroscuro lighting, editorial product photography, shallow depth of field. ${STYLE_ARCH}. ${NEG}.`
+      },
+
+      /* =========== CHAPTER 03 · AMBASSADOR · 4-look fashion editorial =========== */
+
+      /* 07 · amb_beauty — FACE-DOMINANT beauty close-up */
+      {
+        slot: "amb_beauty",
+        target: () => document.querySelector('[data-slot="amb_beauty"] .tile-img'),
+        aspect: "3:4",
+        prompt:
+          `Beauty editorial close-up portrait of a single Korean fashion ambassador resembling ${amb} — ` +
+          `the FACE is the dominant subject, filling 55-70% of the frame (head + bare shoulders / collarbones beauty crop). ` +
+          `Three-quarter pose, calm direct gaze, subtle catchlight in the eyes, flawless natural skin texture with refined natural makeup, soft hair detail. ` +
+          `${tones} mood for ${coll} season. Single soft cinematic key light from the side, warm slightly desaturated tones, gentle shadow falloff, ` +
+          `shallow depth of field — luxury ${H.label} boutique interior softly out-of-focus behind (${PALLET}). ` +
+          `Vogue Korea beauty editorial · luxury campaign aesthetic, museum-quality skin rendering, no commercial retouching look. ` +
+          `${STYLE_FASHION}. ${NEG}.`
+      },
+
+      /* 08 · amb_half — HALF-BODY editorial — category-specific interaction with product */
+      {
+        slot: "amb_half",
+        target: () => document.querySelector('[data-slot="amb_half"] .tile-img'),
+        aspect: "3:4",
+        prompt:
+          `Half-body high-fashion editorial portrait of Korean ambassador resembling ${amb} — head, torso, hands visible, ` +
+          `wearing a refined luxury outfit for ${tones} mood and ${coll} season (tailored coat, silk blouse, structured shoulder, fluid drape). ` +
+          `Ambassador is ${H.ambStyle}. Confident editorial pose, slight body turn for dynamic silhouette, strong negative space. ` +
+          `Soft directional cinematic key light, warm desaturated tones. ` +
+          `Background: luxury ${H.label} boutique softly blurred (${PALLET}). ` +
+          `Vogue Korea fashion editorial cover style, sharp fabric texture detail. ${STYLE_FASHION}. ${NEG}.`
+      },
+
+      /* 09 · amb_full — FULL BODY environmental — full silhouette inside category-specific room */
+      {
+        slot: "amb_full",
+        target: () => document.querySelector('[data-slot="amb_full"] .tile-img'),
+        aspect: "3:4",
+        prompt:
+          `Full body environmental high-fashion editorial photograph of Korean ambassador resembling ${amb}, ` +
+          `standing or walking confidently inside the luxury ${H.label} pop-up boutique interior, full outfit visible head to footwear. ` +
+          `Ambassador is ${H.ambStyle}. ${tones} ${coll} styling — tailored coat / dress / suit, statement footwear, refined accessory. ` +
+          `Strong fashion silhouette against the ${H.label} architecture. Cinematic soft side light, warm desaturated tones, ` +
+          `magazine cover composition with generous headroom and footroom. Setting: ${PALLET}, visible category fixtures. ` +
+          `Vogue Korea / W Korea full-look editorial. ${STYLE_FASHION}. ${NEG}.`
+      },
+
+      /* 10 · amb_detail — artistic crop of body/hand/product interaction */
+      {
+        slot: "amb_detail",
+        target: () => document.querySelector('[data-slot="amb_detail"] .tile-img'),
+        aspect: "4:3",
+        prompt:
+          `Editorial detail crop from a luxury ${H.label} fashion campaign featuring the ambassador interacting with ${prod} (${mat}): ` +
+          `tightly composed artistic close-up of the hand · wrist · collar · jawline where the body meets the product (${H.ambStyle}), ` +
+          `shallow depth of field, warm desaturated tones, soft cinematic single-source key light, magazine spread quality. ` +
+          `Vogue Korea / Harper's Bazaar Korea editorial detail aesthetic. ${STYLE_FASHION}. ${NEG}.`
+      },
+    ];
+  }
+
+  async function generateOneImage(slotDef) {
+    const res = await fetch(IMAGE_URL(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: slotDef.prompt }] }],
+        generation_config: {
+          response_modalities: ["IMAGE"],
+          image_config: { aspect_ratio: slotDef.aspect, image_size: "512" }
+        }
+      })
+    });
+    if (!res.ok) throw new Error(`Image slot[${slotDef.slot}] HTTP ${res.status}`);
+    const data = await res.json();
+    const img  = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+    if (!img) throw new Error(`Image slot[${slotDef.slot}]: no inlineData`);
+
+    const el = slotDef.target();
+    if (!el) return;
+    el.onload = () => {
+      el.classList.add('loaded');
+      /* Tag the parent tile/cell so shimmer + decorative overlays clear away
+         and the figcaption fades in */
+      const host = el.closest('.mb-cell') || el.closest('.mb-tile');
+      if (host) host.classList.add('has-image');
+    };
+    el.src = `data:${img.mimeType};base64,${img.data}`;
+  }
+
+  async function generateImageTrack(userPrompt) {
+    setTrack('A', 'active');
+    const slots   = imageSlots(userPrompt);
+    const trackEl = $('#trackA span:last-child');
+    const baseLab = trackEl ? trackEl.textContent : '';
+    let doneN = 0;
+    /* Fire all slots in parallel; settle individually so a single slot's
+       failure doesn't drop the whole track. */
+    const tasks = slots.map(s =>
+      generateOneImage(s)
+        .then(() => {
+          doneN++;
+          if (trackEl) trackEl.textContent = `Track A · Imagen 무드보드 (${doneN}/${slots.length})`;
+        })
+        .catch(err => {
+          console.warn(err);
+          doneN++;
+          if (trackEl) trackEl.textContent = `Track A · Imagen 무드보드 (${doneN}/${slots.length})`;
+        })
+    );
+    await Promise.allSettled(tasks);
+    if (trackEl && baseLab) trackEl.textContent = baseLab;
+
+    const heroDesc = $('#heroRenderDesc');
+    if (heroDesc) heroDesc.textContent = `[${userPrompt}] 분석 기반 외관 · 내관 · 모델 · 브랜드 무드 통합 렌더링.`;
+    setTrack('A', 'done');
+  }
+
+  /* ---------- [TRACK B] Data — gemini-2.5-flash + Response Schema ---------- */
+  async function generateDataTrack(userPrompt) {
+    setTrack('B', 'active');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${getApiKey()}`;
+
+    const strategySchema = {
+      type: "OBJECT",
+      properties: {
+        brief: {
+          type: "OBJECT",
+          description: "Summary 카드 + Hero Render 카드에 들어갈 컨셉 텍스트·스탯·무드 컬러",
+          properties: {
+            titleEn:     { type: "STRING", description: "영문 컨셉 제목 (마침표 포함). 예: 'A Heritage Gallery.', 'A Pastel Atelier.', 'An Editorial Boudoir.'" },
+            titleItalic: { type: "STRING", description: "titleEn 중 italic 강조할 마지막 단어 (마침표 포함). 예: 'Gallery.', 'Atelier.', 'Boudoir.'" },
+            editionLabel:{ type: "STRING", description: "Summary 카드 eyebrow 라벨. 형식: 'AI CURATED · {EDITION 명 영문 대문자} · {SEASON 코드}'. 예: 'AI CURATED · BOUDOIR EDITION · SS26', 'AI CURATED · HERITAGE CHAPTER · FW25', 'AI CURATED · MONOCHROME SUITE · SS26'." },
+            descKo:      { type: "STRING", description: "Summary 카드 본문. 1~2문장. 앰배서더×상품 기반 컨셉 요약." },
+            heroDescKo:  { type: "STRING", description: "Hero Render 카드 본문. 1~2문장. 외관·내관·재질감을 묘사하는 다른 각도." },
+            keywords: {
+              type: "ARRAY",
+              description: "4~5개 짧은 무드/재질/시각 키워드. 각 항목은 1~3어절. 영문 Title Case 우선이며, 필요 시 한글 혼용 가능 — 예: ['Hanji Silk', 'Quiet Luxury', 'Linen Folds', 'Brushed Brass', 'Patina'] 또는 ['모스 벨벳', 'Brass Edge', 'Travertine', 'Soft Filter'].",
+              items: { type: "STRING" }
+            },
+            curatorVoice:{ type: "STRING", description: "큐레이터 시그니처 — 1줄 한국어, 마침표로 끝나는 짧고 시적인 관점 (15~28자). 마케팅 카피처럼 들리지 않게. 예: '정해인의 정적인 사색을 한지 위에 옮긴 살롱.', 'RM의 헤리티지가 흑단과 모스로 압축된 챕터.'" },
+            stats: {
+              type: "OBJECT",
+              description:
+                "Summary 카드 4-stat 그리드. 각 값은 입력(앰배서더·상품 카테고리·재질·가격·컬렉션·위치·톤)에 따라 " +
+                "반드시 논리적으로 다르게 산출. 절대 모든 컨셉에 똑같은 값을 반환하지 말 것.",
+              properties: {
+                brandMatch: {
+                  type: "OBJECT",
+                  description:
+                    "브랜드 적합도. 컨셉이 백화점 럭셔리 톤에 부합할수록 높음. " +
+                    "Quiet Luxury·Editorial Minimal·Heritage → 93~98 / Pastel·Soft Romantic → 88~94 / " +
+                    "Bold Heritage·Monochrome → 85~92 / 실험적 → 78~88. " +
+                    "현대 본점·신세계 강남·갤러리아 위치는 +1~3 가산.",
+                  properties: {
+                    value: { type: "STRING", description: "정수 (단위 % 제외). 78~98 범위." },
+                    delta: { type: "STRING", description: "'+N% vs 시즌 평균' 형식. value가 높을수록 N도 큼 (90↑은 +10 이상)." }
+                  },
+                  required: ["value", "delta"]
+                },
+                expectedVisits: {
+                  type: "OBJECT",
+                  description:
+                    "2주 운영 예상 방문객. 앰배서더 인지도 × 위치 트래픽 × 상품 매력의 가중합. " +
+                    "TOP-tier(정해인·차은우·아이유·NewJeans·제니·RM·박서준·변우석·한소희) + 본점/Seoul flagship → 13.5~16.0 / " +
+                    "TOP-tier + 강남점 → 11.5~13.5 / 중견 + 메인 점포 → 9.5~11.5 / 신예 → 8.0~9.5. " +
+                    "Fragrance/Beauty +0.3~0.5, Jewelry/Watch -0.3~0.5.",
+                  properties: {
+                    value: { type: "STRING", description: "소수 한 자리. 8.0~16.0 범위." },
+                    unit:  { type: "STRING", description: "고정: 'K / 2wk'" },
+                    delta: { type: "STRING", description: "'▲N% vs 동일 매장' 형식. TOP-tier일수록 N이 큼(▲28~45%)." }
+                  },
+                  required: ["value", "unit", "delta"]
+                },
+                conversionRate: {
+                  type: "OBJECT",
+                  description:
+                    "예상 구매 전환율. 상품 카테고리·가격대로 강하게 결정. " +
+                    "Fragrance/Beauty → 3.8~4.8 / Silk·Lifestyle → 3.2~4.0 / Ready-to-Wear·Eyewear → 2.8~3.6 / " +
+                    "Leather → 2.4~3.2 / Jewelry·Watch → 1.8~2.6.",
+                  properties: {
+                    value: { type: "STRING", description: "소수 한 자리. 1.8~4.8 범위." },
+                    delta: { type: "STRING", description: "'▲N.Npt vs 카테고리' 형식. brandMatch가 높을수록 N이 큼." }
+                  },
+                  required: ["value", "delta"]
+                }
+              },
+              required: ["brandMatch", "expectedVisits", "conversionRate"]
+            },
+            moodPalette: {
+              type: "OBJECT",
+              description:
+                "Summary · Hero Render 카드의 배경 그라데이션 색. 컨셉 무드를 시각적으로 표현. " +
+                "어두운 카드 위에 흰 글씨가 읽혀야 하므로 primary/secondary는 반드시 어두운 톤 (luminance < 0.25). " +
+                "accent는 italic 강조용 — primary/secondary 위에서 또렷이 보여야 함 (luminance > 0.55).",
+              properties: {
+                primary:   { type: "STRING", description: "주조색 hex 7자리. 예: 헤리티지→'#0A0A0A', 파스텔→'#3a2f2a', 모노크롬→'#0F0F0F', 살롱→'#29261B'" },
+                secondary: { type: "STRING", description: "보조색 hex 7자리. 예: 헤리티지→'#1F3D2C', 파스텔→'#5C3A2A', 모노크롬→'#2A2A2A', 살롱→'#1F3D2C'" },
+                accent:    { type: "STRING", description: "italic·강조용 밝은 hex 7자리. 예: 헤리티지→'#B89968', 파스텔→'#E8C5B8', 모노크롬→'#A8A29A', 살롱→'#D9C6A5'" }
+              },
+              required: ["primary", "secondary", "accent"]
+            }
+          },
+          required: ["titleEn", "titleItalic", "editionLabel", "descKo", "heroDescKo", "keywords", "curatorVoice", "stats", "moodPalette"]
+        },
+        location:   { type: "STRING", description: "추천 백화점 명당 위치" },
+        vmdRouting: { type: "STRING", description: "VMD 동선 최적화 전략" },
+        bmItems: {
+          type: "ARRAY",
+          items: { type: "STRING", description: "수익 모델 항목" }
+        },
+        floorplan: {
+          type: "OBJECT",
+          description: "팝업 평면도 — 정확히 6개 존(고정 위치)과 4단계 동선",
+          properties: {
+            title:   { type: "STRING", description: "동선 카드의 제목 한 줄. 예: '왼쪽으로 흐르는 럭셔리 동선.'" },
+            summary: { type: "STRING", description: "동선·배치 한 줄 요약 (1~2문장, 럭셔리 톤)" },
+            zones: {
+              type: "ARRAY",
+              description:
+                "정확히 6개. 각 zone은 평면 그리드의 고정 위치에 매핑됨 — " +
+                "[1] 좌상단 작은 셀 = 입구/엔트런스, " +
+                "[2] 중앙 큰 셀(2행 spans) = 메인 백 바/시그니처 디스플레이, " +
+                "[3] 우상단 작은 셀 = 포토/거울/시선 존, " +
+                "[4] 좌하단 셀 = VIP/컨설팅/깊이 존, " +
+                "[5] 우하단 셀 = 체험/언박싱/인터랙티브 존, " +
+                "[6] 전폭 dark 셀 = 출구/결제/픽업.",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  num:     { type: "STRING", description: "번호 라벨. 예: '01' / '02 · BACKBAR' / '06 · EXIT'. 2번과 6번은 강조 키워드 포함." },
+                  name:    { type: "STRING", description: "존 메인 이름 한 줄. 예: '엔트런스', '한정판 굿즈 · 백 바'" },
+                  subname: { type: "STRING", description: "존 부제. 예: '· 향 디퓨저', '· 거울 살롱' — 비워두면 빈 문자열" }
+                },
+                required: ["num", "name", "subname"]
+              }
+            },
+            steps: {
+              type: "ARRAY",
+              description: "동선 단계 정확히 4개 — 입장 순서대로 (예: 입구→백바→포토→VIP)",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  ord:    { type: "STRING", description: "단계 번호. 예: '01'" },
+                  name:   { type: "STRING", description: "단계 이름. 예: '엔트런스'" },
+                  detail: { type: "STRING", description: "단계 한 줄 설명. 예: '향 디퓨저 · 1.2m 폭'" }
+                },
+                required: ["ord", "name", "detail"]
+              }
+            }
+          },
+          required: ["title", "summary", "zones", "steps"]
+        },
+        budget: {
+          type: "OBJECT",
+          description: "2주 운영 기준 개설 예산 상세 — 하이엔드 백화점 5F 약 60평 가정",
+          properties: {
+            totalKRW: { type: "STRING", description: "총합 예산 (예: ₩710M)" },
+            summary:  { type: "STRING", description: "예산 한 줄 요약 — 평수·기간·핵심 비중" },
+            items: {
+              type: "ARRAY",
+              description: "8~10개의 예산 항목. 비중 합계는 반드시 100%.",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  name:     { type: "STRING", description: "항목명 · 예: '마감재 · 시공'" },
+                  subname:  { type: "STRING", description: "항목 부제 · 예: '흑단 · 황동 · 트래버틴'" },
+                  detail:   { type: "STRING", description: "세부 내역 한 줄 · 예: '14일 단기 시공'" },
+                  amount:   { type: "STRING", description: "예산 (KRW). 예: '₩278M'" },
+                  share:    { type: "STRING", description: "전체 대비 비중 (%). 예: '39%'" }
+                },
+                required: ["name", "subname", "detail", "amount", "share"]
+              }
+            }
+          },
+          required: ["totalKRW", "summary", "items"]
+        }
+      },
+      required: ["brief", "location", "vmdRouting", "bmItems", "floorplan", "budget"]
+    };
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text:
+          "너는 하이엔드 백화점(현대·신세계·갤러리아) 팝업스토어 전문 VMD이자 " +
+          "공간 비즈니스 컨설턴트다. 한국어 존댓말 + 명사형 종결로 명확하게 작성하고, " +
+          "럭셔리 톤(절제된 어휘, 형용사 최소화)을 유지해라. " +
+          "brief.titleEn은 영문 명사구 + 마침표, 형식은 'An Editorial Boudoir.' / 'A Pastel Atelier.' / " +
+          "'A Heritage Gallery.' / 'A Monochrome Salon.' 처럼 'An/A + 형용사 + 명사 + 마침표'. " +
+          "titleItalic은 titleEn의 마지막 단어 + 마침표만. " +
+          "brief.editionLabel은 영문 대문자 + 가운뎃점(·) 구분자, 'AI CURATED · {EDITION 명} · {시즌 코드}' 형식. " +
+          "EDITION 명은 titleEn의 명사를 변형하거나 컨셉을 함축한 단어 — 예: 'BOUDOIR EDITION', 'HERITAGE CHAPTER', " +
+          "'MONOCHROME SUITE', 'PASTEL ATELIER', 'GALLERY VOLUME'. 시즌은 입력 컬렉션을 코드화 (Spring·Summer 2026→'SS26', Fall·Winter 2025→'FW25'). " +
+          "brief.descKo와 heroDescKo는 서로 다른 각도로 — descKo는 '컨셉 정체성' (누구를 위한, 어떤 무드인지), " +
+          "heroDescKo는 '재질·빛·외관' (실제 공간의 시각적 디테일). " +
+          "brief.keywords는 4~5개, 각 1~3어절의 무드/재질/시각 키워드. " +
+          "영문 Title Case 우선 (예: 'Quiet Luxury', 'Hanji Silk', 'Brushed Brass'), 필요 시 한글 혼용 가능. " +
+          "컨셉의 핵심 재질·톤·분위기를 압축. " +
+          "brief.curatorVoice는 큐레이터의 1줄 시그니처 (한국어, 15~28자, 마침표로 종결). " +
+          "마케팅 카피 아닌 정적인 관점 — 예: '정해인의 정적인 사색을 한지 위에 옮긴 살롱.', " +
+          "'박서준의 헤리티지가 흑단과 모스로 응축된 챕터.'. " +
+          "brief.stats 4개 수치는 입력값(앰배서더·상품 카테고리·재질·가격·컬렉션·위치·톤)에 따라 " +
+          "반드시 논리적으로 차등화한다. 절대 똑같은 값을 반복하지 말 것. 각 수치의 산출 규칙: " +
+          "[1] brandMatch.value (78~98 정수): 컨셉이 백화점 럭셔리 톤과 얼마나 부합하는가. " +
+          "Quiet Luxury·Editorial Minimal·Heritage → 93~98, Pastel Atelier·Soft Romantic → 88~94, " +
+          "Bold Heritage·Monochrome → 85~92, 실험적·아방가르드 → 78~88. " +
+          "현대 본점·신세계 강남·갤러리아 위치는 +1~3 가산, 그 외는 그대로. " +
+          "delta는 '+N% vs 시즌 평균' 형식, value가 높을수록 +N도 큼 (90 이상은 +10 이상). " +
+          "[2] expectedVisits.value (8.0~16.0 소수 한 자리): 앰배서더 인지도 × 위치 트래픽 × 상품 매력의 가중합. " +
+          "TOP-tier (정해인·차은우·아이유·NewJeans·제니·BTS RM·박서준·변우석·한소희) + 본점/Seoul flagship → 13.5~16.0, " +
+          "TOP-tier + 강남점/주요 점포 → 11.5~13.5, 중견 모델 + 메인 점포 → 9.5~11.5, " +
+          "신예/덜 알려진 인물 + 보조 점포 → 8.0~9.5. " +
+          "상품 카테고리: Fragrance/Beauty (+0.3~0.5), Lifestyle (+0.2), Jewelry/Watch (-0.3~0.5). " +
+          "unit은 'K / 2wk' 고정. delta는 '▲N% vs 동일 매장' 형식, 인지도가 높을수록 N이 큼 (top-tier는 ▲28~45%). " +
+          "[3] conversionRate.value (1.8~4.8 소수 한 자리): 상품 카테고리·가격대로 강하게 결정. " +
+          "Fragrance/Beauty (저가, 충동구매 유도) → 3.8~4.8, " +
+          "Silk/Lifestyle (중가) → 3.2~4.0, " +
+          "Ready-to-Wear/Eyewear (중가) → 2.8~3.6, " +
+          "Leather (대형 가방·고가) → 2.4~3.2, " +
+          "Jewelry/Watch (초고가, 신중 구매) → 1.8~2.6. " +
+          "delta는 '▲N.Npt vs 카테고리' 형식, 컨셉 정합도(brandMatch)가 높을수록 N이 큼. " +
+          "[4] 개설 예산은 budget.totalKRW에서 자동 표시되므로 별도 stat 객체 없음. " +
+          "세 수치를 독립적으로 산출하지 말고 입력 조합 전체의 시너지를 반영하라. 같은 인풋에 대해 항상 같은 결과가 나와야 일관성 있는 추론이다. " +
+          "moodPalette는 컨셉 분위기를 시각화한다 — 헤리티지=흑단·모스·황동 / 모노크롬=차콜·스톤 / " +
+          "파스텔=웜브라운·블러시 / 살롱=흑단·모스·트래버틴 / 미니멀=차콜·페이퍼 / " +
+          "보헤미안=브릭·인디고. accent는 항상 밝고 italic 텍스트가 두 어두운 톤 위에서 또렷이 읽혀야 한다. " +
+          "bmItems는 5개 내외로, 각 항목은 한 줄짜리 수익 모델 명제로 작성해라. " +
+          "==== 상품 카테고리별 차별화 규칙 (가장 중요) ==== " +
+          "결과물(floorplan zone 이름, bmItems, budget 비중 분포)은 반드시 상품 카테고리에 따라 분명히 달라야 한다. " +
+          "다른 카테고리에서 동일한 zone 이름·BM·예산 분포가 나오면 안 된다. 다음 표를 그대로 따른다: " +
+
+          "▸ Fragrance/Beauty — zone 이름 예시: 향 디퓨저 / 향수 라이브러리 / 시향 살롱 / 블렌딩 스튜디오 / 시그니처 키오스크 / 픽업. " +
+          "bmItems 예시: '향 시그니처 커스터마이징 (1:1 블렌딩)', '향수 정기 구독 모델 (분기 큐레이션)', " +
+          "'프라이빗 블렌딩 세션 (예약제 60분)', '한정판 아토마이저 각인 서비스', '시향 멤버십 (연간 시향노트 발송)'. " +
+          "budget 비중: 마케팅·콘텐츠 28~35%, 마감재 22~28%, 미디어·AV 4~7% (조명·디퓨저 중심), 운영 6~9%. " +
+
+          "▸ Leather — zone 이름 예시: 가죽 라이브러리 / 핸디크래프트 데몬 / 모노그래밍 카운터 / VIP 컨설팅 / 케어 키트 / 픽업. " +
+          "bmItems 예시: '모노그래밍 인하우스 서비스 (핫스탬프)', '평생 가죽 케어 정기 (분기 컨디셔닝)', " +
+          "'수선 평생 보증 (인 하우스 장인)', '커스텀 스트랩·핸들 빌드', 'VIP 트렁크 페어 멤버십'. " +
+          "budget 비중: 마감재·시공 38~45% (가죽·월넛·황동), 가구·조명 14~18%, 운영 8~10%, 마케팅 8~12%. " +
+
+          "▸ Silk/Lifestyle — zone 이름 예시: 스카프 라이브러리 / 실크 드레이프 룸 / 한지 프린팅 데몬 / 시그니처 컬러 / 케어 / 픽업. " +
+          "bmItems 예시: '실크 케어 전문 클리닝', '커스텀 한지 프린트 (1:1 디자인)', '자수 모노그램', " +
+          "'시그니처 컬러 매칭 (피부톤 진단)', '스카프 스타일링 클래스'. " +
+          "budget 비중: 마감재 28~34%, 브랜딩·그래픽 9~13% (한지·실크 패턴), 가구 11~14%, 마케팅 14~18%. " +
+
+          "▸ Watch — zone 이름 예시: 시계 컬렉션 / 무브먼트 스튜디오 / 감정 카운터 / VIP 시연 / 트라이온 / 픽업. " +
+          "bmItems 예시: '감정서 발급 (인증 인하우스)', '평생 무브먼트 서비싱 (5년 무상)', '커스텀 스트랩 빌드', " +
+          "'가족 헤리티지 등록 (3대 보증)', '트레이드인 프로그램 (구형→신형)'. " +
+          "budget 비중: 운영·보안 13~17% (시큐리티), 마감재 28~34% (마호가니·황동), 미디어·AV 10~14% (시큐리티 시스템 포함), 가구 12~15%. " +
+
+          "▸ Jewelry — zone 이름 예시: 주얼리 케이스 / 헤리티지 갤러리 / 컨설테이션 / 사이즈 조정 / 케어 / 픽업. " +
+          "bmItems 예시: '감정 인증서', '사이즈 조정 인하우스', '헤리티지 등록 (가문 인계 보증)', " +
+          "'화이트글러브 배송 (전담 큐레이터)', '연간 케어 정기 (광택·검수)'. " +
+          "budget 비중: 운영·보안 14~18%, 마감재 30~36% (흑단·벨벳), 미디어·AV 9~12% (보안·디스플레이), 마케팅 8~11%. " +
+
+          "▸ Ready-to-Wear — zone 이름 예시: 의류 컬렉션 / 피팅 룸 / 알터레이션 / 스타일링 / 미러 룸 / 픽업. " +
+          "bmItems 예시: '평생 알터레이션', '메이드투메저 캡슐', '스타일링 컨설팅 정기', " +
+          "'케어·드라이클리닝 정기', '시즌 캡슐 정기 구독'. " +
+          "budget 비중: 가구·조명 18~22% (피팅룸·미러·랙), 마감재 28~33%, 운영 9~12%, 마케팅 11~14%. " +
+
+          "▸ Eyewear — zone 이름 예시: 컬렉션 월 / 사이즈 피팅 / 렌즈 컨설팅 / 트라이온 / 케어 / 픽업. " +
+          "bmItems 예시: '처방 렌즈 평생 교체', '프레임 각인 (이니셜)', '커스텀 피팅 (안면 스캔)', " +
+          "'케어 정기 (광택·조정)', '트레이드인 프로그램'. " +
+          "budget 비중: 미디어·AV 11~14% (안면 스캔·미러 시스템), 가구 13~16%, 마감재 26~30%, 마케팅 10~13%. " +
+
+          "==== floorplan 공통 규칙 ==== " +
+          "floorplan.zones는 반드시 정확히 6개. 그리드 고정 위치 — " +
+          "[1] 입구/엔트런스 (작은 좌상단), " +
+          "[2] 중앙 메인 디스플레이 (큰 중앙) — num에 '· FEATURE' 또는 카테고리 강조 키워드 포함, " +
+          "[3] 포토/시그니처 (우상단), " +
+          "[4] VIP·컨설팅·깊이 (좌하단), " +
+          "[5] 체험·인터랙티브 (우하단), " +
+          "[6] 출구·결제·픽업 (전폭 dark) — num에 '· EXIT' 포함. " +
+          "각 zone의 name은 6글자 내외 짧은 명사구. zone 이름은 위의 카테고리별 예시 패턴을 그대로 따른다. " +
+          "subname은 '· 카테고리 키워드' 형식 (예: '· 시향 카드', '· 모노그래밍 도구'). " +
+          "floorplan.steps는 정확히 4개, 입장 순서대로. " +
+
+          "==== bmItems 공통 규칙 ==== " +
+          "bmItems는 5개. 위 카테고리별 5개 예시를 그대로 반영하되, 컨셉(앰배서더·톤)에 맞게 한 줄로 다듬는다. " +
+          "다른 카테고리의 BM이 섞이면 안 된다 (예: Fragrance 컨셉에 '커스텀 스트랩' 같은 가죽 BM 금지). " +
+
+          "==== budget 공통 규칙 ==== " +
+          "budget.items는 8~10개. 다음 카테고리를 반드시 포함 — " +
+          "공간 디자인·설계 / 마감재·시공 / 가구·조명·디스플레이 / 미디어·AV·디지털 / " +
+          "브랜딩·그래픽·사이니지 / 운영·스태프 / 한정판 굿즈·패키지 / 마케팅·콘텐츠 / 예비비. " +
+          "amount는 ₩숫자M 또는 ₩숫자B 형식, share는 정수%. share 합은 정확히 100%, totalKRW는 모든 amount 합. " +
+          "각 항목의 share는 위의 카테고리별 비중 범위를 반드시 따른다. 카테고리에 따라 항목명의 subname도 차별화 " +
+          "(예: Fragrance의 '미디어·AV·디지털'은 'LED·디퓨저·향 큐레이션 디스플레이', Watch는 'LED·보안·진열 시큐리티')."
+        }]},
+        contents: [{ parts: [{ text:
+          `다음 입력값을 모두 추론에 사용해서 brief·location·vmdRouting·bmItems·floorplan·budget를 작성해줘.\n\n` +
+          `[입력값]\n` +
+          `- 앰배서더: ${state.ambassador.name}\n` +
+          `- 무드/톤: ${(state.ambassador.tone || '').trim() || 'editorial minimal'}\n` +
+          `- 히어로 상품명: ${state.product.name}\n` +
+          `- 상품 카테고리: ${state.product.cat}  ← 이 카테고리가 결과의 차별화 1순위 변수\n` +
+          `- 재질·마감: ${state.product.mat}\n` +
+          `- 가격대: ${state.product.price || '미지정'}\n` +
+          `- 컬렉션: ${state.collection}\n` +
+          `- 위치: ${state.location}\n\n` +
+          `[필수 규칙 — 차별화]\n` +
+          `· 상품 카테고리(${state.product.cat})에 따라 floorplan.zones 이름, bmItems, budget 항목 비중이 반드시 달라야 한다. ` +
+          `system_instruction의 카테고리별 표를 그대로 따른다. 다른 카테고리의 어휘가 섞이면 안 된다 ` +
+          `(예: ${state.product.cat} 컨셉에는 ${state.product.cat} 카테고리에 해당하는 zone/BM/budget 분포만 사용).\n` +
+          `· brief.stats 3개 수치(brandMatch / expectedVisits / conversionRate)도 위 입력에 따라 ` +
+          `반드시 차등화 — 같은 인풋이면 같은 값, 다른 인풋이면 분명히 다른 값. ` +
+          `brandMatch는 톤·위치, expectedVisits는 앰배서더 인지도·위치·카테고리, ` +
+          `conversionRate는 카테고리·가격대로 결정. delta는 value와 같은 방향.\n` +
+          `· brief.heroDescKo · curatorVoice · keywords · titleEn 모두 카테고리의 재질·도구·의식(ritual)이 ` +
+          `자연스럽게 녹아 있어야 한다 (예: 향수→'미스트·아토마이저·시향', 가방→'스티치·황동 리벳·모노그래밍', ` +
+          `시계→'무브먼트·루페·핀스폿', 주얼리→'벨벳·핀스폿·헤리티지').\n\n` +
+          `한 줄 요약: ${userPrompt}`
+        }]}],
+        generation_config: {
+          response_mime_type: "application/json",
+          response_schema:    strategySchema
+        }
+      })
+    });
+    if (!res.ok) throw new Error(`Strategy track HTTP ${res.status}`);
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error("Strategy track: empty response");
+    const result = JSON.parse(text);
+
+    /* Stash latest strategy so applyStrategy() can be re-run AFTER
+       renderResults() (which otherwise overwrites the brief with concept
+       defaults) */
+    state.lastStrategy = result;
+    applyStrategy(result);
+
+    setTrack('B', 'done');
+  }
+
+  /* =====================================================================
+     applyStrategy — projects a Track B JSON response onto the DOM.
+     Pulled out as a standalone function so the runGeneration tick() can
+     re-apply it AFTER the concept-based renderResults() runs, preventing
+     hardcoded fallbacks from clobbering Gemini's output.
+     ===================================================================== */
+  function applyStrategy(result) {
+    if (!result) return;
+
+    /* ---- Map JSON schema → DOM (Gemini Insights block in BM card) ---- */
+    const insightsEl = $('#geminiInsights');
+    if (insightsEl) insightsEl.style.display = 'block';
+    $('#igLocation').textContent = result.location   || '—';
+    $('#igRouting').textContent  = result.vmdRouting || '—';
+
+    const listEl = $('#igBmList');
+    listEl.innerHTML = '';
+    (result.bmItems || []).forEach((item, i) => {
+      const li = document.createElement('li');
+      li.innerHTML =
+        `<span class="ord">${String(i+1).padStart(2,'0')}</span><span>${escapeHTML(item)}</span>`;
+      listEl.appendChild(li);
+    });
+
+    /* ---- Cross-inject into existing structures ---- */
+    const flowDesc = $('#flowDesc');
+    if (flowDesc && result.vmdRouting) flowDesc.textContent = result.vmdRouting;
+    const metaLoc = $('#meta-loc');
+    if (metaLoc && result.location) metaLoc.textContent = result.location;
+
+    /* ---- Brief — Summary card + Hero Render card (text · stats · mood color) ---- */
+    if (result.brief) {
+      const b = result.brief;
+
+      /* Build "A Heritage <span class="it">Gallery.</span>" by splitting on the
+         italic suffix so the accent word stays italicized */
+      function composeTitle(full, italic) {
+        if (!full) return '';
+        if (italic && full.endsWith(italic)) {
+          const head = full.slice(0, full.length - italic.length).trimEnd();
+          return `${escapeHTML(head)} <span class="it">${escapeHTML(italic)}</span>`;
+        }
+        return escapeHTML(full);
+      }
+
+      const titleHTML = composeTitle(b.titleEn, b.titleItalic);
+
+      /* Summary card */
+      const sumT = $('#summaryTitle');
+      const sumD = $('#summaryDesc');
+      if (sumT && titleHTML) sumT.innerHTML = titleHTML;
+      if (sumD && b.descKo)  sumD.innerHTML = escapeHTML(b.descKo);
+
+      /* Edition label (eyebrow) — replaces the random "NO. 03" */
+      const edEl = $('#editionLabel');
+      if (edEl && b.editionLabel) edEl.textContent = b.editionLabel;
+
+      /* Hero Render card */
+      const hrT = $('#heroRenderTitle');
+      const hrD = $('#heroRenderDesc');
+      if (hrT && titleHTML) hrT.innerHTML = titleHTML;
+      if (hrD && b.heroDescKo) hrD.textContent = b.heroDescKo;
+
+      /* Curator voice — italicized 1-liner below hero description */
+      const cvEl = $('#curatorVoice');
+      if (cvEl) cvEl.textContent = b.curatorVoice || '';
+
+      /* Keyword chips — appear on both Summary and Hero Render */
+      const kwHTML = (b.keywords || []).slice(0, 6).map(k =>
+        `<span class="kw">${escapeHTML(String(k))}</span>`
+      ).join('');
+      const sKw = $('#summaryKeywords');
+      const hKw = $('#heroKeywords');
+      if (sKw) sKw.innerHTML = kwHTML;
+      if (hKw) hKw.innerHTML = kwHTML;
+
+      /* Moodboard section header also follows the brief title */
+      const mbT = $('#mbTitle');
+      if (mbT && titleHTML) mbT.innerHTML = titleHTML;
+
+      /* Stats */
+      if (b.stats) {
+        const st = b.stats;
+        if (st.brandMatch) {
+          const el = $('#stat-match');
+          if (el) el.innerHTML = `${escapeHTML(st.brandMatch.value || '—')}<span class="u">%</span>`;
+          const delta = $('#stat-match')?.parentElement?.querySelector('.delta');
+          if (delta && st.brandMatch.delta) delta.textContent = st.brandMatch.delta;
+        }
+        if (st.expectedVisits) {
+          const el = $('#stat-visit');
+          if (el) el.innerHTML =
+            `${escapeHTML(st.expectedVisits.value || '—')}<span class="u">${escapeHTML(st.expectedVisits.unit || '')}</span>`;
+          const delta = $('#stat-visit')?.parentElement?.querySelector('.delta');
+          if (delta && st.expectedVisits.delta) delta.textContent = st.expectedVisits.delta;
+        }
+        if (st.conversionRate) {
+          const el = $('#stat-conv');
+          if (el) el.innerHTML = `${escapeHTML(st.conversionRate.value || '—')}<span class="u">%</span>`;
+          const delta = $('#stat-conv')?.parentElement?.querySelector('.delta');
+          if (delta && st.conversionRate.delta) delta.textContent = st.conversionRate.delta;
+        }
+      }
+
+      /* Mood palette — apply gradient + accent color to Summary and Hero Render */
+      if (b.moodPalette) {
+        const mp     = b.moodPalette;
+        const isHex  = h => /^#[0-9A-Fa-f]{6}$/.test(String(h || '').trim());
+        const safe   = (h, fb) => isHex(h) ? h.trim() : fb;
+        const p      = safe(mp.primary,   '#29261B');
+        const s      = safe(mp.secondary, '#1F3D2C');
+        const a      = safe(mp.accent,    '#D9C6A5');
+
+        const grad   = `linear-gradient(135deg, ${p} 0%, ${s} 100%)`;
+        const grad2  = `linear-gradient(135deg, ${p}EE 0%, ${s}DD 100%)`;
+
+        const summary    = document.querySelector('.summary');
+        const heroRender = document.querySelector('.hero-render');
+        if (summary)    summary.style.background    = grad;
+        if (heroRender) heroRender.style.background = grad2;
+
+        /* Inline-paint every .it span across summary / hero / moodboard */
+        document.querySelectorAll(
+          '.summary .it, .hero-render .it, .mb-header h3 .it'
+        ).forEach(el => { el.style.color = a; });
+
+        /* Hero Render image-area scrim — soften to match new palette */
+        const heroImgArea = document.querySelector('.hero-render .img-area');
+        if (heroImgArea && !heroImgArea.querySelector('img.loaded')) {
+          heroImgArea.style.background =
+            `radial-gradient(circle at 30% 30%, ${a}26, transparent 55%),` +
+            `radial-gradient(circle at 75% 70%, ${a}1A, transparent 55%),` +
+            `linear-gradient(135deg, ${p} 0%, ${s} 100%)`;
+        }
+      }
+    }
+
+    /* ---- Floorplan card — title + 6 zones + 4 steps from Gemini ---- */
+    if (result.floorplan) {
+      const fp = result.floorplan;
+      const flowTitle = $('#flowTitle');
+      if (flowTitle && fp.title) flowTitle.textContent = fp.title;
+      /* If Gemini also provides a summary, prefer it over vmdRouting one-liner */
+      if (flowDesc && fp.summary) flowDesc.textContent = fp.summary;
+
+      /* 6 zones — render into existing fixed-position grid cells */
+      if (Array.isArray(fp.zones)) {
+        fp.zones.slice(0, 6).forEach((z, i) => {
+          const cell = document.querySelector(`#floorplan [data-zone="${i+1}"]`);
+          if (!cell) return;
+          const numEl = cell.querySelector('.num');
+          const nmEl  = cell.querySelector('.nm');
+          if (numEl) numEl.textContent = z.num || String(i+1).padStart(2,'0');
+          if (nmEl) {
+            const sub = z.subname ? `<br>${escapeHTML(z.subname)}` : '';
+            nmEl.innerHTML = `${escapeHTML(z.name || '')}${sub}`;
+          }
+        });
+      }
+
+      /* 4 steps — replace the <ul class="floor-list"> rows */
+      const stepsEl = $('#floorList');
+      if (stepsEl && Array.isArray(fp.steps) && fp.steps.length) {
+        stepsEl.innerHTML = '';
+        fp.steps.slice(0, 4).forEach((s, i) => {
+          const li = document.createElement('li');
+          li.innerHTML =
+            `<span class="ord">${escapeHTML(s.ord || String(i+1).padStart(2,'0'))}</span>` +
+            `<span class="nm">${escapeHTML(s.name || '')}</span>` +
+            `<span class="desc">${escapeHTML(s.detail || '')}</span>`;
+          stepsEl.appendChild(li);
+        });
+      }
+    }
+
+    /* ---- Opening Budget table — fully replaced by Gemini ---- */
+    if (result.budget) {
+      const b = result.budget;
+      const titleEl = $('#budgetTitle');
+      const descEl  = $('#budgetDesc');
+      const bodyEl  = $('#bmTableBody');
+      const totalEl = $('#bmTotalAmt');
+
+      if (titleEl && b.totalKRW) titleEl.textContent = `2주 운영 · 약 ${b.totalKRW}.`;
+      if (descEl  && b.summary)  descEl.textContent  = b.summary;
+
+      if (bodyEl && Array.isArray(b.items) && b.items.length) {
+        bodyEl.innerHTML = '';
+        let shareSum = 0;
+        b.items.forEach(it => {
+          const tr = document.createElement('tr');
+          tr.innerHTML =
+            `<td>` +
+              `<div class="name">${escapeHTML(it.name || '')}</div>` +
+              `<div class="desc">${escapeHTML(it.subname || '')}</div>` +
+            `</td>` +
+            `<td><div class="desc">${escapeHTML(it.detail || '')}</div></td>` +
+            `<td class="amt">${escapeHTML(it.amount || '')}</td>` +
+            `<td class="share">${escapeHTML(it.share || '')}</td>`;
+          bodyEl.appendChild(tr);
+          const n = parseInt(String(it.share || '').replace(/[^\d]/g, ''), 10);
+          if (!Number.isNaN(n)) shareSum += n;
+        });
+        if (totalEl && b.totalKRW) totalEl.textContent = b.totalKRW;
+        const footShare = $('#bmTableFoot .share');
+        if (footShare) footShare.textContent = (shareSum || 100) + '%';
+      }
+    }
+  }
+
+  /* ---------- AI Generation flow (fake-progress + real Gemini parallel) ---------- */
+  const genBtn = $('#generateBtn');
+  const generating = $('#generating');
+  const results = $('#results');
+  const genPct  = $('#genPct');
+  const genStep = $('#genStep');
+  const genTtl  = $('#genTtl');
+
+  const STAGES = [
+    { pct: 18,  step: '스타일 분석',          ttl: '컨셉을 분석하는 중…' },
+    { pct: 38,  step: '공간 컨셉 도출',       ttl: '컨셉 키워드를 구성하는 중…' },
+    { pct: 60,  step: 'Imagen 4 · 렌더링',     ttl: '대리석과 조명을 그리는 중…' },
+    { pct: 78,  step: '동선·배치 최적화',     ttl: '동선을 설계하는 중…' },
+    { pct: 94,  step: '개설 예산 산출',       ttl: '개설 예산을 산출하는 중…' },
+    { pct: 100, step: '기획안 완성',          ttl: '큐레이션 완료' },
+  ];
+
+  function runGeneration() {
+    generating.classList.add('is-on');
+    results.classList.remove('is-on');
+    genPct.textContent = '0';
+    genStep.textContent = STAGES[0].step;
+    genTtl.textContent  = STAGES[0].ttl;
+
+    /* Reset image + track UI */
+    const imgEl = $('#resultImg');
+    if (imgEl) { imgEl.classList.remove('loaded'); imgEl.removeAttribute('src'); }
+    /* Reset every moodboard cell image so loading shimmer reappears */
+    $$('.mb-cell[data-slot]').forEach(t => {
+      t.classList.remove('has-image');
+      const img = t.querySelector('.tile-img');
+      if (img) { img.classList.remove('loaded'); img.removeAttribute('src'); }
+    });
+    /* Clear previous mood-palette inline styles so the new concept's colors apply fresh */
+    ['.summary', '.hero-render', '.hero-render .img-area'].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) el.style.background = '';
+    });
+    document.querySelectorAll('.summary .it, .hero-render .it, .mb-header h3 .it')
+      .forEach(el => { el.style.color = ''; });
+    /* Clear keyword chips + curator voice from previous run */
+    ['#summaryKeywords', '#heroKeywords'].forEach(s => {
+      const el = document.querySelector(s);
+      if (el) el.innerHTML = '';
+    });
+    const cvReset = document.querySelector('#curatorVoice');
+    if (cvReset) cvReset.textContent = '';
+    /* Drop any cached strategy from previous run — so renderResults can't
+       accidentally re-apply stale Gemini data while the new call is in flight */
+    state.lastStrategy = null;
+    setTrack('A', 'active'); setTrack('B', 'active');
+    const insightsEl = $('#geminiInsights');
+    if (insightsEl) insightsEl.style.display = 'none';
+
+    /* [핵심] 두 트랙을 병렬로 — fake progress bar 와 동시에 진행 */
+    const userPrompt = buildUserPrompt();
+    const apiPromise = Promise.allSettled([
+      generateImageTrack(userPrompt),
+      generateDataTrack(userPrompt),
+    ]);
+    apiPromise.then(rs => {
+      rs.forEach((r, i) => {
+        if (r.status === 'rejected') {
+          console.error(['Image', 'Strategy'][i] + ' track failed:', r.reason);
+          setTrack(i === 0 ? 'A' : 'B', 'error');
+        }
+      });
+    });
+
+    let s = 0, current = 0;
+    const target = () => STAGES[s].pct;
+    const tick = () => {
+      if (current < target()) {
+        current += 1;
+        genPct.textContent = current;
+        setTimeout(tick, 18 + Math.random() * 14);
+      } else if (s < STAGES.length - 1) {
+        s++;
+        genStep.textContent = STAGES[s].step;
+        genTtl.textContent  = STAGES[s].ttl;
+        setTimeout(tick, 180);
+      } else {
+        /* Concept-driven render (always runs — works without API) */
+        renderResults();
+        /* If Gemini already finished, immediately overlay its brief/strategy
+           so renderResults' concept fallbacks don't stay on screen. */
+        if (state.lastStrategy) applyStrategy(state.lastStrategy);
+        /* Wait for API tracks to settle before revealing results, so the
+           hero render and Gemini insights appear together. Re-apply once
+           more in case Track B landed after renderResults. */
+        apiPromise.finally(() => {
+          if (state.lastStrategy) applyStrategy(state.lastStrategy);
+          setTimeout(showResults, 320);
+        });
+      }
+    };
+    setTimeout(tick, 220);
+    setTimeout(() => generating.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+  }
+
+  function showResults() {
+    generating.classList.remove('is-on');
+    results.classList.add('is-on');
+    setTimeout(() => results.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+
+  if (genBtn) genBtn.addEventListener('click', runGeneration);
+
+  /* =====================================================================
+     EXPORT PDF — html2pdf captures the full #results section into a
+     multi-page A4 PDF and triggers a download. A dark cover sheet is
+     injected dynamically so the export reads like a deliverable, not a
+     screen grab.
+     ===================================================================== */
+  function sanitize(s) {
+    return String(s).replace(/[^a-zA-Z0-9가-힣\s_-]/g, '').replace(/\s+/g, '_').slice(0, 40);
+  }
+
+  function buildPdfCover() {
+    const c = concepts[state.ambassador.id] || concepts.jhi;
+    const titleHtml = c.title || 'An Editorial Brief.';
+    const summary   = `${state.ambassador.name} × ${state.product.name} 기반 — ${c.desc.replace(/<[^>]+>/g,'')}`;
+    const now       = new Date().toLocaleString('ko-KR', { dateStyle: 'long', timeStyle: 'short' });
+    const locText   = ($('#meta-loc') && $('#meta-loc').textContent) || state.location;
+
+    const cov = document.createElement('div');
+    cov.className = 'pdf-cover';
+    cov.innerHTML = `
+      <div class="pc-eb"><span class="star">✦</span>MAISON ATELIER · AI CURATED BRIEF</div>
+      <div class="pc-mark">메종 아틀리에 · Glow-up Pipeline</div>
+      <h1>${titleHtml}</h1>
+      <p class="pc-deck">${escapeHTML(summary)}</p>
+      <div class="pc-meta">
+        <div><div class="k">Ambassador</div><div class="v">${escapeHTML(state.ambassador.name)}</div></div>
+        <div><div class="k">Hero Product</div><div class="v">${escapeHTML(state.product.name)}</div></div>
+        <div><div class="k">Collection</div><div class="v">${escapeHTML(state.collection)}</div></div>
+        <div><div class="k">Location</div><div class="v">${escapeHTML(locText)}</div></div>
+        <div><div class="k">Curated</div><div class="v">${escapeHTML(now)}</div></div>
+        <div><div class="k">Engine</div><div class="v">Gemini 2.5 Pro · Imagen</div></div>
+      </div>
+    `;
+    return cov;
+  }
+
+  /* html2canvas can't capture an <img> that hasn't decoded yet — wait for all */
+  function waitForImages(root) {
+    const imgs = [...root.querySelectorAll('img')].filter(i => i.getAttribute('src'));
+    return Promise.all(imgs.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise(res => {
+        img.addEventListener('load',  res, { once: true });
+        img.addEventListener('error', res, { once: true });
+      });
+    }));
+  }
+
+  async function exportPDF() {
+    if (typeof window.html2pdf !== 'function') {
+      alert('PDF 라이브러리 로드 실패 — 네트워크 연결을 확인해 주세요.');
+      return;
+    }
+    const results = $('#results');
+    if (!results || !results.classList.contains('is-on')) {
+      alert('먼저 Curate with AI로 기획안을 생성해 주세요.');
+      return;
+    }
+
+    const btn = $('#exportBtn');
+    const originalLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'PDF 생성 중…';
+
+    /* Inject cover, switch body into PDF-export mode */
+    const cover = buildPdfCover();
+    const shell = results.querySelector('.shell');
+    shell.insertBefore(cover, shell.firstChild);
+    document.body.classList.add('pdf-export');
+
+    /* Layout settle + wait for any pending Gemini images */
+    await new Promise(r => setTimeout(r, 80));
+    await waitForImages(results);
+
+    const filename =
+      `Maison_Atelier_${sanitize(state.ambassador.name)}_${sanitize(state.product.name)}` +
+      `_${new Date().toISOString().slice(0,10)}.pdf`;
+
+    const opt = {
+      margin:      [12, 12, 14, 12],
+      filename:    filename,
+      image:       { type: 'jpeg', quality: 0.96 },
+      html2canvas: {
+        scale:           2,
+        useCORS:         true,
+        allowTaint:      true,
+        backgroundColor: '#FBFAF7',
+        logging:         false,
+        windowWidth:     1280,
+      },
+      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+      pagebreak:   { mode: ['css', 'legacy'], avoid: ['.card', '.summary', '.hero-render', '.mb-cell'] },
+    };
+
+    try {
+      await window.html2pdf().set(opt).from(results).save();
+    } catch (err) {
+      console.error(err);
+      alert('PDF 생성 중 오류 — 콘솔을 확인해 주세요.\n' + (err.message || err));
+    } finally {
+      cover.remove();
+      document.body.classList.remove('pdf-export');
+      btn.innerHTML = originalLabel;
+      btn.disabled = false;
+    }
+  }
+
+  const exportBtnEl = $('#exportBtn');
+  if (exportBtnEl) exportBtnEl.addEventListener('click', exportPDF);
+
+  const editBriefBtnEl = $('#editBriefBtn');
+  if (editBriefBtnEl) editBriefBtnEl.addEventListener('click', () => {
+    $('#results').classList.remove('is-on');
+    $('#top').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('#promptInput')?.focus();
+  });
+
+  /* ---------- Reveal animation ---------- */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  $$('.card, .summary, .mood-large, .gemini-band, .moodboard-section, .hero-render, .mb-cell').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = `opacity 600ms cubic-bezier(.65,0,.35,1) ${i * 80}ms, transform 600ms cubic-bezier(.65,0,.35,1) ${i * 80}ms`;
+    io.observe(el);
+  });
+})();
+</script>
+
+</body>
+</html>
