@@ -13,10 +13,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400;1,500&display=swap">
 <!-- html2pdf — captures DOM + images into a downloadable multi-page PDF -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js">
-   const API_KEY   = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
-  const getApiKey = () => API_KEY;
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
 
 <style>
 /* =========================================================================
@@ -469,6 +466,173 @@ nav.nav .actions {
   color: var(--text-2);
 }
 .cta-row .note .moss { color: var(--moss); font-weight: 600; }
+
+/* ----- 제품 사진 업로드 — 이미지는 원본 비율 그대로 (object-fit: contain) ----- */
+.prod-photo-row { margin-bottom: 18px; }
+.prod-photo-row > .lab {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 10px;
+}
+.prod-photo-area {
+  position: relative;
+  width: 100%;
+  min-height: 220px;
+  border-radius: 12px;
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(41,38,27,0.018) 0% 25%,
+      rgba(41,38,27,0)     25% 50%
+    ) 0 0 / 18px 18px,
+    var(--surface);
+  border: 1.5px dashed var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 240ms var(--ease);
+  overflow: hidden;
+  padding: 18px;
+}
+.prod-photo-area:hover {
+  border-color: var(--text);
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(41,38,27,0.025) 0% 25%,
+      rgba(41,38,27,0)     25% 50%
+    ) 0 0 / 18px 18px,
+    var(--paper);
+}
+.prod-photo-area.is-drag {
+  border-color: var(--moss);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(31,61,44,0.06), transparent 70%),
+    var(--paper);
+}
+.prod-photo-area.has-image {
+  border-style: solid;
+  border-color: var(--border);
+  background: var(--paper);
+  cursor: default;
+}
+.prod-photo-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  text-align: center;
+  pointer-events: none;
+}
+.prod-photo-area.has-image .prod-photo-empty { display: none; }
+.prod-photo-empty .icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 22px; font-weight: 300; line-height: 42px;
+  text-align: center;
+}
+.prod-photo-empty .ttl {
+  font-size: 14px; font-weight: 600;
+  color: var(--text); letter-spacing: -0.005em;
+}
+.prod-photo-empty .hint {
+  font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+.prod-photo-preview {
+  display: none;
+  max-width: 100%;
+  max-height: 380px;
+  width: auto;
+  height: auto;
+  object-fit: contain;        /* 이미지 전체가 보이도록 — 자르지 않음 */
+  border-radius: 4px;
+}
+.prod-photo-area.has-image .prod-photo-preview { display: block; }
+.prod-photo-remove {
+  display: none;
+  position: absolute; top: 10px; right: 10px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: rgba(41,38,27,0.88);
+  color: var(--paper);
+  font-size: 16px; line-height: 1;
+  cursor: pointer;
+  transition: all 200ms var(--ease);
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
+.prod-photo-area.has-image .prod-photo-remove { display: inline-flex; align-items: center; justify-content: center; }
+.prod-photo-remove:hover { background: var(--burgundy); transform: scale(1.08); }
+.prod-photo-meta {
+  position: absolute; bottom: 10px; left: 12px;
+  padding: 5px 10px;
+  background: rgba(41,38,27,0.78);
+  color: var(--paper);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  border-radius: 999px;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+  display: none;
+}
+.prod-photo-area.has-image .prod-photo-meta { display: inline-flex; align-items: center; gap: 6px; }
+.prod-photo-meta .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--moss-2);
+  animation: pulse 2.4s var(--ease) infinite;
+}
+
+/* ----- Gemini API key drawer — sessionStorage only, never sent elsewhere ----- */
+.api-key-row {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px; color: var(--text-3);
+  letter-spacing: 0.04em;
+}
+.api-key-row .lab {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.api-key-row .lab .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--moss);
+  animation: pulse 2.4s var(--ease) infinite;
+}
+.api-key-row .lab.is-set .dot { background: var(--moss-2); }
+.api-key-row input {
+  flex: 1 1 320px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-2);
+  transition: all 200ms var(--ease);
+}
+.api-key-row input::placeholder { color: var(--text-3); opacity: 0.7; }
+.api-key-row input:focus {
+  outline: none;
+  background: var(--paper, #fff);
+  border-color: var(--text);
+  color: var(--text);
+}
+.api-key-row .hint {
+  flex: 0 0 100%;
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.005em;
+  line-height: 1.55;
+}
+.api-key-row .hint a { color: var(--moss); border-bottom: 1px solid var(--moss); }
 
 /* ----- Track A/B indicators inside gen-card ----- */
 .gen-tracks {
@@ -1145,45 +1309,37 @@ nav.nav .actions {
 }
 .ch-canvas .mb-cell { min-height: 180px; }
 
-/* ----- EXTERIOR canvas — hero landscape · vertical atrium · detail · annot ----- */
+/* ----- EXTERIOR canvas — real pop-up photo (wide) · isometric layout (tall) ----- */
 .ch-canvas-ext {
-  grid-template-columns: 1.5fr 0.9fr 1fr;
-  grid-template-rows: 1.5fr 0.55fr 0.55fr;
-  min-height: 560px;
+  grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: 1.5fr 0.5fr;
+  min-height: 460px;
 }
-.ch-canvas-ext .mb-cell[data-slot="ext_hero"]   { grid-column: 1;        grid-row: 1; }
-.ch-canvas-ext .mb-cell[data-slot="ext_atrium"] { grid-column: 3;        grid-row: 1 / span 3; }
-.ch-canvas-ext .mb-cell[data-slot="ext_detail"] { grid-column: 2;        grid-row: 1; }
-.ch-canvas-ext .ch-annot-a                       { grid-column: 1;        grid-row: 2; }
-.ch-canvas-ext .ch-annot-b                       { grid-column: 2;        grid-row: 2; }
-.ch-canvas-ext .ch-palette                       { grid-column: 1 / span 2; grid-row: 3; }
+.ch-canvas-ext .mb-cell[data-slot="ext_hero"] { grid-column: 1;        grid-row: 1; }
+.ch-canvas-ext .mb-cell[data-slot="ext_iso"]  { grid-column: 2;        grid-row: 1 / span 2; }
+.ch-canvas-ext .ch-annot-a                     { grid-column: 1;        grid-row: 2; }
+.ch-canvas-ext .ch-annot-b                     { display: none; }
 
-/* ----- INTERIOR canvas — material tall · vista wide · VMD tall ----- */
+/* ----- INTERIOR canvas — vista (wide) · VMD display (tall) ----- */
 .ch-canvas-int {
-  grid-template-columns: 0.85fr 1.35fr 0.85fr;
-  grid-template-rows: 1.4fr 0.55fr 0.55fr;
-  min-height: 540px;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1.6fr auto;
+  min-height: 420px;
 }
-.ch-canvas-int .mb-cell[data-slot="int_material"] { grid-column: 1; grid-row: 1; }
-.ch-canvas-int .mb-cell[data-slot="int_vista"]    { grid-column: 2; grid-row: 1; }
-.ch-canvas-int .mb-cell[data-slot="int_vmd"]      { grid-column: 3; grid-row: 1 / span 3; }
-.ch-canvas-int .ch-annot-a                         { grid-column: 1; grid-row: 2; }
-.ch-canvas-int .ch-annot-b                         { grid-column: 2; grid-row: 2; }
-.ch-canvas-int .ch-palette                         { grid-column: 1 / span 2; grid-row: 3; }
+.ch-canvas-int .mb-cell[data-slot="int_vista"] { grid-column: 1; grid-row: 1; }
+.ch-canvas-int .ch-annot-a                      { grid-column: 1; grid-row: 2; }
+.ch-canvas-int .ch-annot-b                      { display: none; }
 
-/* ----- AMBASSADOR canvas — 4 editorial shots: beauty · half · full · detail ----- */
+/* ----- AMBASSADOR canvas — 2 prominent editorial shots: half · full ----- */
 .ch-canvas-amb {
-  grid-template-columns: 0.95fr 0.95fr 0.75fr 1.15fr;
-  grid-template-rows: 1.45fr 0.7fr 0.45fr 0.45fr;
-  min-height: 700px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1.7fr auto;
+  min-height: 660px;
 }
-.ch-canvas-amb .mb-cell[data-slot="amb_beauty"] { grid-column: 1; grid-row: 1 / span 2; }
-.ch-canvas-amb .mb-cell[data-slot="amb_half"]   { grid-column: 2; grid-row: 1 / span 2; }
-.ch-canvas-amb .mb-cell[data-slot="amb_detail"] { grid-column: 3; grid-row: 1; }
-.ch-canvas-amb .mb-cell[data-slot="amb_full"]   { grid-column: 4; grid-row: 1 / span 2; }
-.ch-canvas-amb .ch-annot-a                       { grid-column: 3; grid-row: 2; align-self: end; }
-.ch-canvas-amb .ch-annot-b                       { grid-column: 1 / span 2; grid-row: 3; }
-.ch-canvas-amb .ch-palette                       { grid-column: 3 / span 2; grid-row: 3 / span 2; align-self: start; }
+.ch-canvas-amb .mb-cell[data-slot="amb_half"] { grid-column: 1; grid-row: 1; }
+.ch-canvas-amb .mb-cell[data-slot="amb_full"] { grid-column: 2; grid-row: 1; }
+.ch-canvas-amb .ch-annot-a                     { grid-column: 1 / span 2; grid-row: 2; }
+.ch-canvas-amb .ch-annot-b                     { display: none; }
 
 /* ----- Annotations — italic serif, editorial Vogue-style ----- */
 .ch-annot {
@@ -1445,6 +1601,77 @@ nav.nav .actions {
 .mb-foot-note {
   font-size: 11px; color: var(--text-3);
   letter-spacing: 0.02em;
+}
+
+/* =========================================================================
+   COLOR PALETTE PANEL — AI-generated pill swatches + HEX + gradient circles
+   ========================================================================= */
+.palette-panel {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 44px 48px;
+  margin-bottom: 24px;
+  color: var(--text);
+  box-shadow: var(--shadow-2);
+}
+.palette-panel .pp-head { margin-bottom: 32px; }
+.palette-panel .pp-eb {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 12px;
+}
+.palette-panel .pp-head h3 {
+  font-size: 26px; font-weight: 500;
+  letter-spacing: -0.02em; color: var(--text);
+}
+
+/* Row of tall rounded-pill swatches, each with HEX below */
+.pp-pills {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 22px;
+  align-items: end;
+}
+.pp-pill-wrap { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.pp-pill {
+  width: 100%;
+  height: 200px;
+  border-radius: 999px;
+  border: 1px solid rgba(41,38,27,0.06);
+  transition: transform 320ms var(--ease-luxe);
+}
+.pp-pill-wrap:hover .pp-pill { transform: translateY(-6px); }
+.pp-hex {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Row of gradient circles below (blends between adjacent colors) */
+.pp-circles {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 22px;
+  margin-top: 30px;
+}
+.pp-circle {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  margin: 0 auto;
+  border: 1px solid rgba(41,38,27,0.05);
+}
+
+.pp-caption {
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+  font-size: 13px; line-height: 1.6;
+  color: var(--text-2);
+  max-width: 760px;
 }
 
 /* ----- LARGE MOODBOARD CARDS (full-width, image-prominent) ----- */
@@ -2079,24 +2306,24 @@ body.pdf-export .pdf-cover { display: block; }
     grid-auto-rows: minmax(160px, auto);
     min-height: 0;
   }
-  .ch-canvas-ext .mb-cell[data-slot="ext_hero"]   { grid-column: 1 / span 2; grid-row: auto; }
-  .ch-canvas-ext .mb-cell[data-slot="ext_detail"] { grid-column: 1; grid-row: auto; }
-  .ch-canvas-ext .mb-cell[data-slot="ext_atrium"] { grid-column: 2; grid-row: auto; min-height: 320px; }
+  .ch-canvas-ext .mb-cell[data-slot="ext_hero"] { grid-column: 1 / span 2; grid-row: auto; min-height: 240px; }
+  .ch-canvas-ext .mb-cell[data-slot="ext_iso"]  { grid-column: 1 / span 2; grid-row: auto; min-height: 280px; }
   .ch-canvas-ext .ch-annot-a, .ch-canvas-ext .ch-annot-b { grid-column: 1 / span 2; }
   .ch-canvas-ext .ch-palette { grid-column: 1 / span 2; }
 
-  .ch-canvas-int .mb-cell[data-slot="int_material"] { grid-column: 1; grid-row: auto; }
-  .ch-canvas-int .mb-cell[data-slot="int_vista"]    { grid-column: 2; grid-row: auto; }
-  .ch-canvas-int .mb-cell[data-slot="int_vmd"]      { grid-column: 1 / span 2; grid-row: auto; min-height: 240px; }
+  .ch-canvas-int .mb-cell[data-slot="int_vista"] { grid-column: 1 / span 2; grid-row: auto; min-height: 260px; }
   .ch-canvas-int .ch-annot-a, .ch-canvas-int .ch-annot-b { grid-column: 1 / span 2; }
   .ch-canvas-int .ch-palette { grid-column: 1 / span 2; }
 
-  .ch-canvas-amb .mb-cell[data-slot="amb_beauty"] { grid-column: 1; grid-row: auto; }
-  .ch-canvas-amb .mb-cell[data-slot="amb_half"]   { grid-column: 2; grid-row: auto; }
-  .ch-canvas-amb .mb-cell[data-slot="amb_detail"] { grid-column: 1; grid-row: auto; }
-  .ch-canvas-amb .mb-cell[data-slot="amb_full"]   { grid-column: 2; grid-row: auto; }
+  .ch-canvas-amb .mb-cell[data-slot="amb_half"] { grid-column: 1; grid-row: auto; min-height: 320px; }
+  .ch-canvas-amb .mb-cell[data-slot="amb_full"] { grid-column: 2; grid-row: auto; min-height: 320px; }
   .ch-canvas-amb .ch-annot-a, .ch-canvas-amb .ch-annot-b { grid-column: 1 / span 2; }
-  .ch-canvas-amb .ch-palette { grid-column: 1 / span 2; }
+
+  .palette-panel { padding: 24px; }
+  .pp-pill { height: 130px; }
+  .pp-pills, .pp-circles { gap: 12px; }
+  .pp-circle { width: 40px; height: 40px; }
+  .pp-hex { font-size: 11px; }
 
   .ch-annot { font-size: 14px; max-width: 100%; }
   .amb-grid { grid-template-columns: repeat(2, 1fr); }
@@ -2149,7 +2376,7 @@ body.pdf-export .pdf-cover { display: block; }
     </h1>
 
     <p class="deck">
-      AI를 활용한 <strong>High-end 백화점 팝업 스토어</strong> 경험 설계 플랫폼. 이제 <strong style="color: var(--moss)">Google Gemini API</strong>로 전환 — 모델 · 히어로 상품 · 컴렉션을 선택하면 <strong>Gemini 2.5 Pro</strong>가 공간 컨셉 · 동선 · 개설 예산을 설계하고, <strong>Imagen 4</strong>가 대리석 · 조명 · 에지 디테일을 렌더링합니다. <strong>5분 안에 통합 기획안.</strong>
+      AI를 활용한 <strong>High-end 백화점 팝업 스토어</strong> 경험 설계 플랫폼. <strong style="color: var(--moss)">Google Gemini API</strong> 기반 — 모델 · 히어로 상품 · 컬렉션을 선택하면 <strong>Gemini 2.5 Pro</strong>가 공간 컨셉 · 동선 · 개설 예산을 큐레이션하고, <strong>Imagen 4</strong>가 에디토리얼 무드보드 렌더링까지 정제합니다. <strong>5분 안에 통합 기획안.</strong>
     </p>
 
     <!-- INPUT PANEL -->
@@ -2168,16 +2395,10 @@ body.pdf-export .pdf-cover { display: block; }
         </div>
 
         <div class="amb-input-row">
-          <div class="field" style="flex: 2 1 320px">
+          <div class="field" style="flex: 1 1 100%">
             <label>앰배서더 이름 — 자유 입력</label>
             <input id="ambInput" type="text" value="정해인"
               placeholder="예: 정해인, 변우석, 한소희, NewJeans 민지, Jisoo …" autocomplete="off" />
-          </div>
-          <div class="field" style="flex: 1 1 240px">
-            <label>분위기 / 무드 — 자유 입력</label>
-            <input id="moodInput" type="text" value="Quiet Luxury — 정제된"
-              placeholder="예: Quiet Luxury, Editorial Minimal, Sculptural Monochrome…"
-              autocomplete="off" />
           </div>
         </div>
 
@@ -2196,20 +2417,6 @@ body.pdf-export .pdf-cover { display: block; }
             <button class="chip" data-name="박서준" data-mood="rm">박서준</button>
           </div>
         </div>
-
-        <div class="suggest-row" style="margin-top: 12px">
-          <span class="suggest-lab">무드 추천 · 클릭하면 입력됩니다</span>
-          <div class="chip-row" id="moodSuggest">
-            <button class="chip" data-mood="jhi" data-text="Quiet Luxury — 정제된">Quiet Luxury</button>
-            <button class="chip" data-mood="kdm" data-text="Editorial Minimal — 모노크롬">Editorial Minimal</button>
-            <button class="chip" data-mood="iu"  data-text="Soft Romantic — 파스텔">Soft Romantic</button>
-            <button class="chip" data-mood="rm"  data-text="Bold Heritage — 흑단·모스">Bold Heritage</button>
-            <button class="chip" data-mood="rm"  data-text="Sculptural Monochrome — 조각적 단색">Sculptural Monochrome</button>
-            <button class="chip" data-mood="iu"  data-text="Bohemian Heritage — 보헤미안 헤리티지">Bohemian Heritage</button>
-            <button class="chip" data-mood="kdm" data-text="Avant-garde Editorial — 실험적 에디토리얼">Avant-garde Editorial</button>
-            <button class="chip" data-mood="jhi" data-text="Atelier Salon — 살롱풍 정적">Atelier Salon</button>
-          </div>
-        </div>
       </div>
 
       <!-- ② 히어로 상품 -->
@@ -2218,6 +2425,22 @@ body.pdf-export .pdf-cover { display: block; }
           <span class="num">② 히어로 상품</span>
           <h3>무엇이 중심에 놓이는가.</h3>
           <span class="pick">자유 입력 · <b id="pick-prod">Eau de Maison 100ml</b></span>
+        </div>
+
+        <!-- 제품 사진 업로드 — 원본 비율로 전체 표시, 자르지 않음 -->
+        <div class="prod-photo-row">
+          <span class="lab">제품 사진 — 업로드 시 무드보드·VMD 렌더링의 시각 레퍼런스로 사용</span>
+          <input id="prodPhotoInput" type="file" accept="image/*" hidden>
+          <div class="prod-photo-area" id="prodPhotoArea" role="button" tabindex="0">
+            <div class="prod-photo-empty">
+              <span class="icon">＋</span>
+              <span class="ttl">제품 사진 업로드</span>
+              <span class="hint">JPG · PNG · WEBP · 권장 4MB 이하 · 드래그 앤 드롭 가능</span>
+            </div>
+            <img id="prodPhotoPreview" class="prod-photo-preview" alt="제품 레퍼런스 사진">
+            <span class="prod-photo-meta"><span class="dot"></span>레퍼런스 활성</span>
+            <button type="button" class="prod-photo-remove" id="prodPhotoRemove" aria-label="제품 사진 삭제">×</button>
+          </div>
         </div>
 
         <!-- Free input — 상품명 + 카테고리 -->
@@ -2244,73 +2467,32 @@ body.pdf-export .pdf-cover { display: block; }
           </div>
         </div>
 
-        <!-- Free input — 재질 + 가격 -->
+        <!-- 재질·가격은 상품명·카테고리·사진으로 AI가 자동 분석 (입력창 없음) -->
+
+        <!-- Free input — 분위기 / 무드 (상품·사진에 맞춰 자동 추천) -->
         <div class="amb-input-row" style="margin-top: 10px">
-          <div class="field" style="flex: 2 1 280px">
-            <label>재질 / 마감 — 자유 입력</label>
-            <input id="prodMatInput" type="text" value="Glass · Brushed Brass"
-              placeholder="예: Calf Leather · Walnut Handle"
-              autocomplete="off" />
-          </div>
-          <div class="field" style="flex: 1 1 160px">
-            <label>가격대 — KRW</label>
-            <input id="prodPriceInput" type="text" value="₩220,000"
-              placeholder="예: ₩2,400,000"
+          <div class="field" style="flex: 1 1 100%">
+            <label>분위기 / 무드 — 자유 입력 · 사진 업로드 시 자동 추천</label>
+            <input id="moodInput" type="text" value="Quiet Luxury — 정제된"
+              placeholder="예: Quiet Luxury, Editorial Minimal, Sculptural Monochrome…"
               autocomplete="off" />
           </div>
         </div>
 
-        <!-- Suggestion list — clicking populates the inputs above -->
-        <div class="suggest-row">
-          <span class="suggest-lab">추천 · 클릭하면 입력됩니다</span>
-          <div class="prod-list" id="prodList">
-            <button class="prod-row active" data-prod="perfume" data-name="Eau de Maison 100ml"
-              data-cat="Fragrance" data-price="₩220,000" data-mat="Glass · Brushed Brass">
-              <div>
-                <div class="l-name">Eau de Maison 100ml</div>
-                <div class="l-sub">Fragrance · No.3 · Glass + Brass</div>
-              </div>
-              <div class="price">₩220,000</div>
-              <div class="radio"></div>
-            </button>
-            <button class="prod-row" data-prod="bag" data-name="Atelier Tote · Calf"
-              data-cat="Leather" data-price="₩2,400,000" data-mat="Calf Leather · Walnut Handle">
-              <div>
-                <div class="l-name">Atelier Tote · Calf</div>
-                <div class="l-sub">Leather · SS26 · Calf + Walnut</div>
-              </div>
-              <div class="price">₩2,400,000</div>
-              <div class="radio"></div>
-            </button>
-            <button class="prod-row" data-prod="scarf" data-name="Carré Silk · Hanji"
-              data-cat="Silk" data-price="₩680,000" data-mat="Silk · Hanji Print">
-              <div>
-                <div class="l-name">Carré Silk · Hanji</div>
-                <div class="l-sub">Silk · Limited · Hanji Print</div>
-              </div>
-              <div class="price">₩680,000</div>
-              <div class="radio"></div>
-            </button>
-            <button class="prod-row" data-prod="watch" data-name="Atelier Chronograph · Walnut"
-              data-cat="Watch" data-price="₩8,200,000" data-mat="Walnut Dial · Rose Gold">
-              <div>
-                <div class="l-name">Atelier Chronograph · Walnut</div>
-                <div class="l-sub">Watch · Limited · Walnut + Rose Gold</div>
-              </div>
-              <div class="price">₩8,200,000</div>
-              <div class="radio"></div>
-            </button>
-            <button class="prod-row" data-prod="jewel" data-name="Hanji Pearl Necklace"
-              data-cat="Jewelry" data-price="₩4,600,000" data-mat="Akoya Pearl · 18K Gold">
-              <div>
-                <div class="l-name">Hanji Pearl Necklace</div>
-                <div class="l-sub">Jewelry · Heritage · Akoya + 18K</div>
-              </div>
-              <div class="price">₩4,600,000</div>
-              <div class="radio"></div>
-            </button>
+        <div class="suggest-row" style="margin-top: 12px">
+          <span class="suggest-lab" id="moodSuggestLab">무드 추천 · 클릭하면 입력됩니다</span>
+          <div class="chip-row" id="moodSuggest">
+            <button class="chip" data-mood="jhi" data-text="Quiet Luxury — 정제된">Quiet Luxury</button>
+            <button class="chip" data-mood="kdm" data-text="Editorial Minimal — 모노크롬">Editorial Minimal</button>
+            <button class="chip" data-mood="iu"  data-text="Soft Romantic — 파스텔">Soft Romantic</button>
+            <button class="chip" data-mood="rm"  data-text="Bold Heritage — 흑단·모스">Bold Heritage</button>
+            <button class="chip" data-mood="rm"  data-text="Sculptural Monochrome — 조각적 단색">Sculptural Monochrome</button>
+            <button class="chip" data-mood="iu"  data-text="Bohemian Heritage — 보헤미안 헤리티지">Bohemian Heritage</button>
+            <button class="chip" data-mood="kdm" data-text="Avant-garde Editorial — 실험적 에디토리얼">Avant-garde Editorial</button>
+            <button class="chip" data-mood="jhi" data-text="Atelier Salon — 살롱풍 정적">Atelier Salon</button>
           </div>
         </div>
+
       </div>
 
       <!-- ③ 브랜드 컬렉션 -->
@@ -2353,6 +2535,16 @@ body.pdf-export .pdf-cover { display: block; }
         </button>
       </div>
 
+      <!-- Gemini API key — sessionStorage only, never sent to any server other than Google's Generative Language API -->
+      <div class="api-key-row">
+        <span class="lab" id="apiKeyLab"><span class="dot"></span>Gemini Key</span>
+        <input id="apiKeyInput" type="password" spellcheck="false" autocomplete="off"
+          placeholder="비워두면 기본 키로 자동 작동 · 다른 키 사용 시 여기에 입력" />
+        <span class="hint">
+          비워두면 <strong>기본 API 키</strong>로 자동 작동합니다. 다른 키를 사용하려면 입력하세요 — 이 탭의 sessionStorage에만 저장되며 탭을 닫으면 폐기됩니다.
+        </span>
+      </div>
+
     </div>
   </div>
 </section>
@@ -2366,8 +2558,8 @@ body.pdf-export .pdf-cover { display: block; }
         <div class="ttl" id="genTtl">컨셉을 분석하는 중…</div>
         <div class="stp">Gemini 2.5 Pro · <span id="genStep">스타일 분석</span> · Imagen 4 큐 대기 중</div>
         <div class="gen-tracks">
-          <div class="gen-track" id="trackA"><span class="ico"></span><span>Track A · Imagen 무드보드 렌더</span></div>
-          <div class="gen-track" id="trackB"><span class="ico"></span><span>Track B · VMD · BM 구조 JSON</span></div>
+          <div class="gen-track" id="trackA"><span class="ico"></span><span>Track A · 무드보드 큐레이션</span></div>
+          <div class="gen-track" id="trackB"><span class="ico"></span><span>Track B · VMD · 전략 JSON</span></div>
         </div>
       </div>
       <div class="pct"><span id="genPct">0</span><span class="u">%</span></div>
@@ -2426,14 +2618,14 @@ body.pdf-export .pdf-cover { display: block; }
       </div>
       <div class="actions">
         <button class="btn btn-outline" id="editBriefBtn">Edit brief</button>
-        <button class="btn btn-join" id="exportBtn">Export PDF&nbsp; ↓</button>
+        <button class="btn btn-join" id="exportBtn">Save Images&nbsp; ↓</button>
       </div>
     </div>
 
     <!-- ==== MOODBOARD COLLAGE — magazine layout ==== -->
     <div class="moodboard-section">
       <div class="mb-header">
-        <div class="mb-eb"><span class="star">✦</span> MOODBOARD · IMAGEN 4 · GEMINI</div>
+        <div class="mb-eb"><span class="star">✦</span> MOODBOARD · CURATED · OPENAI</div>
         <h3 id="mbTitle">An Editorial <span class="it">Boudoir.</span></h3>
         <p id="mbSubtitle">정해인 × Eau de Maison 100ml — 흑단·황동·트래버틴의 정제된 살롱. 외관과 내관, 재질, 빛, 동선을 한 페이지에 모은 에디토리얼 보드.</p>
       </div>
@@ -2448,22 +2640,15 @@ body.pdf-export .pdf-cover { display: block; }
 
         <div class="ch-canvas ch-canvas-ext">
           <figure class="mb-cell" data-slot="ext_hero">
-            <img class="tile-img" alt="storefront elevation"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">01</span><span class="cap-t">Storefront · Atrium</span></figcaption>
+            <img class="tile-img" alt="pop-up storefront in mall atrium"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">01</span><span class="cap-t">Storefront · Mall Atrium</span></figcaption>
           </figure>
-          <figure class="mb-cell" data-slot="ext_atrium">
-            <img class="tile-img" alt="atrium pavilion"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">02</span><span class="cap-t">Pavilion · Multi-story</span></figcaption>
+          <figure class="mb-cell" data-slot="ext_iso">
+            <img class="tile-img" alt="storefront eye-level view"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">02</span><span class="cap-t">Storefront · Eye-level</span></figcaption>
           </figure>
-          <figure class="mb-cell" data-slot="ext_detail">
-            <img class="tile-img" alt="facade material detail"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">03</span><span class="cap-t">Material · Threshold</span></figcaption>
-          </figure>
-          <aside class="ch-annot ch-annot-a">An atrium pavilion as silent gravitas.</aside>
-          <aside class="ch-annot ch-annot-b">Brushed brass meets matte ebony at the threshold.</aside>
-          <div class="ch-palette" data-pal-target>
-            <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-          </div>
+          <aside class="ch-annot ch-annot-a">An open pavilion in the heart of the atrium.</aside>
+          <aside class="ch-annot ch-annot-b"></aside>
         </div>
       </article>
 
@@ -2476,23 +2661,12 @@ body.pdf-export .pdf-cover { display: block; }
         </header>
 
         <div class="ch-canvas ch-canvas-int">
-          <figure class="mb-cell" data-slot="int_material">
-            <img class="tile-img" alt="material macro study"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">04</span><span class="cap-t">Material · Macro</span></figcaption>
-          </figure>
           <figure class="mb-cell" data-slot="int_vista">
             <img class="tile-img" alt="interior vista"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">05</span><span class="cap-t">Vista · Showroom</span></figcaption>
+            <figcaption><span class="cap-n">03</span><span class="cap-t">Interior · Showroom</span></figcaption>
           </figure>
-          <figure class="mb-cell" data-slot="int_vmd">
-            <img class="tile-img" alt="VMD hero display"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">06</span><span class="cap-t">VMD · Hero Display</span></figcaption>
-          </figure>
-          <aside class="ch-annot ch-annot-a">Travertine veining as the room's signature.</aside>
-          <aside class="ch-annot ch-annot-b">5500K diffuse light, raking across the surface.</aside>
-          <div class="ch-palette" data-pal-target>
-            <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-          </div>
+          <aside class="ch-annot ch-annot-a">The interior continues the storefront's material language.</aside>
+          <aside class="ch-annot ch-annot-b"></aside>
         </div>
       </article>
 
@@ -2505,27 +2679,16 @@ body.pdf-export .pdf-cover { display: block; }
         </header>
 
         <div class="ch-canvas ch-canvas-amb">
-          <figure class="mb-cell" data-slot="amb_beauty">
-            <img class="tile-img" alt="beauty portrait"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">07</span><span class="cap-t" id="capAmbBeauty">Beauty · Close-up</span></figcaption>
-          </figure>
           <figure class="mb-cell" data-slot="amb_half">
             <img class="tile-img" alt="half-body editorial"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">08</span><span class="cap-t">Half-body · Editorial</span></figcaption>
+            <figcaption><span class="cap-n">04</span><span class="cap-t">Half-body · Editorial</span></figcaption>
           </figure>
           <figure class="mb-cell" data-slot="amb_full">
             <img class="tile-img" alt="full body environmental"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">09</span><span class="cap-t">Full Body · Environmental</span></figcaption>
+            <figcaption><span class="cap-n">05</span><span class="cap-t">Full Body · Environmental</span></figcaption>
           </figure>
-          <figure class="mb-cell" data-slot="amb_detail">
-            <img class="tile-img" alt="detail crop"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">10</span><span class="cap-t">Detail · Hand · Fabric</span></figcaption>
-          </figure>
-          <aside class="ch-annot ch-annot-a">The face as the first signature of the campaign.</aside>
-          <aside class="ch-annot ch-annot-b">Body and gesture, framed by the room.</aside>
-          <div class="ch-palette" data-pal-target>
-            <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
-          </div>
+          <aside class="ch-annot ch-annot-a">Body and gesture, framed by the room.</aside>
+          <aside class="ch-annot ch-annot-b"></aside>
         </div>
       </article>
 
@@ -2544,6 +2707,31 @@ body.pdf-export .pdf-cover { display: block; }
         <span class="mb-foot-note">↑ Imagen 4 · 8K 디테일 · 외관/내관 통합 무드보드</span>
       </div>
     </div>
+
+    <!-- ==== COLOR PALETTE — AI-generated brand colors ==== -->
+    <section class="palette-panel" id="palettePanel">
+      <div class="pp-head">
+        <span class="pp-eb">✦ COLOR PALETTE · AI GENERATED</span>
+        <h3 id="ppTitle">팝업 컬러 시스템.</h3>
+      </div>
+      <div class="pp-pills" id="ppGrid">
+        <div class="pp-pill-wrap"><div class="pp-pill" style="background:#29261B"></div><div class="pp-hex" style="color:#29261B">#29261B</div></div>
+        <div class="pp-pill-wrap"><div class="pp-pill" style="background:#1F3D2C"></div><div class="pp-hex" style="color:#1F3D2C">#1F3D2C</div></div>
+        <div class="pp-pill-wrap"><div class="pp-pill" style="background:#B89968"></div><div class="pp-hex" style="color:#B89968">#B89968</div></div>
+        <div class="pp-pill-wrap"><div class="pp-pill" style="background:#D9C6A5"></div><div class="pp-hex" style="color:#C2A878">#D9C6A5</div></div>
+        <div class="pp-pill-wrap"><div class="pp-pill" style="background:#5C1A1B"></div><div class="pp-hex" style="color:#5C1A1B">#5C1A1B</div></div>
+      </div>
+      <div class="pp-circles" id="ppCircles">
+        <div class="pp-circle" style="background:linear-gradient(135deg,#29261B,#1F3D2C)"></div>
+        <div class="pp-circle" style="background:linear-gradient(135deg,#1F3D2C,#B89968)"></div>
+        <div class="pp-circle" style="background:linear-gradient(135deg,#B89968,#D9C6A5)"></div>
+        <div class="pp-circle" style="background:linear-gradient(135deg,#D9C6A5,#5C1A1B)"></div>
+        <div class="pp-circle" style="background:linear-gradient(135deg,#5C1A1B,#29261B)"></div>
+      </div>
+      <p class="pp-caption" id="ppCaption">
+        선택한 앰배서더 · 상품 · 무드를 바탕으로 AI가 팝업 스토어에 어울리는 컬러 시스템을 도출합니다.
+      </p>
+    </section>
 
     <!-- ==== 2-COL — 동선 + 개설 예산 ==== -->
     <div class="grid-2">
@@ -2581,7 +2769,7 @@ body.pdf-export .pdf-cover { display: block; }
           하이엔드 백화점 5F 아트리움 약 60평 기준 · 마감재 비중이 전체 예산의 39%를 차지하며, 운영·인력은 14일 풀가동 가정.
         </p>
 
-        <!-- Gemini Strategy JSON insights (location · vmdRouting · bmItems) -->
+        <!-- Gemini Strategy JSON insights (location · vmdRouting) -->
         <div class="gemini-insights" id="geminiInsights" style="display:none">
           <div class="ig-head"><span class="gem"></span> GEMINI · STRATEGY JSON</div>
           <div class="ig-row">
@@ -2591,10 +2779,6 @@ body.pdf-export .pdf-cover { display: block; }
           <div class="ig-row">
             <div class="ig-k">VMD 동선 · ROUTING</div>
             <div class="ig-v" id="igRouting">—</div>
-          </div>
-          <div class="ig-row">
-            <div class="ig-k">비즈니스 모델 · BM ITEMS</div>
-            <ol id="igBmList"><li class="ig-empty">대기 중…</li></ol>
           </div>
         </div>
 
@@ -2695,7 +2879,7 @@ body.pdf-export .pdf-cover { display: block; }
         <button class="faq-q"><span>실제 백화점에서 바로 사용 가능한가요?</span><span class="icon">+</span></button>
         <div class="faq-a">
           <div class="faq-a-inner">
-            현 버전은 <span class="moss">초기 기획 단계</span>를 위한 워크벤치입니다. 시공 도면·자재 단가·법규 검토는 별도 VMD 외주가 필요하지만, 외주 발주 전 단계의 컨셉·BM·동선을 5분 안에 검증할 수 있습니다.
+            현 버전은 <span class="moss">초기 기획 단계</span>를 위한 워크벤치입니다. 시공 도면·자재 단가·법규 검토는 별도 VMD 외주가 필요하지만, 외주 발주 전 단계의 컨셉·동선을 5분 안에 검증할 수 있습니다.
           </div>
         </div>
       </div>
@@ -2734,6 +2918,16 @@ body.pdf-export .pdf-cover { display: block; }
 
 <script>
 /* =========================================================================
+   GEMINI API KEY
+   The key is supplied at runtime via the "Gemini Key" input field at the
+   bottom of the brief panel and persisted in sessionStorage (this tab only).
+   Leave this constant empty unless you want to ship the file with a built-in
+   default key — in that case, rotate it before publishing the file anywhere
+   public.
+   ========================================================================= */
+const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
+
+/* =========================================================================
    INTERACTIONS — Vanilla JS, no deps
    ========================================================================= */
 (function () {
@@ -2742,7 +2936,8 @@ body.pdf-export .pdf-cover { display: block; }
     ambassador: { id: 'jhi', name: '정해인', role: 'Actor',
       tone: 'Quiet Luxury — 정제된, 따뜻한 ebony · brass' },
     product: { id: 'perfume', name: 'Eau de Maison 100ml',
-      cat: 'Fragrance', price: '₩220,000', mat: 'Glass · Brushed Brass' },
+      cat: 'Fragrance', price: '₩220,000', mat: 'Glass · Brushed Brass',
+      image: null /* { mime, base64, name, size } when user uploads a photo */ },
     collection: 'Spring · Summer 2026',
     location:   '현대백화점 본점 · 5F Atrium',
   };
@@ -2876,53 +3071,193 @@ body.pdf-export .pdf-cover { display: block; }
 
   syncAmbState();
 
-  /* ---------- INPUT: product — free typing + category + material + price ---------- */
+  /* ---------- INPUT: product — free typing + category (material·price inferred by AI) ---------- */
   const prodInput      = $('#prodInput');
   const prodCatSelect  = $('#prodCatSelect');
-  const prodMatInput   = $('#prodMatInput');
-  const prodPriceInput = $('#prodPriceInput');
+
+  /* Category → default material vocabulary (used for image prompts since those
+     run in parallel with the strategy call; the precise material/price are
+     inferred by Gemini from product name + category + photo) */
+  const CATEGORY_MAT = {
+    Fragrance:       'Glass · Brushed Brass',
+    Beauty:          'Glass · Lacquer',
+    Leather:         'Calf Leather · Walnut',
+    Silk:            'Silk · Hanji Print',
+    Jewelry:         '18K Gold · Pearl',
+    'Ready-to-Wear': 'Wool · Silk',
+    Eyewear:         'Acetate · Brushed Brass',
+    Watch:           'Steel · Sapphire Crystal',
+    Lifestyle:       'Ceramic · Oak',
+  };
 
   function syncProdState({ markRow = null } = {}) {
     const name  = (prodInput.value || '').trim() || 'Hero Product';
     const cat   = prodCatSelect.value;
-    const mat   = (prodMatInput.value || '').trim();
-    const price = (prodPriceInput.value || '').trim();
+    const mat   = CATEGORY_MAT[cat] || 'Glass · Brushed Brass';  // image-prompt fallback
     state.product = {
-      id:    markRow ? markRow.dataset.prod : 'custom',
-      name, cat, mat, price,
+      ...(state.product || {}),
+      id: 'custom',
+      name, cat, mat,
+      price: '',   // left blank — Gemini infers the price range
     };
     pickProd.textContent = name;
-
-    /* Match against existing suggestion rows. If the typed values match a
-       known row exactly, mark that row active; otherwise clear all. */
-    $$('#prodList .prod-row').forEach(r => {
-      const match =
-        r.dataset.name === name &&
-        r.dataset.cat  === cat;
-      r.classList.toggle('active', !!(markRow ? r === markRow : match));
-    });
   }
 
-  /* Free-input typing — clears row selection unless it happens to match */
+  /* Free-input typing — purely user-driven now (no preset rows to match) */
   prodInput.addEventListener('input',      () => syncProdState());
   prodCatSelect.addEventListener('change', () => syncProdState());
-  prodMatInput.addEventListener('input',   () => syncProdState());
-  prodPriceInput.addEventListener('input', () => syncProdState());
-
-  /* Clicking a suggestion row populates the inputs */
-  $$('#prodList .prod-row').forEach(row => {
-    row.addEventListener('click', e => {
-      e.preventDefault();
-      prodInput.value      = row.dataset.name || '';
-      prodCatSelect.value  = row.dataset.cat  || prodCatSelect.value;
-      prodMatInput.value   = row.dataset.mat  || '';
-      prodPriceInput.value = row.dataset.price || '';
-      syncProdState({ markRow: row });
-    });
-  });
 
   /* Initial sync */
   syncProdState();
+
+  /* =====================================================================
+     INPUT: product photo upload — referenced by Gemini multimodal calls
+     - Image is stored as base64 in state.product.image (mime + data)
+     - Preview uses object-fit: contain so the full picture is visible
+     - Drag-and-drop on the area + click-to-pick
+     ===================================================================== */
+  const prodPhotoInput   = $('#prodPhotoInput');
+  const prodPhotoArea    = $('#prodPhotoArea');
+  const prodPhotoPreview = $('#prodPhotoPreview');
+  const prodPhotoRemove  = $('#prodPhotoRemove');
+
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload  = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function ingestProductPhoto(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      alert('이미지 파일만 업로드할 수 있습니다 (JPG · PNG · WEBP).');
+      return;
+    }
+    if (file.size > 6 * 1024 * 1024) {
+      alert('이미지가 너무 큽니다 — 6MB 이하의 파일을 사용해 주세요.');
+      return;
+    }
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      const [meta, base64] = dataUrl.split(',');
+      const mime = (meta.match(/data:([^;]+);/) || [, file.type])[1] || file.type;
+      state.product.image = { mime, base64, name: file.name, size: file.size };
+      prodPhotoPreview.src = dataUrl;
+      prodPhotoArea.classList.add('has-image');
+      /* Auto-recommend a mood from the photo — client-side, no API cost */
+      recommendMoodFromImage(dataUrl);
+    } catch (err) {
+      console.error(err);
+      alert('이미지 읽기에 실패했습니다.');
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     recommendMoodFromImage — analyzes the uploaded photo on a <canvas>
+     (average brightness · saturation · warmth) and auto-fills the mood
+     field with the best-matching preset. Runs entirely in the browser,
+     so it uses ZERO Gemini API tokens.
+     --------------------------------------------------------------------- */
+  function recommendMoodFromImage(dataUrl) {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const W = 48, H = 48;                 // tiny sample — fast & enough
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d');
+        ctx.drawImage(img, 0, 0, W, H);
+        const data = ctx.getImageData(0, 0, W, H).data;
+
+        let rSum = 0, gSum = 0, bSum = 0, satSum = 0, n = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+          if (a < 16) continue;               // skip transparent pixels
+          rSum += r; gSum += g; bSum += b;
+          const mx = Math.max(r,g,b), mn = Math.min(r,g,b);
+          satSum += mx === 0 ? 0 : (mx - mn) / mx;
+          n++;
+        }
+        if (!n) return;
+        const r = rSum/n, g = gSum/n, b = bSum/n;
+        const brightness = (0.299*r + 0.587*g + 0.114*b) / 255;  // 0–1
+        const chroma     = (Math.max(r,g,b) - Math.min(r,g,b));   // 0–255 absolute
+        const warmth     = (r - b) / 255;                         // -1–1
+
+        /* Heuristic mapping → mood preset id (absolute chroma avoids
+           mis-flagging soft pastels as monochrome) */
+        let moodId;
+        if (chroma < 14)                        moodId = brightness < 0.28 ? 'rm' : 'kdm';
+                                                         // 무채색 → 어두우면 Heritage, 밝으면 Editorial Minimal
+        else if (brightness < 0.34)             moodId = 'rm';    // 어두운 컬러 → Bold Heritage
+        else if (brightness > 0.70)             moodId = 'iu';    // 밝고 부드러움 → Soft Romantic
+        else                                    moodId = 'jhi';   // 웜 미드톤 → Quiet Luxury
+
+        const moodText = MOOD_PRESETS[moodId] || MOOD_PRESETS.jhi;
+        if (moodInput) { moodInput.value = moodText; syncAmbState(); }
+
+        const lab = document.querySelector('#moodSuggestLab');
+        if (lab) lab.textContent = '무드 추천 · 사진 분석으로 자동 선택됨 ✦';
+      } catch (e) { /* CORS or decode issue — silently skip auto-recommend */ }
+    };
+    img.src = dataUrl;
+  }
+
+  function clearProductPhoto() {
+    state.product.image = null;
+    if (prodPhotoPreview) { prodPhotoPreview.src = ''; }
+    if (prodPhotoArea)    { prodPhotoArea.classList.remove('has-image'); }
+    if (prodPhotoInput)   { prodPhotoInput.value = ''; }
+    const lab = document.querySelector('#moodSuggestLab');
+    if (lab) lab.textContent = '무드 추천 · 클릭하면 입력됩니다';
+  }
+
+  if (prodPhotoArea && prodPhotoInput) {
+    /* Click anywhere on the area → open the file picker */
+    prodPhotoArea.addEventListener('click', e => {
+      if (e.target.closest('.prod-photo-remove')) return;
+      prodPhotoInput.click();
+    });
+    prodPhotoArea.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        prodPhotoInput.click();
+      }
+    });
+
+    /* File picker change */
+    prodPhotoInput.addEventListener('change', e => {
+      const f = e.target.files && e.target.files[0];
+      if (f) ingestProductPhoto(f);
+    });
+
+    /* Drag and drop */
+    ['dragenter', 'dragover'].forEach(ev => {
+      prodPhotoArea.addEventListener(ev, e => {
+        e.preventDefault(); e.stopPropagation();
+        prodPhotoArea.classList.add('is-drag');
+      });
+    });
+    ['dragleave', 'drop'].forEach(ev => {
+      prodPhotoArea.addEventListener(ev, e => {
+        e.preventDefault(); e.stopPropagation();
+        prodPhotoArea.classList.remove('is-drag');
+      });
+    });
+    prodPhotoArea.addEventListener('drop', e => {
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) ingestProductPhoto(f);
+    });
+
+    /* Remove button */
+    prodPhotoRemove.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      clearProductPhoto();
+    });
+  }
 
   /* ---------- INPUT: collection select + location ---------- */
   $('#collSelect').addEventListener('change', e => {
@@ -3014,23 +3349,10 @@ body.pdf-export .pdf-cover { display: block; }
           `<span class="bar" style="background:${hex}"></span>`
         ).join('');
       }
-      /* Each chapter has its own .ch-palette with 4 .bar cells — paint them
-         with the concept palette so all three sections share visual DNA */
-      const palHexes = (c.int.palette || []).map(p => p[0]);
-      document.querySelectorAll('.ch-palette').forEach(pl => {
-        const bars = pl.querySelectorAll('.bar');
-        bars.forEach((bar, i) => {
-          const hex = palHexes[i % palHexes.length] || '#29261B';
-          bar.style.background = hex;
-        });
-      });
-
-      // Ambassador chapter — caption + deck name the actual ambassador
-      const capB = $('#capAmbBeauty');
-      if (capB) capB.textContent = `Beauty · ${state.ambassador.name}`;
+      // Ambassador chapter — deck names the actual ambassador
       const ambDeck = $('#ambChapterDeck');
       if (ambDeck) ambDeck.innerHTML =
-        `Face, gesture, presence — <em>${escapeHTML(state.ambassador.name)}</em>. 얼굴·몸·디테일 네 컷의 화보 시리즈.`;
+        `Gesture, presence — <em>${escapeHTML(state.ambassador.name)}</em>. 반신·전신 두 컷의 화보 시리즈.`;
       // Tags
       const tagsEl = $('#mbTags');
       if (tagsEl) tagsEl.innerHTML = c.ext.tags.map(t => `<span class="tag-pill">${t}</span>`).join('');
@@ -3057,10 +3379,37 @@ body.pdf-export .pdf-cover { display: block; }
   /* =====================================================================
      GLOW-UP CORE PIPELINE — Gemini parallel tracks
      - Track A : gemini-3.1-flash-image-preview  → Hero Render image
-     - Track B : gemini-2.5-flash + JSON schema  → location · vmdRouting · bmItems
+     - Track B : gemini-2.5-flash + JSON schema  → location · vmdRouting · floorplan · budget
      The fake-progress STAGES animation is preserved and runs in parallel
      with the real API calls. Real results overlay the concept-driven render.
+     Note: API_KEY is declared at the top of this <script> block (global).
+     Priority: user-entered input → sessionStorage → file-level API_KEY.
      ===================================================================== */
+  const STORAGE_KEY = 'MAISON_GEMINI_KEY';
+  const apiKeyInput = $('#apiKeyInput');
+  const apiKeyLab   = $('#apiKeyLab');
+
+  /* Restore previously-typed key from sessionStorage */
+  if (apiKeyInput) {
+    const saved = sessionStorage.getItem(STORAGE_KEY) || '';
+    if (saved) apiKeyInput.value = saved;
+    if (apiKeyLab) apiKeyLab.classList.toggle('is-set', !!saved);
+
+    apiKeyInput.addEventListener('input', () => {
+      const v = apiKeyInput.value.trim();
+      if (v) sessionStorage.setItem(STORAGE_KEY, v);
+      else   sessionStorage.removeItem(STORAGE_KEY);
+      if (apiKeyLab) apiKeyLab.classList.toggle('is-set', !!v);
+    });
+  }
+
+  function getApiKey() {
+    const typed = (apiKeyInput && apiKeyInput.value.trim()) || '';
+    if (typed) return typed;
+    const stored = sessionStorage.getItem(STORAGE_KEY) || '';
+    if (stored) return stored;
+    return API_KEY;
+  }
 
   function setTrack(id, status) {
     const el = $('#track' + id);
@@ -3072,6 +3421,43 @@ body.pdf-export .pdf-cover { display: block; }
     return String(s).replace(/[&<>"']/g, c => ({
       '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
     }[c]));
+  }
+
+  /* Best-effort recovery when Gemini hits MAX_TOKENS mid-stream and returns
+     an unterminated JSON. We walk the string, drop a trailing partial
+     element, then balance the open braces/brackets. Anything we can't
+     repair gracefully returns null so the caller can decide to fall back. */
+  function salvagePartialJSON(raw) {
+    if (typeof raw !== 'string') return null;
+    let s = raw.trim();
+    /* 1 — strip code fences if Gemini wrapped output */
+    s = s.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+    /* 2 — first try parsing as-is */
+    try { return JSON.parse(s); } catch (_) {}
+    /* 3 — cut off after the last comma-or-end-of-array/object that closes cleanly */
+    const lastClean = Math.max(s.lastIndexOf('"}'), s.lastIndexOf('"]'), s.lastIndexOf(']}'), s.lastIndexOf('}}'));
+    if (lastClean > 0) s = s.slice(0, lastClean + 2);
+    /* 4 — strip trailing commas */
+    s = s.replace(/,\s*([\]}])/g, '$1');
+    /* 5 — close any remaining open braces/brackets */
+    let openCurly = 0, openSquare = 0, inStr = false, esc = false;
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (inStr) {
+        if (esc) { esc = false; continue; }
+        if (ch === '\\') { esc = true; continue; }
+        if (ch === '"') inStr = false;
+        continue;
+      }
+      if (ch === '"') inStr = true;
+      else if (ch === '{') openCurly++;
+      else if (ch === '}') openCurly--;
+      else if (ch === '[') openSquare++;
+      else if (ch === ']') openSquare--;
+    }
+    while (openSquare-- > 0) s += ']';
+    while (openCurly--  > 0) s += '}';
+    try { return JSON.parse(s); } catch (_) { return null; }
   }
 
   /* Build a rich prompt from current INPUT state */
@@ -3217,144 +3603,130 @@ body.pdf-export .pdf-cover { display: block; }
     const tones  = (state.ambassador.tone || '').trim() || "editorial minimal";
     const H      = categoryHints();
 
-    /* Reusable style blocks */
-    const STYLE_ARCH = `Architectural Digest / Vogue Living editorial photography, photorealistic, magazine-quality, sharp 8K detail, warm slightly desaturated palette, soft natural ambient light, refined luxury aesthetic in the spirit of Maison Margiela · CHANEL · DIOR · CELINE pop-ups`;
-    const STYLE_FASHION = `Vogue Korea / W Korea / Harper's Bazaar Korea high-fashion editorial photography, photorealistic, magazine-cover quality, sharp 8K skin and fabric detail, cinematic warm slightly desaturated tones, soft directional cinematic lighting, refined luxury fashion aesthetic`;
-    const NEG    = `no text, no typography, no signage lettering, no watermarks, no logos, no captions, no UI overlays`;
+    /* Shared style suffixes — kept short to save prompt tokens */
+    const STYLE_ARCH    = `photorealistic, editorial magazine quality, warm desaturated palette, luxury aesthetic`;
+    /* Ambassador = calm, natural Vogue-style editorial (not a heavy magazine cover) */
+    const STYLE_FASHION = `Vogue Korea editorial photography, photorealistic, soft cinematic lighting, warm slightly desaturated tones, refined luxury fashion aesthetic, natural elegant mood`;
+    const NEG      = `no text, no watermarks, no logos`;
+    /* Exterior & interior shots must have zero visible lettering of any language */
+    const NEG_ARCH = `no text, no watermarks, no logos, no Korean text, no Hangul characters, ` +
+                     `no Chinese characters, no Japanese characters, no Latin signage, ` +
+                     `no readable letters or words anywhere in the image, no shop signs, no price tags`;
     const PALLET = H.pallet;
 
     return [
-      /* =========== CHAPTER 01 · EXTERIOR — category-specific facade =========== */
+      /* =========== CHAPTER 01 · EXTERIOR · 2 shots =========== */
 
-      /* 01 · ext_hero — full storefront elevation */
+      /* 01 · ext_hero — REAL department-store pop-up photo (eye-level, with brass framing) */
       {
         slot: "ext_hero",
         target: () => document.querySelector('[data-slot="ext_hero"] .tile-img'),
-        aspect: "16:9",
+        aspect: "4:3",
         prompt:
-          `Wide-angle architectural photograph of a luxury ${H.label} brand pop-up storefront installed inside the central atrium of a high-end Korean department store (${loc}). ` +
-          `${H.storefront}. Surrounding mall context softly out-of-focus. ` +
-          `Palette: ${PALLET}. Mood: ${tones}. Concept: "${userPrompt}". Empty space, no people. ${STYLE_ARCH}. ${NEG}.`
+          `Realistic high-angle photograph of a luxury ${H.label} brand pop-up store island installed in the open central atrium of a modern Korean department store (${loc}). ` +
+          `Free-standing open booth on a raised circular platform, ${H.storefront}, surrounded by polished marble mall floor with shoppers and other storefronts softly visible in the background. ` +
+          `Bright even daytime mall lighting, realistic commercial interior photography (as if shot on an iPhone from the floor above), believable real-world pop-up retail kiosk. ` +
+          `Palette: ${PALLET}. Mood: ${tones}. Concept: "${userPrompt}". ${STYLE_ARCH}. ${NEG_ARCH}.`
       },
 
-      /* 02 · ext_atrium — vertical pavilion */
+      /* 02 · ext_iso — SAME pop-up storefront, a different camera angle (eye-level / corner approach) */
       {
-        slot: "ext_atrium",
-        target: () => document.querySelector('[data-slot="ext_atrium"] .tile-img'),
-        aspect: "9:16",
-        prompt:
-          `Vertical wide-angle architectural photograph of a luxury ${H.label} brand pavilion in the multi-story atrium of a Seoul flagship department store. ` +
-          `${H.pavilion}. Visible mall escalators and balconies in soft focus around. Evening ambient lighting. ` +
-          `Palette: ${PALLET}. Concept: "${userPrompt}". Empty pavilion, no shoppers. ${STYLE_ARCH}. ${NEG}.`
-      },
-
-      /* 03 · ext_detail — facade close-up */
-      {
-        slot: "ext_detail",
-        target: () => document.querySelector('[data-slot="ext_detail"] .tile-img'),
-        aspect: "1:1",
-        prompt:
-          `Architectural facade detail close-up of a luxury ${H.label} pop-up: ${H.facade}. ` +
-          `Abstract editorial composition, soft falloff shadow, shallow depth of field. Palette: ${PALLET}. ${STYLE_ARCH}. ${NEG}.`
-      },
-
-      /* =========== CHAPTER 02 · INTERIOR — category-specific room =========== */
-
-      /* 04 · int_material — macro material study */
-      {
-        slot: "int_material",
-        target: () => document.querySelector('[data-slot="int_material"] .tile-img'),
+        slot: "ext_iso",
+        target: () => document.querySelector('[data-slot="ext_iso"] .tile-img'),
         aspect: "3:4",
         prompt:
-          `Macro material study photograph from a luxury ${H.label} pop-up interior: ${H.material}. ` +
-          `Soft falloff shadow, shallow depth of field, abstract editorial macro photography. ${STYLE_ARCH}. ${NEG}.`
+          `Realistic eye-level photograph of the SAME luxury ${H.label} brand pop-up store island from a different camera angle — ` +
+          `a ground-level three-quarter corner view as a shopper approaches the booth, looking slightly up at the structure. ` +
+          `Same free-standing open booth: ${H.storefront}, on a raised platform, polished marble mall floor, other storefronts and shoppers softly blurred in the background. ` +
+          `Consistent with the wide establishing shot — same materials, same colors, same design language, just a closer human-eye perspective. ` +
+          `Bright even daytime mall lighting, realistic commercial retail photography. ` +
+          `Palette: ${PALLET}. Mood: ${tones}. Concept: "${userPrompt}". ${STYLE_ARCH}. ${NEG_ARCH}.`
       },
 
-      /* 05 · int_vista — interior vista */
+      /* =========== CHAPTER 02 · INTERIOR · 1 shot (interior matching the exterior) =========== */
+
+      /* 03 · int_vista — interior vista that continues the storefront design */
       {
         slot: "int_vista",
         target: () => document.querySelector('[data-slot="int_vista"] .tile-img'),
-        aspect: "16:9",
+        aspect: "4:3",
         prompt:
-          `Interior vista of a luxury ${H.label} pop-up boutique: ${H.interior}. ` +
-          `Palette: ${PALLET}. Mood: ${tones}, ${coll} season. Empty room, no people. ${STYLE_ARCH}. ${NEG}.`
+          `Interior photograph showing only the inside of the SAME luxury ${H.label} department-store pop-up boutique seen in the storefront shots — ` +
+          `the interior must continue the exterior's design language, using the same materials, colors and detailing so it reads as one cohesive space. ` +
+          `Interior features: ${H.interior}, plus a hero product display fixture. ` +
+          `Eye-level view standing inside the space, warm diffuse lighting, polished floor, refined retail fixtures. ` +
+          `Palette: ${PALLET}. Mood: ${tones}, ${coll} season. Empty room, no people. ${STYLE_ARCH}. ${NEG_ARCH}.`
       },
 
-      /* 06 · int_vmd — single hero product display */
-      {
-        slot: "int_vmd",
-        target: () => document.querySelector('[data-slot="int_vmd"] .tile-img'),
-        aspect: "9:16",
-        prompt:
-          `Luxury ${H.label} VMD hero display inside the pop-up boutique: ${H.vmdSubject}. ` +
-          `Dramatic chiaroscuro lighting, editorial product photography, shallow depth of field. ${STYLE_ARCH}. ${NEG}.`
-      },
+      /* =========== CHAPTER 03 · AMBASSADOR · 3-look editorial =========== */
 
-      /* =========== CHAPTER 03 · AMBASSADOR · 4-look fashion editorial =========== */
-
-      /* 07 · amb_beauty — FACE-DOMINANT beauty close-up */
-      {
-        slot: "amb_beauty",
-        target: () => document.querySelector('[data-slot="amb_beauty"] .tile-img'),
-        aspect: "3:4",
-        prompt:
-          `Beauty editorial close-up portrait of a single Korean fashion ambassador resembling ${amb} — ` +
-          `the FACE is the dominant subject, filling 55-70% of the frame (head + bare shoulders / collarbones beauty crop). ` +
-          `Three-quarter pose, calm direct gaze, subtle catchlight in the eyes, flawless natural skin texture with refined natural makeup, soft hair detail. ` +
-          `${tones} mood for ${coll} season. Single soft cinematic key light from the side, warm slightly desaturated tones, gentle shadow falloff, ` +
-          `shallow depth of field — luxury ${H.label} boutique interior softly out-of-focus behind (${PALLET}). ` +
-          `Vogue Korea beauty editorial · luxury campaign aesthetic, museum-quality skin rendering, no commercial retouching look. ` +
-          `${STYLE_FASHION}. ${NEG}.`
-      },
-
-      /* 08 · amb_half — HALF-BODY editorial — category-specific interaction with product */
+      /* 04 · amb_half — half-body editorial */
       {
         slot: "amb_half",
         target: () => document.querySelector('[data-slot="amb_half"] .tile-img'),
         aspect: "3:4",
         prompt:
-          `Half-body high-fashion editorial portrait of Korean ambassador resembling ${amb} — head, torso, hands visible, ` +
+          `Half-body editorial portrait of a Korean ambassador resembling ${amb} — head, torso, hands visible, ` +
           `wearing a refined luxury outfit for ${tones} mood and ${coll} season (tailored coat, silk blouse, structured shoulder, fluid drape). ` +
-          `Ambassador is ${H.ambStyle}. Confident editorial pose, slight body turn for dynamic silhouette, strong negative space. ` +
+          `Ambassador is ${H.ambStyle}. Confident yet natural editorial pose, slight body turn, generous negative space. ` +
           `Soft directional cinematic key light, warm desaturated tones. ` +
-          `Background: luxury ${H.label} boutique softly blurred (${PALLET}). ` +
-          `Vogue Korea fashion editorial cover style, sharp fabric texture detail. ${STYLE_FASHION}. ${NEG}.`
+          `Background: luxury ${H.label} boutique softly blurred (${PALLET}). ${STYLE_FASHION}. ${NEG}.`
       },
 
-      /* 09 · amb_full — FULL BODY environmental — full silhouette inside category-specific room */
+      /* 05 · amb_full — full body environmental */
       {
         slot: "amb_full",
         target: () => document.querySelector('[data-slot="amb_full"] .tile-img'),
         aspect: "3:4",
         prompt:
-          `Full body environmental high-fashion editorial photograph of Korean ambassador resembling ${amb}, ` +
-          `standing or walking confidently inside the luxury ${H.label} pop-up boutique interior, full outfit visible head to footwear. ` +
-          `Ambassador is ${H.ambStyle}. ${tones} ${coll} styling — tailored coat / dress / suit, statement footwear, refined accessory. ` +
-          `Strong fashion silhouette against the ${H.label} architecture. Cinematic soft side light, warm desaturated tones, ` +
-          `magazine cover composition with generous headroom and footroom. Setting: ${PALLET}, visible category fixtures. ` +
-          `Vogue Korea / W Korea full-look editorial. ${STYLE_FASHION}. ${NEG}.`
-      },
-
-      /* 10 · amb_detail — artistic crop of body/hand/product interaction */
-      {
-        slot: "amb_detail",
-        target: () => document.querySelector('[data-slot="amb_detail"] .tile-img'),
-        aspect: "4:3",
-        prompt:
-          `Editorial detail crop from a luxury ${H.label} fashion campaign featuring the ambassador interacting with ${prod} (${mat}): ` +
-          `tightly composed artistic close-up of the hand · wrist · collar · jawline where the body meets the product (${H.ambStyle}), ` +
-          `shallow depth of field, warm desaturated tones, soft cinematic single-source key light, magazine spread quality. ` +
-          `Vogue Korea / Harper's Bazaar Korea editorial detail aesthetic. ${STYLE_FASHION}. ${NEG}.`
+          `Full body environmental editorial photograph of a Korean ambassador resembling ${amb}, ` +
+          `standing or walking naturally inside the luxury ${H.label} pop-up boutique, full outfit visible head to footwear. ` +
+          `Ambassador is ${H.ambStyle}. ${tones} ${coll} styling — refined coat / dress / suit, elegant footwear, subtle accessory. ` +
+          `Graceful fashion silhouette against the architecture. Soft cinematic side light, warm desaturated tones, ` +
+          `editorial composition with generous headroom and footroom. Setting: ${PALLET}. ${STYLE_FASHION}. ${NEG}.`
       },
     ];
   }
 
   async function generateOneImage(slotDef) {
+    const parts = [];
+    const photo = state.product && state.product.image;
+
+    /* EXTERIOR slots — product photo used as visual identity / design inspiration
+       for the pop-up architecture (palette, material finish, silhouette language) */
+    const isExterior = /^(ext_hero|ext_iso)$/.test(slotDef.slot);
+
+    /* INTERIOR + AMBASSADOR slots — product appears directly in the scene */
+    const isInterior = /^(int_vista|amb_half|amb_full)$/.test(slotDef.slot);
+
+    if (photo && isExterior) {
+      parts.push({ inline_data: { mime_type: photo.mime, data: photo.base64 } });
+      parts.push({ text:
+        `[PRODUCT REFERENCE] The attached image shows the hero product for this pop-up. ` +
+        `Extract its visual identity — dominant colors, material finish (glossy/matte/metallic/fabric), ` +
+        `form language (sharp/rounded/organic/geometric), and overall brand mood — ` +
+        `then apply that aesthetic DNA to the pop-up store exterior architecture. ` +
+        `The building facade, materials, lighting, and spatial mood should feel like a direct extension of the product. ` +
+        `Do NOT show the product itself in this exterior image.\n\n` +
+        slotDef.prompt
+      });
+    } else if (photo && isInterior) {
+      parts.push({ inline_data: { mime_type: photo.mime, data: photo.base64 } });
+      parts.push({ text:
+        `[REFERENCE] The attached image is the actual hero product. ` +
+        `Render the new scene using THIS exact product — preserve its silhouette, ` +
+        `material finish, color and proportions. Do not invent a different product.\n\n` +
+        slotDef.prompt
+      });
+    } else {
+      parts.push({ text: slotDef.prompt });
+    }
+
     const res = await fetch(IMAGE_URL(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: slotDef.prompt }] }],
+        contents: [{ parts }],
         generation_config: {
           response_modalities: ["IMAGE"],
           image_config: { aspect_ratio: slotDef.aspect, image_size: "512" }
@@ -3431,51 +3803,16 @@ body.pdf-export .pdf-cover { display: block; }
             curatorVoice:{ type: "STRING", description: "큐레이터 시그니처 — 1줄 한국어, 마침표로 끝나는 짧고 시적인 관점 (15~28자). 마케팅 카피처럼 들리지 않게. 예: '정해인의 정적인 사색을 한지 위에 옮긴 살롱.', 'RM의 헤리티지가 흑단과 모스로 압축된 챕터.'" },
             stats: {
               type: "OBJECT",
-              description:
-                "Summary 카드 4-stat 그리드. 각 값은 입력(앰배서더·상품 카테고리·재질·가격·컬렉션·위치·톤)에 따라 " +
-                "반드시 논리적으로 다르게 산출. 절대 모든 컨셉에 똑같은 값을 반환하지 말 것.",
+              description: "Summary 카드 수치 3개. 입력별로 반드시 다르게.",
               properties: {
-                brandMatch: {
-                  type: "OBJECT",
-                  description:
-                    "브랜드 적합도. 컨셉이 백화점 럭셔리 톤에 부합할수록 높음. " +
-                    "Quiet Luxury·Editorial Minimal·Heritage → 93~98 / Pastel·Soft Romantic → 88~94 / " +
-                    "Bold Heritage·Monochrome → 85~92 / 실험적 → 78~88. " +
-                    "현대 본점·신세계 강남·갤러리아 위치는 +1~3 가산.",
-                  properties: {
-                    value: { type: "STRING", description: "정수 (단위 % 제외). 78~98 범위." },
-                    delta: { type: "STRING", description: "'+N% vs 시즌 평균' 형식. value가 높을수록 N도 큼 (90↑은 +10 이상)." }
-                  },
-                  required: ["value", "delta"]
-                },
-                expectedVisits: {
-                  type: "OBJECT",
-                  description:
-                    "2주 운영 예상 방문객. 앰배서더 인지도 × 위치 트래픽 × 상품 매력의 가중합. " +
-                    "TOP-tier(정해인·차은우·아이유·NewJeans·제니·RM·박서준·변우석·한소희) + 본점/Seoul flagship → 13.5~16.0 / " +
-                    "TOP-tier + 강남점 → 11.5~13.5 / 중견 + 메인 점포 → 9.5~11.5 / 신예 → 8.0~9.5. " +
-                    "Fragrance/Beauty +0.3~0.5, Jewelry/Watch -0.3~0.5.",
-                  properties: {
-                    value: { type: "STRING", description: "소수 한 자리. 8.0~16.0 범위." },
-                    unit:  { type: "STRING", description: "고정: 'K / 2wk'" },
-                    delta: { type: "STRING", description: "'▲N% vs 동일 매장' 형식. TOP-tier일수록 N이 큼(▲28~45%)." }
-                  },
-                  required: ["value", "unit", "delta"]
-                },
-                conversionRate: {
-                  type: "OBJECT",
-                  description:
-                    "예상 구매 전환율. 상품 카테고리·가격대로 강하게 결정. " +
-                    "Fragrance/Beauty → 3.8~4.8 / Silk·Lifestyle → 3.2~4.0 / Ready-to-Wear·Eyewear → 2.8~3.6 / " +
-                    "Leather → 2.4~3.2 / Jewelry·Watch → 1.8~2.6.",
-                  properties: {
-                    value: { type: "STRING", description: "소수 한 자리. 1.8~4.8 범위." },
-                    delta: { type: "STRING", description: "'▲N.Npt vs 카테고리' 형식. brandMatch가 높을수록 N이 큼." }
-                  },
-                  required: ["value", "delta"]
-                }
+                brandMatch:     { type: "STRING", description: "브랜드 적합도 정수 78~98. 예: '94'" },
+                brandDelta:     { type: "STRING", description: "'+N% vs 시즌 평균'. 예: '+12%'" },
+                expectedVisits: { type: "STRING", description: "2주 방문객 소수 8.0~16.0. 예: '13.2'" },
+                visitDelta:     { type: "STRING", description: "'▲N% vs 동일 매장'. 예: '▲34%'" },
+                conversionRate: { type: "STRING", description: "전환율 소수 1.8~4.8. 예: '3.6'" },
+                convDelta:      { type: "STRING", description: "'▲N.Npt vs 카테고리'. 예: '▲0.8pt'" }
               },
-              required: ["brandMatch", "expectedVisits", "conversionRate"]
+              required: ["brandMatch","brandDelta","expectedVisits","visitDelta","conversionRate","convDelta"]
             },
             moodPalette: {
               type: "OBJECT",
@@ -3495,10 +3832,6 @@ body.pdf-export .pdf-cover { display: block; }
         },
         location:   { type: "STRING", description: "추천 백화점 명당 위치" },
         vmdRouting: { type: "STRING", description: "VMD 동선 최적화 전략" },
-        bmItems: {
-          type: "ARRAY",
-          items: { type: "STRING", description: "수익 모델 항목" }
-        },
         floorplan: {
           type: "OBJECT",
           description: "팝업 평면도 — 정확히 6개 존(고정 위치)과 4단계 동선",
@@ -3527,15 +3860,14 @@ body.pdf-export .pdf-cover { display: block; }
             },
             steps: {
               type: "ARRAY",
-              description: "동선 단계 정확히 4개 — 입장 순서대로 (예: 입구→백바→포토→VIP)",
+              description: "동선 단계 정확히 4개 (입장 순서). 카드 하단 리스트에 표시됨.",
               items: {
                 type: "OBJECT",
                 properties: {
-                  ord:    { type: "STRING", description: "단계 번호. 예: '01'" },
                   name:   { type: "STRING", description: "단계 이름. 예: '엔트런스'" },
-                  detail: { type: "STRING", description: "단계 한 줄 설명. 예: '향 디퓨저 · 1.2m 폭'" }
+                  detail: { type: "STRING", description: "한 줄 설명. 예: '향 디퓨저 · 1.2m 폭'" }
                 },
-                required: ["ord", "name", "detail"]
+                required: ["name", "detail"]
               }
             }
           },
@@ -3543,30 +3875,50 @@ body.pdf-export .pdf-cover { display: block; }
         },
         budget: {
           type: "OBJECT",
-          description: "2주 운영 기준 개설 예산 상세 — 하이엔드 백화점 5F 약 60평 가정",
+          description: "2주 운영 개설 예산 — 5F 약 60평 기준. 8개 항목, share 합 100%.",
           properties: {
-            totalKRW: { type: "STRING", description: "총합 예산 (예: ₩710M)" },
-            summary:  { type: "STRING", description: "예산 한 줄 요약 — 평수·기간·핵심 비중" },
+            totalKRW: { type: "STRING", description: "총합. 예: '₩710M'" },
+            summary:  { type: "STRING", description: "한 줄 요약 (평수·기간·핵심 비중)" },
             items: {
               type: "ARRAY",
-              description: "8~10개의 예산 항목. 비중 합계는 반드시 100%.",
+              description: "정확히 8개. share 합 100%. totalKRW는 amount 합과 일치.",
               items: {
                 type: "OBJECT",
                 properties: {
-                  name:     { type: "STRING", description: "항목명 · 예: '마감재 · 시공'" },
-                  subname:  { type: "STRING", description: "항목 부제 · 예: '흑단 · 황동 · 트래버틴'" },
-                  detail:   { type: "STRING", description: "세부 내역 한 줄 · 예: '14일 단기 시공'" },
-                  amount:   { type: "STRING", description: "예산 (KRW). 예: '₩278M'" },
-                  share:    { type: "STRING", description: "전체 대비 비중 (%). 예: '39%'" }
+                  name:    { type: "STRING", description: "항목명. 예: '마감재 · 시공'" },
+                  subname: { type: "STRING", description: "항목 부제 (재질/내용). 예: '흑단 · 황동 · 트래버틴'" },
+                  detail:  { type: "STRING", description: "세부 내역 한 줄. 예: '14일 단기 시공'" },
+                  amount:  { type: "STRING", description: "예: '₩278M'" },
+                  share:   { type: "STRING", description: "예: '39%'" }
                 },
                 required: ["name", "subname", "detail", "amount", "share"]
               }
             }
           },
           required: ["totalKRW", "summary", "items"]
+        },
+        brandPalette: {
+          type: "OBJECT",
+          description: "팝업 스토어 브랜드 컬러 시스템. 입력(상품·앰배서더·무드)에 어울리는 6색 도출.",
+          properties: {
+            caption: { type: "STRING", description: "팔레트 한 줄 설명 (한국어, 컬러 선택 근거)" },
+            swatches: {
+              type: "ARRAY",
+              description: "정확히 6개. 첫 번째는 시그니처(가장 상징적인 색). 어두운·중간·밝은 톤이 고루 포함.",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  role: { type: "STRING", description: "색 역할 이름. 예: 'Signature', 'Base Dark', 'Accent', 'Stone', 'Ivory', 'Contrast'" },
+                  hex:  { type: "STRING", description: "hex 7자리. 예: '#1F3D2C'" }
+                },
+                required: ["role", "hex"]
+              }
+            }
+          },
+          required: ["caption", "swatches"]
         }
       },
-      required: ["brief", "location", "vmdRouting", "bmItems", "floorplan", "budget"]
+      required: ["brief", "location", "vmdRouting", "floorplan", "budget", "brandPalette"]
     };
 
     const res = await fetch(url, {
@@ -3574,147 +3926,79 @@ body.pdf-export .pdf-cover { display: block; }
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         system_instruction: { parts: [{ text:
-          "너는 하이엔드 백화점(현대·신세계·갤러리아) 팝업스토어 전문 VMD이자 " +
-          "공간 비즈니스 컨설턴트다. 한국어 존댓말 + 명사형 종결로 명확하게 작성하고, " +
-          "럭셔리 톤(절제된 어휘, 형용사 최소화)을 유지해라. " +
-          "brief.titleEn은 영문 명사구 + 마침표, 형식은 'An Editorial Boudoir.' / 'A Pastel Atelier.' / " +
-          "'A Heritage Gallery.' / 'A Monochrome Salon.' 처럼 'An/A + 형용사 + 명사 + 마침표'. " +
-          "titleItalic은 titleEn의 마지막 단어 + 마침표만. " +
-          "brief.editionLabel은 영문 대문자 + 가운뎃점(·) 구분자, 'AI CURATED · {EDITION 명} · {시즌 코드}' 형식. " +
-          "EDITION 명은 titleEn의 명사를 변형하거나 컨셉을 함축한 단어 — 예: 'BOUDOIR EDITION', 'HERITAGE CHAPTER', " +
-          "'MONOCHROME SUITE', 'PASTEL ATELIER', 'GALLERY VOLUME'. 시즌은 입력 컬렉션을 코드화 (Spring·Summer 2026→'SS26', Fall·Winter 2025→'FW25'). " +
-          "brief.descKo와 heroDescKo는 서로 다른 각도로 — descKo는 '컨셉 정체성' (누구를 위한, 어떤 무드인지), " +
-          "heroDescKo는 '재질·빛·외관' (실제 공간의 시각적 디테일). " +
-          "brief.keywords는 4~5개, 각 1~3어절의 무드/재질/시각 키워드. " +
-          "영문 Title Case 우선 (예: 'Quiet Luxury', 'Hanji Silk', 'Brushed Brass'), 필요 시 한글 혼용 가능. " +
-          "컨셉의 핵심 재질·톤·분위기를 압축. " +
-          "brief.curatorVoice는 큐레이터의 1줄 시그니처 (한국어, 15~28자, 마침표로 종결). " +
-          "마케팅 카피 아닌 정적인 관점 — 예: '정해인의 정적인 사색을 한지 위에 옮긴 살롱.', " +
-          "'박서준의 헤리티지가 흑단과 모스로 응축된 챕터.'. " +
-          "brief.stats 4개 수치는 입력값(앰배서더·상품 카테고리·재질·가격·컬렉션·위치·톤)에 따라 " +
-          "반드시 논리적으로 차등화한다. 절대 똑같은 값을 반복하지 말 것. 각 수치의 산출 규칙: " +
-          "[1] brandMatch.value (78~98 정수): 컨셉이 백화점 럭셔리 톤과 얼마나 부합하는가. " +
-          "Quiet Luxury·Editorial Minimal·Heritage → 93~98, Pastel Atelier·Soft Romantic → 88~94, " +
-          "Bold Heritage·Monochrome → 85~92, 실험적·아방가르드 → 78~88. " +
-          "현대 본점·신세계 강남·갤러리아 위치는 +1~3 가산, 그 외는 그대로. " +
-          "delta는 '+N% vs 시즌 평균' 형식, value가 높을수록 +N도 큼 (90 이상은 +10 이상). " +
-          "[2] expectedVisits.value (8.0~16.0 소수 한 자리): 앰배서더 인지도 × 위치 트래픽 × 상품 매력의 가중합. " +
-          "TOP-tier (정해인·차은우·아이유·NewJeans·제니·BTS RM·박서준·변우석·한소희) + 본점/Seoul flagship → 13.5~16.0, " +
-          "TOP-tier + 강남점/주요 점포 → 11.5~13.5, 중견 모델 + 메인 점포 → 9.5~11.5, " +
-          "신예/덜 알려진 인물 + 보조 점포 → 8.0~9.5. " +
-          "상품 카테고리: Fragrance/Beauty (+0.3~0.5), Lifestyle (+0.2), Jewelry/Watch (-0.3~0.5). " +
-          "unit은 'K / 2wk' 고정. delta는 '▲N% vs 동일 매장' 형식, 인지도가 높을수록 N이 큼 (top-tier는 ▲28~45%). " +
-          "[3] conversionRate.value (1.8~4.8 소수 한 자리): 상품 카테고리·가격대로 강하게 결정. " +
-          "Fragrance/Beauty (저가, 충동구매 유도) → 3.8~4.8, " +
-          "Silk/Lifestyle (중가) → 3.2~4.0, " +
-          "Ready-to-Wear/Eyewear (중가) → 2.8~3.6, " +
-          "Leather (대형 가방·고가) → 2.4~3.2, " +
-          "Jewelry/Watch (초고가, 신중 구매) → 1.8~2.6. " +
-          "delta는 '▲N.Npt vs 카테고리' 형식, 컨셉 정합도(brandMatch)가 높을수록 N이 큼. " +
-          "[4] 개설 예산은 budget.totalKRW에서 자동 표시되므로 별도 stat 객체 없음. " +
-          "세 수치를 독립적으로 산출하지 말고 입력 조합 전체의 시너지를 반영하라. 같은 인풋에 대해 항상 같은 결과가 나와야 일관성 있는 추론이다. " +
-          "moodPalette는 컨셉 분위기를 시각화한다 — 헤리티지=흑단·모스·황동 / 모노크롬=차콜·스톤 / " +
-          "파스텔=웜브라운·블러시 / 살롱=흑단·모스·트래버틴 / 미니멀=차콜·페이퍼 / " +
-          "보헤미안=브릭·인디고. accent는 항상 밝고 italic 텍스트가 두 어두운 톤 위에서 또렷이 읽혀야 한다. " +
-          "bmItems는 5개 내외로, 각 항목은 한 줄짜리 수익 모델 명제로 작성해라. " +
-          "==== 상품 카테고리별 차별화 규칙 (가장 중요) ==== " +
-          "결과물(floorplan zone 이름, bmItems, budget 비중 분포)은 반드시 상품 카테고리에 따라 분명히 달라야 한다. " +
-          "다른 카테고리에서 동일한 zone 이름·BM·예산 분포가 나오면 안 된다. 다음 표를 그대로 따른다: " +
-
-          "▸ Fragrance/Beauty — zone 이름 예시: 향 디퓨저 / 향수 라이브러리 / 시향 살롱 / 블렌딩 스튜디오 / 시그니처 키오스크 / 픽업. " +
-          "bmItems 예시: '향 시그니처 커스터마이징 (1:1 블렌딩)', '향수 정기 구독 모델 (분기 큐레이션)', " +
-          "'프라이빗 블렌딩 세션 (예약제 60분)', '한정판 아토마이저 각인 서비스', '시향 멤버십 (연간 시향노트 발송)'. " +
-          "budget 비중: 마케팅·콘텐츠 28~35%, 마감재 22~28%, 미디어·AV 4~7% (조명·디퓨저 중심), 운영 6~9%. " +
-
-          "▸ Leather — zone 이름 예시: 가죽 라이브러리 / 핸디크래프트 데몬 / 모노그래밍 카운터 / VIP 컨설팅 / 케어 키트 / 픽업. " +
-          "bmItems 예시: '모노그래밍 인하우스 서비스 (핫스탬프)', '평생 가죽 케어 정기 (분기 컨디셔닝)', " +
-          "'수선 평생 보증 (인 하우스 장인)', '커스텀 스트랩·핸들 빌드', 'VIP 트렁크 페어 멤버십'. " +
-          "budget 비중: 마감재·시공 38~45% (가죽·월넛·황동), 가구·조명 14~18%, 운영 8~10%, 마케팅 8~12%. " +
-
-          "▸ Silk/Lifestyle — zone 이름 예시: 스카프 라이브러리 / 실크 드레이프 룸 / 한지 프린팅 데몬 / 시그니처 컬러 / 케어 / 픽업. " +
-          "bmItems 예시: '실크 케어 전문 클리닝', '커스텀 한지 프린트 (1:1 디자인)', '자수 모노그램', " +
-          "'시그니처 컬러 매칭 (피부톤 진단)', '스카프 스타일링 클래스'. " +
-          "budget 비중: 마감재 28~34%, 브랜딩·그래픽 9~13% (한지·실크 패턴), 가구 11~14%, 마케팅 14~18%. " +
-
-          "▸ Watch — zone 이름 예시: 시계 컬렉션 / 무브먼트 스튜디오 / 감정 카운터 / VIP 시연 / 트라이온 / 픽업. " +
-          "bmItems 예시: '감정서 발급 (인증 인하우스)', '평생 무브먼트 서비싱 (5년 무상)', '커스텀 스트랩 빌드', " +
-          "'가족 헤리티지 등록 (3대 보증)', '트레이드인 프로그램 (구형→신형)'. " +
-          "budget 비중: 운영·보안 13~17% (시큐리티), 마감재 28~34% (마호가니·황동), 미디어·AV 10~14% (시큐리티 시스템 포함), 가구 12~15%. " +
-
-          "▸ Jewelry — zone 이름 예시: 주얼리 케이스 / 헤리티지 갤러리 / 컨설테이션 / 사이즈 조정 / 케어 / 픽업. " +
-          "bmItems 예시: '감정 인증서', '사이즈 조정 인하우스', '헤리티지 등록 (가문 인계 보증)', " +
-          "'화이트글러브 배송 (전담 큐레이터)', '연간 케어 정기 (광택·검수)'. " +
-          "budget 비중: 운영·보안 14~18%, 마감재 30~36% (흑단·벨벳), 미디어·AV 9~12% (보안·디스플레이), 마케팅 8~11%. " +
-
-          "▸ Ready-to-Wear — zone 이름 예시: 의류 컬렉션 / 피팅 룸 / 알터레이션 / 스타일링 / 미러 룸 / 픽업. " +
-          "bmItems 예시: '평생 알터레이션', '메이드투메저 캡슐', '스타일링 컨설팅 정기', " +
-          "'케어·드라이클리닝 정기', '시즌 캡슐 정기 구독'. " +
-          "budget 비중: 가구·조명 18~22% (피팅룸·미러·랙), 마감재 28~33%, 운영 9~12%, 마케팅 11~14%. " +
-
-          "▸ Eyewear — zone 이름 예시: 컬렉션 월 / 사이즈 피팅 / 렌즈 컨설팅 / 트라이온 / 케어 / 픽업. " +
-          "bmItems 예시: '처방 렌즈 평생 교체', '프레임 각인 (이니셜)', '커스텀 피팅 (안면 스캔)', " +
-          "'케어 정기 (광택·조정)', '트레이드인 프로그램'. " +
-          "budget 비중: 미디어·AV 11~14% (안면 스캔·미러 시스템), 가구 13~16%, 마감재 26~30%, 마케팅 10~13%. " +
-
-          "==== floorplan 공통 규칙 ==== " +
-          "floorplan.zones는 반드시 정확히 6개. 그리드 고정 위치 — " +
-          "[1] 입구/엔트런스 (작은 좌상단), " +
-          "[2] 중앙 메인 디스플레이 (큰 중앙) — num에 '· FEATURE' 또는 카테고리 강조 키워드 포함, " +
-          "[3] 포토/시그니처 (우상단), " +
-          "[4] VIP·컨설팅·깊이 (좌하단), " +
-          "[5] 체험·인터랙티브 (우하단), " +
-          "[6] 출구·결제·픽업 (전폭 dark) — num에 '· EXIT' 포함. " +
-          "각 zone의 name은 6글자 내외 짧은 명사구. zone 이름은 위의 카테고리별 예시 패턴을 그대로 따른다. " +
-          "subname은 '· 카테고리 키워드' 형식 (예: '· 시향 카드', '· 모노그래밍 도구'). " +
-          "floorplan.steps는 정확히 4개, 입장 순서대로. " +
-
-          "==== bmItems 공통 규칙 ==== " +
-          "bmItems는 5개. 위 카테고리별 5개 예시를 그대로 반영하되, 컨셉(앰배서더·톤)에 맞게 한 줄로 다듬는다. " +
-          "다른 카테고리의 BM이 섞이면 안 된다 (예: Fragrance 컨셉에 '커스텀 스트랩' 같은 가죽 BM 금지). " +
-
-          "==== budget 공통 규칙 ==== " +
-          "budget.items는 8~10개. 다음 카테고리를 반드시 포함 — " +
-          "공간 디자인·설계 / 마감재·시공 / 가구·조명·디스플레이 / 미디어·AV·디지털 / " +
-          "브랜딩·그래픽·사이니지 / 운영·스태프 / 한정판 굿즈·패키지 / 마케팅·콘텐츠 / 예비비. " +
-          "amount는 ₩숫자M 또는 ₩숫자B 형식, share는 정수%. share 합은 정확히 100%, totalKRW는 모든 amount 합. " +
-          "각 항목의 share는 위의 카테고리별 비중 범위를 반드시 따른다. 카테고리에 따라 항목명의 subname도 차별화 " +
-          "(예: Fragrance의 '미디어·AV·디지털'은 'LED·디퓨저·향 큐레이션 디스플레이', Watch는 'LED·보안·진열 시큐리티')."
+          "하이엔드 백화점 팝업스토어 전문 VMD. 한국어 존댓말+명사형 종결. 럭셔리 톤. " +
+          "titleEn: 'A/An + 형용사 + 명사 + 마침표' (예: 'An Editorial Boudoir.'). titleItalic: 마지막 단어+마침표. " +
+          "editionLabel: 'AI CURATED · {EDITION명} · {시즌코드}' 형식. 시즌코드: SS26/FW25/RS26 등. " +
+          "stats는 입력마다 반드시 다른 값. brandMatch 78~98(Quiet Luxury→93+, 파스텔→88+, 실험적→78+). " +
+          "expectedVisits 8.0~16.0K(TOP-tier+본점→14+, TOP-tier+강남→12+, 중견→10, 신예→8). " +
+          "conversionRate 1.8~4.8%(Fragrance→4+, Silk→3.5, RTW/Eyewear→3, Leather→2.7, Jewelry/Watch→2). " +
+          "moodPalette: primary/secondary는 어두운 톤(luminance<0.25), accent는 밝은 톤(luminance>0.55). " +
+          "floorplan.zones 정확히 6개: [1]입구 [2]메인디스플레이(num에 카테고리 키워드) [3]포토존 [4]VIP [5]체험 [6]EXIT. " +
+          "zone 이름은 상품 카테고리 어휘 사용(향수→'시향 살롱', 가방→'모노그래밍 카운터', 시계→'무브먼트 스튜디오'). " +
+          "floorplan.steps 정확히 4개(입장 순서, name+detail 한 줄). " +
+          "budget.items 정확히 8개, 순서: 공간 디자인·설계 / 마감재·시공 / 가구·조명·디스플레이 / 미디어·AV·디지털 / 브랜딩·그래픽·사이니지 / 운영·스태프 / 한정판 굿즈·패키지 / 마케팅·콘텐츠. " +
+          "각 항목 subname(재질·내용)+detail(한 줄). amount는 ₩숫자M, share 정수%, 합 정확히 100%, totalKRW=amount 합. " +
+          "비중은 카테고리마다 다르게: Fragrance=마케팅 최대, Leather/Watch=마감재 최대, Jewelry=운영·보안 최대. " +
+          "brandPalette.swatches 정확히 6개, 입력(상품 색·앰배서더·무드)에 어울리는 색. 첫째=시그니처, 어두운/중간/밝은 톤 고루. hex 7자리. 제품 사진이 있으면 그 색을 1~2개 반영."
         }]},
-        contents: [{ parts: [{ text:
-          `다음 입력값을 모두 추론에 사용해서 brief·location·vmdRouting·bmItems·floorplan·budget를 작성해줘.\n\n` +
-          `[입력값]\n` +
-          `- 앰배서더: ${state.ambassador.name}\n` +
-          `- 무드/톤: ${(state.ambassador.tone || '').trim() || 'editorial minimal'}\n` +
-          `- 히어로 상품명: ${state.product.name}\n` +
-          `- 상품 카테고리: ${state.product.cat}  ← 이 카테고리가 결과의 차별화 1순위 변수\n` +
-          `- 재질·마감: ${state.product.mat}\n` +
-          `- 가격대: ${state.product.price || '미지정'}\n` +
-          `- 컬렉션: ${state.collection}\n` +
-          `- 위치: ${state.location}\n\n` +
-          `[필수 규칙 — 차별화]\n` +
-          `· 상품 카테고리(${state.product.cat})에 따라 floorplan.zones 이름, bmItems, budget 항목 비중이 반드시 달라야 한다. ` +
-          `system_instruction의 카테고리별 표를 그대로 따른다. 다른 카테고리의 어휘가 섞이면 안 된다 ` +
-          `(예: ${state.product.cat} 컨셉에는 ${state.product.cat} 카테고리에 해당하는 zone/BM/budget 분포만 사용).\n` +
-          `· brief.stats 3개 수치(brandMatch / expectedVisits / conversionRate)도 위 입력에 따라 ` +
-          `반드시 차등화 — 같은 인풋이면 같은 값, 다른 인풋이면 분명히 다른 값. ` +
-          `brandMatch는 톤·위치, expectedVisits는 앰배서더 인지도·위치·카테고리, ` +
-          `conversionRate는 카테고리·가격대로 결정. delta는 value와 같은 방향.\n` +
-          `· brief.heroDescKo · curatorVoice · keywords · titleEn 모두 카테고리의 재질·도구·의식(ritual)이 ` +
-          `자연스럽게 녹아 있어야 한다 (예: 향수→'미스트·아토마이저·시향', 가방→'스티치·황동 리벳·모노그래밍', ` +
-          `시계→'무브먼트·루페·핀스폿', 주얼리→'벨벳·핀스폿·헤리티지').\n\n` +
-          `한 줄 요약: ${userPrompt}`
-        }]}],
+        contents: [{ parts: (function buildContentsParts() {
+          const photo = state.product && state.product.image;
+          const textPart = {
+            text:
+              `입력값:\n` +
+              `앰배서더: ${state.ambassador.name} / 톤: ${(state.ambassador.tone||'').trim()||'editorial minimal'} / ` +
+              `상품: ${state.product.name} (${state.product.cat}) / ` +
+              `컬렉션: ${state.collection} / 위치: ${state.location}\n` +
+              `재질·마감과 가격대는 입력하지 않았으니, 상품명·카테고리${photo ? '·첨부 사진' : ''}로 합리적으로 추론해서 ` +
+              `brief.heroDescKo·keywords·budget(가격대 반영)에 자연스럽게 녹여줘.\n` +
+              (photo ? `제품 사진 첨부: 색감·재질·실루엣을 brief.heroDescKo·keywords·moodPalette에 반영.\n` : '') +
+              `\n위 입력 기반으로 brief·location·vmdRouting·floorplan·budget를 작성해줘. ` +
+              `카테고리(${state.product.cat}) 어휘로 zone 이름과 budget 비중을 차별화. ` +
+              `stats 수치는 입력마다 다르게.`
+          };
+          if (photo) {
+            return [
+              { inline_data: { mime_type: photo.mime, data: photo.base64 } },
+              textPart
+            ];
+          }
+          return [textPart];
+        })() }],
         generation_config: {
           response_mime_type: "application/json",
-          response_schema:    strategySchema
+          response_schema:    strategySchema,
+          /* Generous output ceiling — brief+stats+moodPalette+6 zones+4 steps
+             +8~10 budget items can easily exceed the default 8192 cap which
+             causes mid-JSON truncation and a downstream parse error. */
+          max_output_tokens: 16384,
+          temperature: 0.7
         }
       })
     });
-    if (!res.ok) throw new Error(`Strategy track HTTP ${res.status}`);
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`Strategy track HTTP ${res.status} — ${errBody.slice(0, 240)}`);
+    }
     const data = await res.json();
+    const finishReason = data.candidates?.[0]?.finishReason;
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("Strategy track: empty response");
-    const result = JSON.parse(text);
+    if (!text) {
+      throw new Error(`Strategy track: empty response (finishReason=${finishReason || 'unknown'})`);
+    }
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (parseErr) {
+      console.warn('[Strategy] JSON.parse failed — attempting salvage', {
+        finishReason,
+        tail: text.slice(-200)
+      });
+      /* If Gemini truncated mid-JSON (MAX_TOKENS), try to close open braces
+         so the partial brief still lands on the UI rather than killing the
+         whole generation. */
+      result = salvagePartialJSON(text);
+      if (!result) throw parseErr;
+    }
 
     /* Stash latest strategy so applyStrategy() can be re-run AFTER
        renderResults() (which otherwise overwrites the brief with concept
@@ -3734,20 +4018,13 @@ body.pdf-export .pdf-cover { display: block; }
   function applyStrategy(result) {
     if (!result) return;
 
-    /* ---- Map JSON schema → DOM (Gemini Insights block in BM card) ---- */
+    /* ---- Map JSON schema → DOM (Gemini Insights block — location + routing) ---- */
     const insightsEl = $('#geminiInsights');
     if (insightsEl) insightsEl.style.display = 'block';
-    $('#igLocation').textContent = result.location   || '—';
-    $('#igRouting').textContent  = result.vmdRouting || '—';
-
-    const listEl = $('#igBmList');
-    listEl.innerHTML = '';
-    (result.bmItems || []).forEach((item, i) => {
-      const li = document.createElement('li');
-      li.innerHTML =
-        `<span class="ord">${String(i+1).padStart(2,'0')}</span><span>${escapeHTML(item)}</span>`;
-      listEl.appendChild(li);
-    });
+    const igLocEl = $('#igLocation');
+    if (igLocEl) igLocEl.textContent = result.location   || '—';
+    const igRouEl = $('#igRouting');
+    if (igRouEl) igRouEl.textContent = result.vmdRouting || '—';
 
     /* ---- Cross-inject into existing structures ---- */
     const flowDesc = $('#flowDesc');
@@ -3805,28 +4082,26 @@ body.pdf-export .pdf-cover { display: block; }
       const mbT = $('#mbTitle');
       if (mbT && titleHTML) mbT.innerHTML = titleHTML;
 
-      /* Stats */
+      /* Stats — flat string fields */
       if (b.stats) {
         const st = b.stats;
-        if (st.brandMatch) {
-          const el = $('#stat-match');
-          if (el) el.innerHTML = `${escapeHTML(st.brandMatch.value || '—')}<span class="u">%</span>`;
-          const delta = $('#stat-match')?.parentElement?.querySelector('.delta');
-          if (delta && st.brandMatch.delta) delta.textContent = st.brandMatch.delta;
-        }
-        if (st.expectedVisits) {
-          const el = $('#stat-visit');
-          if (el) el.innerHTML =
-            `${escapeHTML(st.expectedVisits.value || '—')}<span class="u">${escapeHTML(st.expectedVisits.unit || '')}</span>`;
-          const delta = $('#stat-visit')?.parentElement?.querySelector('.delta');
-          if (delta && st.expectedVisits.delta) delta.textContent = st.expectedVisits.delta;
-        }
-        if (st.conversionRate) {
-          const el = $('#stat-conv');
-          if (el) el.innerHTML = `${escapeHTML(st.conversionRate.value || '—')}<span class="u">%</span>`;
-          const delta = $('#stat-conv')?.parentElement?.querySelector('.delta');
-          if (delta && st.conversionRate.delta) delta.textContent = st.conversionRate.delta;
-        }
+        const matchEl = $('#stat-match');
+        if (matchEl && st.brandMatch)
+          matchEl.innerHTML = `${escapeHTML(st.brandMatch)}<span class="u">%</span>`;
+        const matchDelta = matchEl?.parentElement?.querySelector('.delta');
+        if (matchDelta && st.brandDelta) matchDelta.textContent = st.brandDelta;
+
+        const visitEl = $('#stat-visit');
+        if (visitEl && st.expectedVisits)
+          visitEl.innerHTML = `${escapeHTML(st.expectedVisits)}<span class="u">K / 2wk</span>`;
+        const visitDelta = visitEl?.parentElement?.querySelector('.delta');
+        if (visitDelta && st.visitDelta) visitDelta.textContent = st.visitDelta;
+
+        const convEl = $('#stat-conv');
+        if (convEl && st.conversionRate)
+          convEl.innerHTML = `${escapeHTML(st.conversionRate)}<span class="u">%</span>`;
+        const convDelta = convEl?.parentElement?.querySelector('.delta');
+        if (convDelta && st.convDelta) convDelta.textContent = st.convDelta;
       }
 
       /* Mood palette — apply gradient + accent color to Summary and Hero Render */
@@ -3885,14 +4160,14 @@ body.pdf-export .pdf-cover { display: block; }
         });
       }
 
-      /* 4 steps — replace the <ul class="floor-list"> rows */
+      /* 4 동선 steps — replace the <ul class="floor-list"> rows */
       const stepsEl = $('#floorList');
       if (stepsEl && Array.isArray(fp.steps) && fp.steps.length) {
         stepsEl.innerHTML = '';
         fp.steps.slice(0, 4).forEach((s, i) => {
           const li = document.createElement('li');
           li.innerHTML =
-            `<span class="ord">${escapeHTML(s.ord || String(i+1).padStart(2,'0'))}</span>` +
+            `<span class="ord">${String(i+1).padStart(2,'0')}</span>` +
             `<span class="nm">${escapeHTML(s.name || '')}</span>` +
             `<span class="desc">${escapeHTML(s.detail || '')}</span>`;
           stepsEl.appendChild(li);
@@ -3911,6 +4186,15 @@ body.pdf-export .pdf-cover { display: block; }
       if (titleEl && b.totalKRW) titleEl.textContent = `2주 운영 · 약 ${b.totalKRW}.`;
       if (descEl  && b.summary)  descEl.textContent  = b.summary;
 
+      /* Summary card "개설 예산" stat — split number from unit (M/B/억) */
+      const statBudget = $('#stat-budget');
+      if (statBudget && b.totalKRW) {
+        const m = String(b.totalKRW).trim().match(/^(₩?[\d,.]+)\s*([A-Za-z억만]*)$/);
+        statBudget.innerHTML = m
+          ? `${escapeHTML(m[1])}<span class="u">${escapeHTML(m[2] || '')}</span>`
+          : escapeHTML(b.totalKRW);
+      }
+
       if (bodyEl && Array.isArray(b.items) && b.items.length) {
         bodyEl.innerHTML = '';
         let shareSum = 0;
@@ -3919,7 +4203,7 @@ body.pdf-export .pdf-cover { display: block; }
           tr.innerHTML =
             `<td>` +
               `<div class="name">${escapeHTML(it.name || '')}</div>` +
-              `<div class="desc">${escapeHTML(it.subname || '')}</div>` +
+              (it.subname ? `<div class="desc">${escapeHTML(it.subname)}</div>` : '') +
             `</td>` +
             `<td><div class="desc">${escapeHTML(it.detail || '')}</div></td>` +
             `<td class="amt">${escapeHTML(it.amount || '')}</td>` +
@@ -3932,6 +4216,53 @@ body.pdf-export .pdf-cover { display: block; }
         const footShare = $('#bmTableFoot .share');
         if (footShare) footShare.textContent = (shareSum || 100) + '%';
       }
+    }
+
+    /* ---- Brand color palette — AI-generated pill swatches + gradient circles ---- */
+    if (result.brandPalette) {
+      const bp       = result.brandPalette;
+      const pillsEl  = $('#ppGrid');
+      const circlesEl= $('#ppCircles');
+      const capEl    = $('#ppCaption');
+      const isHex    = h => /^#[0-9A-Fa-f]{6}$/.test(String(h || '').trim());
+      /* Darken a hex slightly so light swatch labels stay readable on paper */
+      const darken = (h, f) => {
+        const n = parseInt(h.slice(1), 16);
+        const r = Math.round(((n>>16)&255)*f), g = Math.round(((n>>8)&255)*f), b2 = Math.round((n&255)*f);
+        return `#${((1<<24)+(r<<16)+(g<<8)+b2).toString(16).slice(1).toUpperCase()}`;
+      };
+      const lum = h => {
+        const n = parseInt(h.slice(1), 16);
+        return (0.299*((n>>16)&255) + 0.587*((n>>8)&255) + 0.114*(n&255)) / 255;
+      };
+
+      const hexes = (bp.swatches || [])
+        .map(sw => (isHex(sw.hex) ? sw.hex.trim().toUpperCase() : null))
+        .filter(Boolean)
+        .slice(0, 6);
+
+      if (pillsEl && hexes.length) {
+        const cols = `repeat(${hexes.length}, 1fr)`;
+        pillsEl.style.gridTemplateColumns = cols;
+        pillsEl.innerHTML = hexes.map(hex => {
+          /* label color = the swatch hex, darkened if it's too light to read */
+          const labelHex = lum(hex) > 0.62 ? darken(hex, 0.72) : hex;
+          return `<div class="pp-pill-wrap">` +
+                   `<div class="pp-pill" style="background:${hex}"></div>` +
+                   `<div class="pp-hex" style="color:${labelHex}">${escapeHTML(hex)}</div>` +
+                 `</div>`;
+        }).join('');
+
+        /* Gradient circles — blend each color into the next (last → first) */
+        if (circlesEl) {
+          circlesEl.style.gridTemplateColumns = cols;
+          circlesEl.innerHTML = hexes.map((hex, i) => {
+            const next = hexes[(i + 1) % hexes.length];
+            return `<div class="pp-circle" style="background:linear-gradient(135deg, ${hex}, ${next})"></div>`;
+          }).join('');
+        }
+      }
+      if (capEl && bp.caption) capEl.textContent = bp.caption;
     }
   }
 
@@ -3953,6 +4284,16 @@ body.pdf-export .pdf-cover { display: block; }
   ];
 
   function runGeneration() {
+    /* Guard — block generation if no Gemini key is available anywhere */
+    if (!getApiKey()) {
+      const input = $('#apiKeyInput');
+      alert('Gemini API 키가 필요합니다.\n패널 하단의 "Gemini Key" 입력란에 키를 입력해 주세요.');
+      if (input) {
+        input.focus();
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
     generating.classList.add('is-on');
     results.classList.remove('is-on');
     genPct.textContent = '0';
@@ -4091,67 +4432,82 @@ body.pdf-export .pdf-cover { display: block; }
     }));
   }
 
-  async function exportPDF() {
-    if (typeof window.html2pdf !== 'function') {
-      alert('PDF 라이브러리 로드 실패 — 네트워크 연결을 확인해 주세요.');
-      return;
-    }
+  /* =====================================================================
+     SAVE ALL IMAGES — downloads every generated Gemini image individually.
+     Uses the <a download> trick: no external library needed.
+     Slot labels are used as file names so it's clear which is which.
+     ===================================================================== */
+  const SLOT_LABELS = {
+    ext_hero:   '01-exterior-storefront',
+    ext_iso:    '02-exterior-eyelevel',
+    int_vista:  '03-interior-showroom',
+    amb_half:   '04-ambassador-halfbody',
+    amb_full:   '05-ambassador-fullbody',
+  };
+
+  function triggerDownload(dataUrl, filename) {
+    const a = document.createElement('a');
+    a.href     = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  async function downloadAllImages() {
     const results = $('#results');
     if (!results || !results.classList.contains('is-on')) {
       alert('먼저 Curate with AI로 기획안을 생성해 주세요.');
       return;
     }
 
+    /* Collect all loaded images — moodboard cells + any other tile images */
+    const imgs = [];
+
+    /* 1. Moodboard cells (data-slot) */
+    $$('[data-slot]').forEach(cell => {
+      const slot = cell.getAttribute('data-slot');
+      const img  = cell.querySelector('img.loaded');
+      if (img && img.src && img.src.startsWith('data:')) {
+        imgs.push({ src: img.src, slot });
+      }
+    });
+
+    if (imgs.length === 0) {
+      alert('저장할 이미지가 없습니다. Curate with AI를 먼저 실행해 주세요.');
+      return;
+    }
+
     const btn = $('#exportBtn');
     const originalLabel = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = 'PDF 생성 중…';
 
-    /* Inject cover, switch body into PDF-export mode */
-    const cover = buildPdfCover();
-    const shell = results.querySelector('.shell');
-    shell.insertBefore(cover, shell.firstChild);
-    document.body.classList.add('pdf-export');
+    const prefix =
+      `${sanitize(state.ambassador.name)}_${sanitize(state.product.name)}_` +
+      new Date().toISOString().slice(0, 10);
 
-    /* Layout settle + wait for any pending Gemini images */
-    await new Promise(r => setTimeout(r, 80));
-    await waitForImages(results);
-
-    const filename =
-      `Maison_Atelier_${sanitize(state.ambassador.name)}_${sanitize(state.product.name)}` +
-      `_${new Date().toISOString().slice(0,10)}.pdf`;
-
-    const opt = {
-      margin:      [12, 12, 14, 12],
-      filename:    filename,
-      image:       { type: 'jpeg', quality: 0.96 },
-      html2canvas: {
-        scale:           2,
-        useCORS:         true,
-        allowTaint:      true,
-        backgroundColor: '#FBFAF7',
-        logging:         false,
-        windowWidth:     1280,
-      },
-      jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-      pagebreak:   { mode: ['css', 'legacy'], avoid: ['.card', '.summary', '.hero-render', '.mb-cell'] },
-    };
-
-    try {
-      await window.html2pdf().set(opt).from(results).save();
-    } catch (err) {
-      console.error(err);
-      alert('PDF 생성 중 오류 — 콘솔을 확인해 주세요.\n' + (err.message || err));
-    } finally {
-      cover.remove();
-      document.body.classList.remove('pdf-export');
-      btn.innerHTML = originalLabel;
-      btn.disabled = false;
+    /* Trigger downloads sequentially with a small delay so the browser
+       doesn't block multiple simultaneous downloads */
+    for (let i = 0; i < imgs.length; i++) {
+      const { src, slot } = imgs[i];
+      const label    = SLOT_LABELS[slot] || `image-${String(i+1).padStart(2,'0')}`;
+      const ext      = src.startsWith('data:image/png') ? 'png' : 'jpg';
+      const filename = `${prefix}_${label}.${ext}`;
+      btn.innerHTML  = `저장 중 ${i + 1} / ${imgs.length}&nbsp; ↓`;
+      triggerDownload(src, filename);
+      /* 400ms gap — enough for browser to register without feeling sluggish */
+      await new Promise(r => setTimeout(r, 400));
     }
+
+    btn.innerHTML = `${imgs.length}장 저장 완료 ✓`;
+    setTimeout(() => {
+      btn.innerHTML = originalLabel;
+      btn.disabled  = false;
+    }, 2000);
   }
 
   const exportBtnEl = $('#exportBtn');
-  if (exportBtnEl) exportBtnEl.addEventListener('click', exportPDF);
+  if (exportBtnEl) exportBtnEl.addEventListener('click', downloadAllImages);
 
   const editBriefBtnEl = $('#editBriefBtn');
   if (editBriefBtnEl) editBriefBtnEl.addEventListener('click', () => {
@@ -4170,7 +4526,7 @@ body.pdf-export .pdf-cover { display: block; }
       }
     });
   }, { threshold: 0.1 });
-  $$('.card, .summary, .mood-large, .gemini-band, .moodboard-section, .hero-render, .mb-cell').forEach((el, i) => {
+  $$('.card, .summary, .mood-large, .gemini-band, .moodboard-section, .hero-render, .mb-cell, .palette-panel').forEach((el, i) => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(24px)';
     el.style.transition = `opacity 600ms cubic-bezier(.65,0,.35,1) ${i * 80}ms, transform 600ms cubic-bezier(.65,0,.35,1) ${i * 80}ms`;
