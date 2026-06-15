@@ -22,12 +22,15 @@
 :root {
   --bg:        #FFFFFF;
   --surface:   #F9F9F9;
+  --paper:     #FBFAF7;
   --text:      #111111;
   --text-2:    #666666;
   --text-3:    #999999;
   --accent:    #000000;
   --moss:      #1E5128;
   --moss-2:    #2E7D32;
+  --champagne: #B89968;
+  --burgundy:  #5C1A1B;
   --border:    #EEEEEE;
   --border-2:  #DDDDDD;
 
@@ -39,6 +42,7 @@
 
   --shadow-1:  0 1px 2px rgba(0,0,0,0.03);
   --shadow-2:  0 8px 24px rgba(0,0,0,0.06);
+  --shadow-3:  0 18px 48px rgba(0,0,0,0.12);
   --shadow-glass: 0 24px 60px rgba(0,0,0,0.32);
 
   --font: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
@@ -466,6 +470,49 @@ nav.nav .actions {
   color: var(--text-2);
 }
 .cta-row .note .moss { color: var(--moss); font-weight: 600; }
+
+/* ----- 럭셔리 브랜드 공식 사이트 바로가기 칩 ----- */
+.brand-links { margin: 0 0 18px; }
+.brand-links > .lab {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 10px;
+}
+.brand-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.brand-controls #brandSelect {
+  flex: 1 1 240px;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--border-2);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 200ms var(--ease);
+}
+.brand-controls #brandSelect:hover { border-color: var(--text-2); }
+.brand-controls #brandSelect:focus { outline: none; border-color: var(--accent); }
+.brand-site-btn {
+  flex: 0 0 auto;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.brand-site-btn[hidden] { display: none; }
+.brand-id-note {
+  margin-top: 10px;
+  padding: 10px 13px;
+  border-radius: 8px;
+  background: rgba(30,81,40,0.06);
+  border: 1px solid rgba(30,81,40,0.16);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.brand-id-note[hidden] { display: none; }
+.brand-id-note b { color: var(--moss); font-weight: 600; }
 
 /* ----- 제품 사진 업로드 — 이미지는 원본 비율 그대로 (object-fit: contain) ----- */
 .prod-photo-row { margin-bottom: 18px; }
@@ -921,22 +968,28 @@ nav.nav .actions {
 /* =========================================================================
    FLOORPLAN — CSS GRID VIZ
    ========================================================================= */
+/* ----- Floorplan as an architect's BLUEPRINT (graphite line drawing on paper) ----- */
 .floorplan {
   position: relative;
   width: 100%;
   aspect-ratio: 4/2.6;
-  background: #fff;
-  border: 1px dashed var(--border-2);
-  border-radius: 8px;
+  /* faint graph-paper grid + drawing frame */
+  background:
+    repeating-linear-gradient(0deg,  rgba(41,38,27,0.045) 0 1px, transparent 1px 20px),
+    repeating-linear-gradient(90deg, rgba(41,38,27,0.045) 0 1px, transparent 1px 20px),
+    var(--paper);
+  border: 1px solid var(--text);
+  box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5px rgba(41,38,27,0.18);
+  border-radius: 2px;
   margin: 16px 0 20px;
   display: grid;
   grid-template-columns: 1fr 1.2fr 1fr;
   grid-template-rows: 1fr 1fr 0.5fr;
-  gap: 6px;
-  padding: 14px;
+  gap: 8px;
+  padding: 16px;
 }
 .zone {
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 10px;
   font-size: 10.5px;
   display: flex;
@@ -944,13 +997,24 @@ nav.nav .actions {
   justify-content: space-between;
   font-weight: 500;
   position: relative;
-  transition: all 260ms var(--ease);
+  cursor: help;
+  background: rgba(251,250,247,0.5);
+  border: 1px solid rgba(41,38,27,0.28);
+  transition: background 220ms var(--ease), border-color 220ms var(--ease);
 }
+/* L-shaped corner ticks — technical drawing detail */
+.zone::before, .zone::after {
+  content: ""; position: absolute; width: 7px; height: 7px; pointer-events: none;
+  border-color: rgba(41,38,27,0.45); border-style: solid;
+}
+.zone::before { top: 4px;  left: 4px;  border-width: 1px 0 0 1px; }
+.zone::after  { bottom: 4px; right: 4px; border-width: 0 1px 1px 0; }
 .zone .num {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.2em;
-  color: var(--text-3);
+  letter-spacing: 0.16em;
+  color: var(--text-2);
 }
 .zone .nm {
   font-size: 12px;
@@ -958,15 +1022,87 @@ nav.nav .actions {
   color: var(--text);
   letter-spacing: -0.005em;
 }
-.zone:hover { transform: scale(1.02); z-index: 1; }
-.zone.z1 { background: rgba(30,81,40,0.10); grid-column: 1; grid-row: 1; }
-.zone.z2 { background: rgba(0,0,0,0.05); grid-column: 2; grid-row: 1 / span 2; border: 1px solid rgba(0,0,0,0.06); }
-.zone.z3 { background: rgba(184,153,104,0.18); grid-column: 3; grid-row: 1; }
-.zone.z4 { background: rgba(30,81,40,0.05); grid-column: 1; grid-row: 2; }
-.zone.z5 { background: rgba(0,0,0,0.04); grid-column: 3; grid-row: 2; }
-.zone.z6 { background: #111; color: #fff; grid-column: 1 / span 3; grid-row: 3; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 16px; }
-.zone.z6 .nm { color: #fff; }
+.zone:hover { background: rgba(31,61,44,0.10); border-color: var(--text); z-index: 2; }
+
+/* Cursor-following blueprint tooltip */
+.fp-tip {
+  position: fixed;
+  z-index: 200;
+  max-width: 230px;
+  padding: 9px 12px;
+  background: var(--text);
+  color: var(--paper);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  box-shadow: var(--shadow-3);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.fp-tip[hidden] { display: none; }
+.fp-tip .tip-t {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #fff;
+}
+.fp-tip .tip-d { color: rgba(255,255,255,0.72); }
+/* shared zone tints */
+.zone.z1 { background: rgba(30,81,40,0.10); }
+.zone.z2 { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.06); }
+.zone.z3 { background: rgba(184,153,104,0.18); }
+.zone.z4 { background: rgba(30,81,40,0.05); }
+.zone.z5 { background: rgba(0,0,0,0.04); }
+.zone.z6 { background: #111; color: #fff; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 16px; }
+.zone.z6 .nm  { color: #fff; }
 .zone.z6 .num { color: rgba(255,255,255,0.4); }
+
+/* =========== 동선 레이아웃 변형 — AI가 입력에 따라 선택 =========== */
+/* ① LOOP — 중앙 히어로 + 시계 반대 방향 둘레 동선 (기본) */
+.floorplan.fp-loop  { grid-template-columns: 1fr 1.2fr 1fr; }
+.fp-loop .z1 { grid-column: 1; grid-row: 1; }
+.fp-loop .z2 { grid-column: 2; grid-row: 1 / span 2; }
+.fp-loop .z3 { grid-column: 3; grid-row: 1; }
+.fp-loop .z4 { grid-column: 1; grid-row: 2; }
+.fp-loop .z5 { grid-column: 3; grid-row: 2; }
+.fp-loop .z6 { grid-column: 1 / span 3; grid-row: 3; }
+
+/* ② LINEAR — 좌→우 순차 진열 축선 동선 (시계·주얼리 등) */
+.floorplan.fp-linear { grid-template-columns: 1fr 1fr 1fr; }
+.fp-linear .z1 { grid-column: 1; grid-row: 1; }
+.fp-linear .z2 { grid-column: 2; grid-row: 1; }
+.fp-linear .z3 { grid-column: 3; grid-row: 1; }
+.fp-linear .z4 { grid-column: 1; grid-row: 2; }
+.fp-linear .z5 { grid-column: 2 / span 2; grid-row: 2; }
+.fp-linear .z6 { grid-column: 1 / span 3; grid-row: 3; }
+
+/* ③ ISLAND — 중앙 대형 섬 + 코너 위성존 (향수·뷰티 등) */
+.floorplan.fp-island { grid-template-columns: 0.85fr 1.6fr 0.85fr; }
+.fp-island .z2 { grid-column: 2; grid-row: 1 / span 2; border-radius: 14px; }
+.fp-island .z1 { grid-column: 1; grid-row: 1; }
+.fp-island .z3 { grid-column: 3; grid-row: 1; }
+.fp-island .z4 { grid-column: 1; grid-row: 2; }
+.fp-island .z5 { grid-column: 3; grid-row: 2; }
+.fp-island .z6 { grid-column: 1 / span 3; grid-row: 3; }
+
+/* ④ SPLIT — 좌측 대형 + 우측 2단 스택 (가방·RTW 등) */
+.floorplan.fp-split { grid-template-columns: 1.4fr 1fr 1fr; }
+.fp-split .z1 { grid-column: 1; grid-row: 1 / span 2; }
+.fp-split .z2 { grid-column: 2 / span 2; grid-row: 1; }
+.fp-split .z3 { grid-column: 2; grid-row: 2; }
+.fp-split .z4 { grid-column: 3; grid-row: 2; }
+.fp-split .z5 { display: none; }            /* split uses 4 active zones + exit */
+.fp-split .z6 { grid-column: 1 / span 3; grid-row: 3; }
+
+/* Flow arrow overlay — directional circulation path */
+.fp-flow {
+  position: absolute; inset: 14px;
+  width: calc(100% - 28px); height: calc(100% - 28px);
+  pointer-events: none; z-index: 3; overflow: visible;
+}
+.fp-flow path { fill: none; stroke: var(--moss); stroke-width: 1.4; stroke-dasharray: 4 4; opacity: 0.55; }
+.fp-flow .head { fill: var(--moss); opacity: 0.7; }
 
 /* Floor list */
 .floor-list {
@@ -1179,15 +1315,16 @@ nav.nav .actions {
   box-shadow: 0 18px 40px rgba(41,38,27,0.18);
 }
 .mb-cell .tile-img {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
+  /* natural-height flow — full image visible AND fills the cell width (no letterbox gaps) */
+  display: block;
+  width: 100%; height: auto;
+  object-fit: contain;
   opacity: 0;
-  transition: opacity 600ms var(--ease-luxe), transform 1200ms var(--ease-luxe);
+  transition: opacity 600ms var(--ease-luxe);
   z-index: 2;
+  position: relative;
 }
 .mb-cell .tile-img.loaded { opacity: 1; }
-.mb-cell:hover .tile-img.loaded { transform: scale(1.03); }
 .mb-cell .tile-shimmer {
   position: absolute; inset: 0;
   background: linear-gradient(
@@ -1307,34 +1444,30 @@ nav.nav .actions {
   gap: 14px;
   width: 100%;
 }
-.ch-canvas .mb-cell { min-height: 180px; }
+/* Cells flow to their image's natural height; placeholder height only while loading */
+.ch-canvas .mb-cell { align-self: start; }
+.ch-canvas .mb-cell:not(.has-image) { min-height: 240px; }
 
-/* ----- EXTERIOR canvas — real pop-up photo (wide) · isometric layout (tall) ----- */
+/* ----- EXTERIOR canvas — two storefront angles, natural heights side by side ----- */
 .ch-canvas-ext {
   grid-template-columns: 1.5fr 1fr;
-  grid-template-rows: 1.5fr 0.5fr;
-  min-height: 460px;
+  align-items: start;
 }
-.ch-canvas-ext .mb-cell[data-slot="ext_hero"] { grid-column: 1;        grid-row: 1; }
-.ch-canvas-ext .mb-cell[data-slot="ext_iso"]  { grid-column: 2;        grid-row: 1 / span 2; }
-.ch-canvas-ext .ch-annot-a                     { grid-column: 1;        grid-row: 2; }
+.ch-canvas-ext .mb-cell[data-slot="ext_hero"] { grid-column: 1; grid-row: 1; }
+.ch-canvas-ext .mb-cell[data-slot="ext_iso"]  { grid-column: 2; grid-row: 1 / span 2; }
+.ch-canvas-ext .ch-annot-a                     { grid-column: 1; grid-row: 2; align-self: start; }
 .ch-canvas-ext .ch-annot-b                     { display: none; }
 
-/* ----- INTERIOR canvas — vista (wide) · VMD display (tall) ----- */
-.ch-canvas-int {
-  grid-template-columns: 1fr;
-  grid-template-rows: 1.6fr auto;
-  min-height: 420px;
-}
-.ch-canvas-int .mb-cell[data-slot="int_vista"] { grid-column: 1; grid-row: 1; }
-.ch-canvas-int .ch-annot-a                      { grid-column: 1; grid-row: 2; }
-.ch-canvas-int .ch-annot-b                      { display: none; }
+/* ----- EXTERIOR II canvas — single full-width elevated wide-angle ----- */
+.ch-canvas-int { grid-template-columns: 1fr; }
+.ch-canvas-int .mb-cell[data-slot="ext_v2"] { grid-column: 1; }
+.ch-canvas-int .ch-annot-a                   { grid-column: 1; }
+.ch-canvas-int .ch-annot-b                   { display: none; }
 
-/* ----- AMBASSADOR canvas — 2 prominent editorial shots: half · full ----- */
+/* ----- AMBASSADOR canvas — 2 editorial shots, natural heights ----- */
 .ch-canvas-amb {
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1.7fr auto;
-  min-height: 660px;
+  align-items: start;
 }
 .ch-canvas-amb .mb-cell[data-slot="amb_half"] { grid-column: 1; grid-row: 1; }
 .ch-canvas-amb .mb-cell[data-slot="amb_full"] { grid-column: 2; grid-row: 1; }
@@ -2311,7 +2444,7 @@ body.pdf-export .pdf-cover { display: block; }
   .ch-canvas-ext .ch-annot-a, .ch-canvas-ext .ch-annot-b { grid-column: 1 / span 2; }
   .ch-canvas-ext .ch-palette { grid-column: 1 / span 2; }
 
-  .ch-canvas-int .mb-cell[data-slot="int_vista"] { grid-column: 1 / span 2; grid-row: auto; min-height: 260px; }
+  .ch-canvas-int .mb-cell[data-slot="ext_v2"] { grid-column: 1 / span 2; grid-row: auto; min-height: 260px; }
   .ch-canvas-int .ch-annot-a, .ch-canvas-int .ch-annot-b { grid-column: 1 / span 2; }
   .ch-canvas-int .ch-palette { grid-column: 1 / span 2; }
 
@@ -2375,6 +2508,9 @@ body.pdf-export .pdf-cover { display: block; }
       your life in <span class="moss">many ways.</span>
     </h1>
 
+    <p class="deck">
+앰배서더 · 히어로 상품 · 컨셉만 입력하면, <strong style="color: var(--moss)">하이엔드 백화점 팝업 스토어</strong>의 공간 컨셉 · 무드보드 · 동선 · 개설 예산을 <strong>5분 안에 한 장의 기획안</strong>으로 완성합니다. 브랜드의 첫인상을, 가장 빠르게.
+    </p>
 
     <!-- INPUT PANEL -->
     <div class="input-panel" id="how">
@@ -2438,6 +2574,18 @@ body.pdf-export .pdf-cover { display: block; }
             <span class="prod-photo-meta"><span class="dot"></span>레퍼런스 활성</span>
             <button type="button" class="prod-photo-remove" id="prodPhotoRemove" aria-label="제품 사진 삭제">×</button>
           </div>
+        </div>
+
+        <!-- 럭셔리 브랜드 — 선택 시 아이덴티티가 프롬프트에 적용 + 공식 사이트 바로가기 -->
+        <div class="brand-links">
+          <span class="lab">명품 브랜드 — 선택하면 브랜드 고유 아이덴티티가 프롬프트에 적용됩니다</span>
+          <div class="brand-controls">
+            <select id="brandSelect" aria-label="명품 브랜드 선택">
+              <option value="">선택 안 함 · 기본 럭셔리 톤</option>
+            </select>
+            <a id="brandSiteBtn" class="btn btn-outline brand-site-btn" target="_blank" rel="noopener noreferrer" hidden>공식 사이트 바로가기 ↗</a>
+          </div>
+          <div class="brand-id-note" id="brandIdNote" hidden></div>
         </div>
 
         <!-- Free input — 상품명 + 카테고리 -->
@@ -2525,21 +2673,11 @@ body.pdf-export .pdf-cover { display: block; }
 
       <div class="cta-row">
         <p class="note">
-          <span class="moss">●</span>&nbsp; 평균 소요&nbsp;<strong style="color:var(--text)">5분</strong> · Google Gemini API · 결과는 세션에 자동 저장
+          <span class="moss">●</span>&nbsp; 평균 소요&nbsp;<strong style="color:var(--text)">5분</strong> · AI 큐레이션 · 결과는 세션에 자동 저장
         </p>
         <button class="btn btn-ai" id="generateBtn">
           <span>✦</span>&nbsp; Curate with AI
         </button>
-      </div>
-
-      <!-- Gemini API key — sessionStorage only, never sent to any server other than Google's Generative Language API -->
-      <div class="api-key-row">
-        <span class="lab" id="apiKeyLab"><span class="dot"></span>Gemini Key</span>
-        <input id="apiKeyInput" type="password" spellcheck="false" autocomplete="off"
-          placeholder="비워두면 기본 키로 자동 작동 · 다른 키 사용 시 여기에 입력" />
-        <span class="hint">
-          비워두면 <strong>기본 API 키</strong>로 자동 작동합니다. 다른 키를 사용하려면 입력하세요 — 이 탭의 sessionStorage에만 저장되며 탭을 닫으면 폐기됩니다.
-        </span>
       </div>
 
     </div>
@@ -2553,7 +2691,7 @@ body.pdf-export .pdf-cover { display: block; }
       <div class="gen-spinner"></div>
       <div>
         <div class="ttl" id="genTtl">컨셉을 분석하는 중…</div>
-        <div class="stp">Gemini 2.5 Pro · <span id="genStep">스타일 분석</span> · Imagen 4 큐 대기 중</div>
+        <div class="stp">AI 큐레이션 · <span id="genStep">스타일 분석</span> · 무드보드 렌더 대기 중</div>
         <div class="gen-tracks">
           <div class="gen-track" id="trackA"><span class="ico"></span><span>Track A · 무드보드 큐레이션</span></div>
           <div class="gen-track" id="trackB"><span class="ico"></span><span>Track B · VMD · 전략 JSON</span></div>
@@ -2622,7 +2760,7 @@ body.pdf-export .pdf-cover { display: block; }
     <!-- ==== MOODBOARD COLLAGE — magazine layout ==== -->
     <div class="moodboard-section">
       <div class="mb-header">
-        <div class="mb-eb"><span class="star">✦</span> MOODBOARD · CURATED · OPENAI</div>
+        <div class="mb-eb"><span class="star">✦</span> MOODBOARD · AI CURATED</div>
         <h3 id="mbTitle">An Editorial <span class="it">Boudoir.</span></h3>
         <p id="mbSubtitle">정해인 × Eau de Maison 100ml — 흑단·황동·트래버틴의 정제된 살롱. 외관과 내관, 재질, 빛, 동선을 한 페이지에 모은 에디토리얼 보드.</p>
       </div>
@@ -2649,20 +2787,20 @@ body.pdf-export .pdf-cover { display: block; }
         </div>
       </article>
 
-      <!-- ====================== CHAPTER 02 · INTERIOR ====================== -->
-      <article class="mb-chapter" data-chapter="interior">
+      <!-- ====================== CHAPTER 02 · EXTERIOR II ====================== -->
+      <article class="mb-chapter" data-chapter="exterior2">
         <header class="ch-head">
           <span class="ch-num">CHAPTER · 02</span>
-          <h3>내관 <em>Interior.</em></h3>
-          <p>Surfaces, light, gesture — the room as quiet stage. 재질과 빛이 만나는 정적인 무대.</p>
+          <h3>외관 <em>Exterior II.</em></h3>
+          <p>An elevated wide-angle of the full pop-up in the mall. 상층에서 내려다본 팝업 전경.</p>
         </header>
 
         <div class="ch-canvas ch-canvas-int">
-          <figure class="mb-cell" data-slot="int_vista">
-            <img class="tile-img" alt="interior vista"><span class="tile-shimmer"></span>
-            <figcaption><span class="cap-n">03</span><span class="cap-t">Interior · Showroom</span></figcaption>
+          <figure class="mb-cell" data-slot="ext_v2">
+            <img class="tile-img" alt="elevated wide-angle storefront"><span class="tile-shimmer"></span>
+            <figcaption><span class="cap-n">03</span><span class="cap-t">Storefront · Wide-angle</span></figcaption>
           </figure>
-          <aside class="ch-annot ch-annot-a">The interior continues the storefront's material language.</aside>
+          <aside class="ch-annot ch-annot-a">The whole booth, seen from the upper concourse.</aside>
           <aside class="ch-annot ch-annot-b"></aside>
         </div>
       </article>
@@ -2701,7 +2839,7 @@ body.pdf-export .pdf-cover { display: block; }
           <span class="tag-pill">Moss Velvet</span>
           <span class="tag-pill">5500K Light</span>
         </div>
-        <span class="mb-foot-note">↑ Imagen 4 · 8K 디테일 · 외관/내관 통합 무드보드</span>
+        <span class="mb-foot-note">↑ AI 생성 · 8K 디테일 · 외관/내관 통합 무드보드</span>
       </div>
     </div>
 
@@ -2735,20 +2873,21 @@ body.pdf-export .pdf-cover { display: block; }
 
       <!-- 동선 / 배치 전략 -->
       <div class="card">
-        <div class="label">Gemini 2.5 Pro · 동선 · 배치 전략</div>
+        <div class="label">AI 큐레이션 · 동선 · 배치 전략</div>
         <h3 id="flowTitle">왼쪽으로 흐르는 럭셔리 동선.</h3>
         <p id="flowDesc" style="margin-bottom: 4px">
           입장 후 시계 반대 방향의 자연스러운 흐름을 따라 6개 존을 순차 배치. 미끼상품은 좌측, 한정판 굿즈는 중앙 백 바(back bar)에서 시각적 정점을 형성한다.
         </p>
 
-        <div class="floorplan" aria-label="floorplan" id="floorplan">
-          <div class="zone z1" data-zone="1"><div class="num">01</div><div class="nm">엔트런스<br>· 향 디퓨저</div></div>
-          <div class="zone z2" data-zone="2"><div class="num">02 · BACKBAR</div><div class="nm">한정판<br>굿즈 · 백 바</div></div>
-          <div class="zone z3" data-zone="3"><div class="num">03</div><div class="nm">포토존<br>· 거울 살롱</div></div>
-          <div class="zone z4" data-zone="4"><div class="num">04</div><div class="nm">VIP 컨설팅<br>스위트</div></div>
-          <div class="zone z5" data-zone="5"><div class="num">05</div><div class="nm">언박싱<br>체험존</div></div>
-          <div class="zone z6" data-zone="6"><div class="num">06 · EXIT</div><div class="nm">결제 · 픽업 카운터 (백화점 본관 연결)</div></div>
+        <div class="floorplan fp-loop" aria-label="floorplan" id="floorplan">
+          <div class="zone z1" data-zone="1" data-desc="입장 직후 향으로 첫인상을 형성하는 1.2m 폭 진입부"><div class="num">01</div><div class="nm">엔트런스<br>· 향 디퓨저</div></div>
+          <div class="zone z2" data-zone="2" data-desc="중앙 시선이 집중되는 시그니처 백 바 · 한정판 굿즈 진열"><div class="num">02 · BACKBAR</div><div class="nm">한정판<br>굿즈 · 백 바</div></div>
+          <div class="zone z3" data-zone="3" data-desc="우측 깊이감을 만드는 거울 살롱 · SNS 포토 스팟"><div class="num">03</div><div class="nm">포토존<br>· 거울 살롱</div></div>
+          <div class="zone z4" data-zone="4" data-desc="예약 전용 60분 VIP 컨설팅 · 프라이빗 응대"><div class="num">04</div><div class="nm">VIP 컨설팅<br>스위트</div></div>
+          <div class="zone z5" data-zone="5" data-desc="구매 직전 체험·언박싱 인터랙션으로 전환 유도"><div class="num">05</div><div class="nm">언박싱<br>체험존</div></div>
+          <div class="zone z6" data-zone="6" data-desc="결제·픽업 카운터 · 백화점 본관 동선과 연결되는 출구"><div class="num">06 · EXIT</div><div class="nm">결제 · 픽업 카운터 (백화점 본관 연결)</div></div>
         </div>
+        <div class="fp-tip" id="fpTip" hidden></div>
 
         <ul class="floor-list" id="floorList">
           <li><span class="ord">01</span><span class="nm">엔트런스</span><span class="desc">향 디퓨저 · 1.2m 폭</span></li>
@@ -2760,7 +2899,7 @@ body.pdf-export .pdf-cover { display: block; }
 
       <!-- 개설 예산 -->
       <div class="card">
-        <div class="label">Gemini 2.5 Pro · 개설 예산 · OPENING BUDGET</div>
+        <div class="label">AI 큐레이션 · 개설 예산 · OPENING BUDGET</div>
         <h3 id="budgetTitle">2주 운영 · 약 ₩7.1억.</h3>
         <p id="budgetDesc" style="margin-bottom: 8px">
           하이엔드 백화점 5F 아트리움 약 60평 기준 · 마감재 비중이 전체 예산의 39%를 차지하며, 운영·인력은 14일 풀가동 가정.
@@ -2768,7 +2907,7 @@ body.pdf-export .pdf-cover { display: block; }
 
         <!-- Gemini Strategy JSON insights (location · vmdRouting) -->
         <div class="gemini-insights" id="geminiInsights" style="display:none">
-          <div class="ig-head"><span class="gem"></span> GEMINI · STRATEGY JSON</div>
+          <div class="ig-head"><span class="gem"></span> AI · STRATEGY INSIGHTS</div>
           <div class="ig-row">
             <div class="ig-k">추천 위치 · LOCATION</div>
             <div class="ig-v" id="igLocation">—</div>
@@ -2857,15 +2996,15 @@ body.pdf-export .pdf-cover { display: block; }
 
     <div class="faq-list">
       <div class="faq-item open">
-        <button class="faq-q"><span>1분 만에 정말 도출이 가능한가요?</span><span class="icon">+</span></button>
+        <button class="faq-q"><span>5분 만에 정말 도출이 가능한가요?</span><span class="icon">+</span></button>
         <div class="faq-a">
           <div class="faq-a-inner">
-            평균 응답 시간은 <span class="moss">40초</span>입니다. Gemini 2.5 Pro가 스타일·동선·예산을 병렬로 생성하고, Imagen 4가 무드보드 이미지를 동시에 큐잉합니다. 네트워크 상태에 따라 ±60초 편차가 있습니다.
+            평균 응답 시간은 <span class="moss">3분 40초</span>입니다. 스타일·동선·예산이 병렬로 생성되고, 무드보드 이미지도 동시에 큐잉됩니다. 네트워크 상태에 따라 ±60초 편차가 있습니다.
           </div>
         </div>
       </div>
       <div class="faq-item">
-        <button class="faq-q"><span>Google AI Studio / Gemini API 키는 어떻게 보관되나요?</span><span class="icon">+</span></button>
+        <button class="faq-q"><span>입력한 API 키는 어떻게 보관되나요?</span><span class="icon">+</span></button>
         <div class="faq-a">
           <div class="faq-a-inner">
             키는 <span class="moss">브라우저 sessionStorage</span>에만 저장됩니다. 서버 전송 · 영구 저장이 일절 없으며, 탭을 닫으면 즉시 폐기됩니다.
@@ -2881,10 +3020,10 @@ body.pdf-export .pdf-cover { display: block; }
         </div>
       </div>
       <div class="faq-item">
-        <button class="faq-q"><span>정확한 무드보드를 받을 수 있나요?</span><span class="icon">+</span></button>
+        <button class="faq-q"><span>여러 시안을 비교할 수 있나요?</span><span class="icon">+</span></button>
         <div class="faq-a">
           <div class="faq-a-inner">
-            한 번의 큐레이션마다 <span class="moss">외부 2장, 내부 1장, 엠버서더 2장</span>이 생성되며, 각각의 무드보드 · 동선 · BM을 확인할 수 있습니다.
+            한 번의 큐레이션마다 <span class="moss">3개 컨셉 방향</span>이 생성되며, 각각의 무드보드 · 동선 · BM을 나란히 비교할 수 있습니다. 통합 기획서 PDF에는 선택된 1안만 포함됩니다.
           </div>
         </div>
       </div>
@@ -2892,7 +3031,7 @@ body.pdf-export .pdf-cover { display: block; }
         <button class="faq-q"><span>한국어 외 다른 언어도 지원되나요?</span><span class="icon">+</span></button>
         <div class="faq-a">
           <div class="faq-a-inner">
-            Gemini 2.5 Pro의 다국어 능력에 의해 한국어 · 영어 · 일본어 · 중국어(번체) 입력을 그대로 받습니다. 결과 기획서의 언어는 입력 언어를 따라갑니다.
+            한국어 · 영어 · 일본어 · 중국어(번체) 입력을 그대로 받습니다. 결과 기획서의 언어는 입력 언어를 따라갑니다.
           </div>
         </div>
       </div>
@@ -2922,7 +3061,7 @@ body.pdf-export .pdf-cover { display: block; }
    default key — in that case, rotate it before publishing the file anywhere
    public.
    ========================================================================= */
-const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
+const API_KEY = "AQ.Ab8RN6JEh2-om4U69QSaUzb1VHOkcjf30B8qRLskWCtlYIforQ";
 
 /* =========================================================================
    INTERACTIONS — Vanilla JS, no deps
@@ -2937,7 +3076,35 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
       image: null /* { mime, base64, name, size } when user uploads a photo */ },
     collection: 'Spring · Summer 2026',
     location:   '현대백화점 본점 · 5F Atrium',
+    brand:      null,   /* { name, url, identity } when a luxury brand is selected */
   };
+
+  /* =====================================================================
+     LUXURY BRANDS — official sites + identity DNA (drives prompts)
+     Source: 명품브랜드_공식사이트_리스트.xlsx
+     ===================================================================== */
+  const BRANDS = [
+    { name:'Louis Vuitton',  url:'https://www.louisvuitton.com', identity:'monogram canvas tan & brown, LV gold hardware, trunk-inspired panelling, heritage travel luxury' },
+    { name:'Chanel',         url:'https://www.chanel.com',       identity:'black & white, quilted leather texture, gold chain, camellia motif, timeless Parisian couture minimalism' },
+    { name:'Dior',           url:'https://www.dior.com',         identity:'pearl grey & white, cannage rattan pattern, soft couture curves, refined feminine elegance' },
+    { name:'Gucci',          url:'https://www.gucci.com',        identity:'deep green & red web stripe, vintage gold, eclectic maximalist heritage, GG monogram' },
+    { name:'Prada',          url:'https://www.prada.com',        identity:'saffiano black, Prada green, polished steel, sharp intellectual minimalism' },
+    { name:'Hermès',         url:'https://www.hermes.com',       identity:'signature orange & tan, saddle-stitched leather, equestrian craft, understated artisan luxury' },
+    { name:'Burberry',       url:'https://www.burberry.com',     identity:'beige house check, camel trench, navy & red accents, British heritage tailoring' },
+    { name:'Saint Laurent',  url:'https://www.ysl.com',          identity:'black & gold YSL, sharp matte black, rock-chic Parisian glamour, mirrored surfaces' },
+    { name:'Bottega Veneta', url:'https://www.bottegaveneta.com',identity:'intrecciato woven leather, parakeet green, warm tan, quiet stealth luxury' },
+    { name:'Balenciaga',     url:'https://www.balenciaga.com',   identity:'brutalist concrete grey, bold black, oversized industrial avant-garde minimalism' },
+    { name:'Celine',         url:'https://www.celine.com',       identity:'ivory & beige, travertine stone, brushed gold, severe modernist minimalism' },
+    { name:'Givenchy',       url:'https://www.givenchy.com',     identity:'black & white, sharp gothic-romantic lines, polished metal, architectural couture' },
+    { name:'Valentino',      url:'https://www.valentino.com',    identity:'Valentino red (rosso), pink PP, ornate roman elegance, studded leather' },
+    { name:'Fendi',          url:'https://www.fendi.com',        identity:'FF Pequin stripe, tobacco brown & yellow, Roman craft, fur-trim luxury' },
+    { name:'Loewe',          url:'https://www.loewe.com',        identity:'warm terracotta & tan, anagram embossed leather, artisanal Spanish craft, soft sculptural form' },
+    { name:'Versace',        url:'https://www.versace.com',      identity:'gold Medusa & greca, baroque black-gold, glossy opulent maximalism' },
+    { name:'Cartier',        url:'https://www.cartier.com',      identity:'Cartier red & gold, panther motif, fine jewellery vitrines, regal precious materials' },
+    { name:'Tiffany & Co.',  url:'https://www.tiffany.com',      identity:'Tiffany robin-egg blue & white, sterling silver, diamond brilliance, refined American jewellery' },
+    { name:'Rolex',          url:'https://www.rolex.com',        identity:'deep green & gold, fluted bezel, oyster steel, precision horology prestige' },
+    { name:'Moncler',        url:'https://www.moncler.com',      identity:'glossy black quilted down, alpine white, technical sheen, cold-luxe outdoor performance' },
+  ];
 
   /* Concept dictionaries — drive output text from selections */
   const concepts = {
@@ -3106,6 +3273,86 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
 
   /* Initial sync */
   syncProdState();
+  drawFlowArrow('loop');   // default circulation arrow for the static floorplan
+
+  /* =====================================================================
+     INPUT: luxury brand select — applies brand identity to prompts +
+     reveals an official-site shortcut button.
+     ===================================================================== */
+  (function setupBrandSelect(){
+    const sel  = document.getElementById('brandSelect');
+    const btn  = document.getElementById('brandSiteBtn');
+    const note = document.getElementById('brandIdNote');
+    if (!sel) return;
+
+    /* Populate options from BRANDS */
+    BRANDS.forEach(b => {
+      const o = document.createElement('option');
+      o.value = b.name; o.textContent = b.name;
+      sel.appendChild(o);
+    });
+
+    sel.addEventListener('change', () => {
+      const b = BRANDS.find(x => x.name === sel.value) || null;
+      state.brand = b ? { name: b.name, url: b.url, identity: b.identity } : null;
+      if (b) {
+        btn.href = b.url;
+        btn.textContent = `${b.name} 공식 사이트 ↗`;
+        btn.hidden = false;
+        note.innerHTML = `<b>${escapeHTML(b.name)}</b> 아이덴티티 적용 — ${escapeHTML(b.identity)}`;
+        note.hidden = false;
+      } else {
+        btn.hidden = true;
+        note.hidden = true;
+      }
+    });
+  })();
+
+  /* =====================================================================
+     Floorplan blueprint — cursor-following tooltip on zone hover.
+     Event-delegated on #floorplan so it works after zones are re-rendered.
+     ===================================================================== */
+  (function setupFloorplanTip(){
+    const fpEl  = document.getElementById('floorplan');
+    const tipEl = document.getElementById('fpTip');
+    if (!fpEl || !tipEl) return;
+
+    function zoneFrom(t){ return t && t.closest ? t.closest('.zone') : null; }
+
+    function showTip(zone, x, y){
+      const name = zone.dataset.tipName ||
+                   (zone.querySelector('.nm') ? zone.querySelector('.nm').textContent.replace(/\s+/g,' ').trim() : '');
+      const desc = zone.dataset.desc || '';
+      tipEl.innerHTML =
+        `<span class="tip-t">${escapeHTML(name)}</span>` +
+        (desc ? `<span class="tip-d">${escapeHTML(desc)}</span>` : '');
+      tipEl.hidden = false;
+      moveTip(x, y);
+    }
+    function moveTip(x, y){
+      /* place to the right of the cursor; flip left near the viewport edge */
+      const pad = 16, w = tipEl.offsetWidth || 220;
+      let left = x + pad;
+      if (left + w > window.innerWidth - 8) left = x - pad - w;
+      tipEl.style.left = Math.max(8, left) + 'px';
+      tipEl.style.top  = y + 'px';
+    }
+    function hideTip(){ tipEl.hidden = true; }
+
+    fpEl.addEventListener('mousemove', e => {
+      const zone = zoneFrom(e.target);
+      if (!zone) { hideTip(); return; }
+      if (tipEl.hidden) showTip(zone, e.clientX, e.clientY);
+      else {
+        /* update text if moved onto a different zone */
+        const name = zone.dataset.tipName ||
+          (zone.querySelector('.nm') ? zone.querySelector('.nm').textContent.replace(/\s+/g,' ').trim() : '');
+        if (tipEl.querySelector('.tip-t')?.textContent !== name) showTip(zone, e.clientX, e.clientY);
+        moveTip(e.clientX, e.clientY);
+      }
+    });
+    fpEl.addEventListener('mouseleave', hideTip);
+  })();
 
   /* =====================================================================
      INPUT: product photo upload — referenced by Gemini multimodal calls
@@ -3464,10 +3711,11 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
     return [
       `앰배서더: ${state.ambassador.name} (${c.ext?.title || ''})`,
       `히어로 상품: ${state.product.name} · ${state.product.cat} · ${state.product.mat}${state.product.price ? ' · ' + state.product.price : ''}`,
+      state.brand ? `브랜드: ${state.brand.name} (${state.brand.identity})` : null,
       `컬렉션: ${state.collection}`,
       `위치: ${state.location}`,
       `톤: ${tone}`,
-    ].join(' / ');
+    ].filter(Boolean).join(' / ');
   }
 
   /* ---------- [TRACK A] Image — gemini-3.1-flash-image-preview (multi-slot fan-out) ---------- */
@@ -3600,6 +3848,33 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
     const tones  = (state.ambassador.tone || '').trim() || "editorial minimal";
     const H      = categoryHints();
 
+    /* ----- input-driven variables for the booth / storefront render ----- */
+    /* brand wordmark — selected luxury brand if any, else first word of the product */
+    const brand = (state.brand && state.brand.name)
+      ? state.brand.name.toUpperCase()
+      : (((prod.match(/[A-Za-z]{2,}/) || [])[0]) || 'MAISON').toUpperCase();
+    /* brand identity DNA line — injected when a luxury brand is selected */
+    const brandId = state.brand
+      ? `Apply this brand identity to the architecture, colors and materials: ${state.brand.identity}. `
+      : '';
+    /* retail type + product noun by category */
+    const catLow = (state.product.cat || '').toLowerCase();
+    const retailType =
+      /fragrance|beauty/.test(catLow) ? 'beauty & skincare retail' :
+      /leather/.test(catLow)          ? 'leather goods retail' :
+      /silk|lifestyle/.test(catLow)   ? 'silk & lifestyle retail' :
+      /watch/.test(catLow)            ? 'fine-watch retail' :
+      /jewelry|jewellery/.test(catLow)? 'fine-jewelry retail' :
+      /ready-to-wear|rtw|wear/.test(catLow) ? 'ready-to-wear fashion retail' :
+      /eyewear/.test(catLow)          ? 'eyewear retail' : 'luxury retail';
+    /* LED accent color responds to the typed mood */
+    const tLow = tones.toLowerCase();
+    const ledColor =
+      /mono|minimal|charcoal|모노|미니멀/.test(tLow)         ? 'cool white' :
+      /heritage|ebony|bold|burgundy|흑단|헤리티지|모스/.test(tLow) ? 'warm amber-gold' :
+      /pastel|romantic|soft|blush|파스텔|로맨틱/.test(tLow)  ? 'soft blush-coral' :
+      'warm peach-coral';
+
     /* Shared style suffixes — kept short to save prompt tokens */
     const STYLE_ARCH    = `photorealistic, editorial magazine quality, warm desaturated palette, luxury aesthetic`;
     /* Ambassador = calm, natural Vogue-style editorial (not a heavy magazine cover) */
@@ -3640,19 +3915,32 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
           `Palette: ${PALLET}. Mood: ${tones}. Concept: "${userPrompt}". ${STYLE_ARCH}. ${NEG_ARCH}.`
       },
 
-      /* =========== CHAPTER 02 · INTERIOR · 1 shot (interior matching the exterior) =========== */
+      /* =========== CHAPTER 02 · EXTERIOR · II — elevated wide-angle storefront (외관 버전 2) =========== */
 
-      /* 03 · int_vista — interior vista that continues the storefront design */
+      /* 03 · ext_v2 — elevated wide-angle pop-up storefront in a luxury mall (input-driven) */
       {
-        slot: "int_vista",
-        target: () => document.querySelector('[data-slot="int_vista"] .tile-img'),
+        slot: "ext_v2",
+        target: () => document.querySelector('[data-slot="ext_v2"] .tile-img'),
         aspect: "4:3",
         prompt:
-          `Interior photograph showing only the inside of the SAME luxury ${H.label} department-store pop-up boutique seen in the storefront shots — ` +
-          `the interior must continue the exterior's design language, using the same materials, colors and detailing so it reads as one cohesive space. ` +
-          `Interior features: ${H.interior}, plus a hero product display fixture. ` +
-          `Eye-level view standing inside the space, warm diffuse lighting, polished floor, refined retail fixtures. ` +
-          `Palette: ${PALLET}. Mood: ${tones}, ${coll} season. Empty room, no people. ${STYLE_ARCH}. ${NEG_ARCH}.`
+          `An elevated wide-angle photograph capturing a sleek, modern ${brand} ${retailType} pop-up boutique installed within a bright, cavernous luxury shopping mall, ` +
+          `photographed from an upper-level railing looking diagonally downward to reveal the entire compact retail layout in sharp architectural detail. ` +
+          `${brandId}` +
+          `The centerpiece is a pristine white rectilinear volume with a grey tiled roof surface emblazoned with large white ${brand} lettering, ` +
+          `its front face dominated by a large vertical digital screen displaying a high-contrast fashion image of a female model resembling ${amb} in ${tones} ${coll} styling, ` +
+          `beside a massive circular portal edged with reflective gold trim that opens into the structure. ` +
+          `Encircling the central cube are curved partitions made of vertical ribbed translucent acrylic or polycarbonate channels that form semi-circular display niches, ` +
+          `with fixtures holding assorted ${state.product.cat || 'luxury'} goods visible behind the clear ribbed walls, and a small illuminated ${brand} sign mounted on the front curved panel. ` +
+          `Flanking the installation are two cylindrical white display towers wrapped in matching ribbed transparent material, ` +
+          `the left cylinder crowned with a gold heart-shaped sculptural element and the right featuring a rectangular recessed display on its roof. ` +
+          `The booth sits upon a bright white reflective platform that contrasts with the polished grey terrazzo marble flooring of the surrounding mall concourse, where soft reflections of overhead lights shimmer across the stone. ` +
+          `In the immediate foreground, the dark-haired heads and shoulders of two onlookers are visible at the bottom edge, while to the right a couple walks past the display. ` +
+          `Additional shoppers wander through the background near neighboring retail facades, including a towering cylindrical digital pillar showing monochrome fashion photography. ` +
+          `A mannequin dressed for the ${tones} concept stands near a gold sculptural plant-form to the left of the booth, while another mannequin stands near the right tower. ` +
+          `The scene is illuminated by bright, diffuse overhead mall lighting that casts soft, even illumination without dramatic shadows, ` +
+          `rendered with a deep depth of field and documentary clarity typical of a wide-angle 24mm–35mm lens stopped down for maximum focus, ` +
+          `preserving every retail detail from the foreground observers to the distant architectural elements. ` +
+          `Accent palette: ${PALLET}; clean neutral base of cool whites, silver-greys and metallic gold accents. Mood: ${tones}. Concept: "${userPrompt}". no watermarks.`
       },
 
       /* =========== CHAPTER 03 · AMBASSADOR · 3-look editorial =========== */
@@ -3691,10 +3979,10 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
 
     /* EXTERIOR slots — product photo used as visual identity / design inspiration
        for the pop-up architecture (palette, material finish, silhouette language) */
-    const isExterior = /^(ext_hero|ext_iso)$/.test(slotDef.slot);
+    const isExterior = /^(ext_hero|ext_iso|ext_v2)$/.test(slotDef.slot);
 
-    /* INTERIOR + AMBASSADOR slots — product appears directly in the scene */
-    const isInterior = /^(int_vista|amb_half|amb_full)$/.test(slotDef.slot);
+    /* AMBASSADOR slots — product appears directly in the scene */
+    const isInterior = /^(amb_half|amb_full)$/.test(slotDef.slot);
 
     if (photo && isExterior) {
       parts.push({ inline_data: { mime_type: photo.mime, data: photo.base64 } });
@@ -3759,12 +4047,12 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
       generateOneImage(s)
         .then(() => {
           doneN++;
-          if (trackEl) trackEl.textContent = `Track A · Imagen 무드보드 (${doneN}/${slots.length})`;
+          if (trackEl) trackEl.textContent = `Track A · 무드보드 큐레이션 (${doneN}/${slots.length})`;
         })
         .catch(err => {
           console.warn(err);
           doneN++;
-          if (trackEl) trackEl.textContent = `Track A · Imagen 무드보드 (${doneN}/${slots.length})`;
+          if (trackEl) trackEl.textContent = `Track A · 무드보드 큐레이션 (${doneN}/${slots.length})`;
         })
     );
     await Promise.allSettled(tasks);
@@ -3831,10 +4119,16 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
         vmdRouting: { type: "STRING", description: "VMD 동선 최적화 전략" },
         floorplan: {
           type: "OBJECT",
-          description: "팝업 평면도 — 정확히 6개 존(고정 위치)과 4단계 동선",
+          description: "팝업 평면도 — 동선 레이아웃 + 6개 존 + 4단계 동선",
           properties: {
-            title:   { type: "STRING", description: "동선 카드의 제목 한 줄. 예: '왼쪽으로 흐르는 럭셔리 동선.'" },
-            summary: { type: "STRING", description: "동선·배치 한 줄 요약 (1~2문장, 럭셔리 톤)" },
+            layout:  { type: "STRING", description:
+              "공간 동선 패턴. 상품·컨셉에 맞춰 4개 중 택1: " +
+              "'loop'(중앙 히어로+시계반대 둘레동선·향수/뷰티/리빙), " +
+              "'linear'(좌→우 순차 진열 축선·시계/주얼리/아이웨어), " +
+              "'island'(중앙 대형 섬+코너 위성·향수/뷰티 카운터형), " +
+              "'split'(좌측 대형+우측 2단 스택·가방/RTW/실크). enum: loop|linear|island|split" },
+            title:   { type: "STRING", description: "동선 카드의 제목 한 줄. 레이아웃 특성을 담아. 예: '중앙 섬을 도는 원형 동선.'" },
+            summary: { type: "STRING", description: "동선·배치 한 줄 요약 (1~2문장, 럭셔리 톤, 선택한 layout의 이유 포함)" },
             zones: {
               type: "ARRAY",
               description:
@@ -3850,9 +4144,10 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
                 properties: {
                   num:     { type: "STRING", description: "번호 라벨. 예: '01' / '02 · BACKBAR' / '06 · EXIT'. 2번과 6번은 강조 키워드 포함." },
                   name:    { type: "STRING", description: "존 메인 이름 한 줄. 예: '엔트런스', '한정판 굿즈 · 백 바'" },
-                  subname: { type: "STRING", description: "존 부제. 예: '· 향 디퓨저', '· 거울 살롱' — 비워두면 빈 문자열" }
+                  subname: { type: "STRING", description: "존 부제. 예: '· 향 디퓨저', '· 거울 살롱' — 비워두면 빈 문자열" },
+                  desc:    { type: "STRING", description: "존 호버 툴팁 설명 한 줄(20~40자). 역할·치수·동선 의미. 예: '입장 직후 향으로 첫인상을 형성하는 1.2m 폭 진입부'" }
                 },
-                required: ["num", "name", "subname"]
+                required: ["num", "name", "subname", "desc"]
               }
             },
             steps: {
@@ -3868,7 +4163,7 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
               }
             }
           },
-          required: ["title", "summary", "zones", "steps"]
+          required: ["layout", "title", "summary", "zones", "steps"]
         },
         budget: {
           type: "OBJECT",
@@ -3930,9 +4225,15 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
           "expectedVisits 8.0~16.0K(TOP-tier+본점→14+, TOP-tier+강남→12+, 중견→10, 신예→8). " +
           "conversionRate 1.8~4.8%(Fragrance→4+, Silk→3.5, RTW/Eyewear→3, Leather→2.7, Jewelry/Watch→2). " +
           "moodPalette: primary/secondary는 어두운 톤(luminance<0.25), accent는 밝은 톤(luminance>0.55). " +
+          "floorplan.layout은 상품 카테고리·동선 논리에 맞춰 택1: " +
+          "Fragrance/Beauty→'island'(중앙 시향 카운터를 도는 동선) 또는 'loop', " +
+          "Watch/Jewelry/Eyewear→'linear'(봉인 진열장을 따라가는 순차 축선), " +
+          "Leather/RTW/Silk→'split'(좌측 대형 셀렉션 + 우측 컨설팅·피팅 스택), " +
+          "Lifestyle→'loop'. 같은 입력이면 같은 layout. " +
           "floorplan.zones 정확히 6개: [1]입구 [2]메인디스플레이(num에 카테고리 키워드) [3]포토존 [4]VIP [5]체험 [6]EXIT. " +
+          "단 layout='split'이면 [5]체험존은 화면에 표시되지 않으니 핵심 내용은 [1]~[4]·[6]에 담아라. " +
           "zone 이름은 상품 카테고리 어휘 사용(향수→'시향 살롱', 가방→'모노그래밍 카운터', 시계→'무브먼트 스튜디오'). " +
-          "floorplan.steps 정확히 4개(입장 순서, name+detail 한 줄). " +
+          "floorplan.steps 정확히 4개(입장 순서, name+detail 한 줄, layout 동선 방향과 일치). " +
           "budget.items 정확히 8개, 순서: 공간 디자인·설계 / 마감재·시공 / 가구·조명·디스플레이 / 미디어·AV·디지털 / 브랜딩·그래픽·사이니지 / 운영·스태프 / 한정판 굿즈·패키지 / 마케팅·콘텐츠. " +
           "각 항목 subname(재질·내용)+detail(한 줄). amount는 ₩숫자M, share 정수%, 합 정확히 100%, totalKRW=amount 합. " +
           "비중은 카테고리마다 다르게: Fragrance=마케팅 최대, Leather/Watch=마감재 최대, Jewelry=운영·보안 최대. " +
@@ -3946,6 +4247,9 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
               `앰배서더: ${state.ambassador.name} / 톤: ${(state.ambassador.tone||'').trim()||'editorial minimal'} / ` +
               `상품: ${state.product.name} (${state.product.cat}) / ` +
               `컬렉션: ${state.collection} / 위치: ${state.location}\n` +
+              (state.brand
+                ? `브랜드: ${state.brand.name} — 이 브랜드의 아이덴티티(${state.brand.identity})를 brief.titleEn·heroDescKo·keywords·moodPalette·brandPalette에 적극 반영.\n`
+                : '') +
               `재질·마감과 가격대는 입력하지 않았으니, 상품명·카테고리${photo ? '·첨부 사진' : ''}로 합리적으로 추론해서 ` +
               `brief.heroDescKo·keywords·budget(가격대 반영)에 자연스럽게 녹여줘.\n` +
               (photo ? `제품 사진 첨부: 색감·재질·실루엣을 brief.heroDescKo·keywords·moodPalette에 반영.\n` : '') +
@@ -4004,6 +4308,34 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
     applyStrategy(result);
 
     setTrack('B', 'done');
+  }
+
+  /* =====================================================================
+     drawFlowArrow — renders a dashed directional circulation path over the
+     floorplan, matching the chosen layout. viewBox is 0–100 in both axes.
+     ===================================================================== */
+  function drawFlowArrow(layout) {
+    const svg = document.getElementById('fpFlow');
+    if (!svg) return;
+    /* Each path traces the intended walking route; head = arrowhead triangle */
+    const PATHS = {
+      // counter-clockwise loop: enter bottom-left, up, across top, down right
+      loop:   { d: 'M 14 78 L 14 22 L 50 14 L 86 22 L 86 70',
+                head: '86,70 82,62 90,62' },
+      // straight serpentine: left→right top, drop, right→left
+      linear: { d: 'M 12 22 L 88 22 L 88 50 L 12 50 L 12 70',
+                head: '12,70 8,62 16,62' },
+      // island: spiral inward toward the central hero
+      island: { d: 'M 14 76 C 14 30, 50 14, 60 30 C 68 42, 52 52, 50 44',
+                head: '50,44 54,50 46,50' },
+      // split: down the left selection, across to the right stack
+      split:  { d: 'M 22 20 L 22 64 L 60 64 L 60 30 L 84 30 L 84 64',
+                head: '84,64 80,56 88,56' },
+    };
+    const p = PATHS[layout] || PATHS.loop;
+    svg.innerHTML =
+      `<path d="${p.d}" />` +
+      `<polygon class="head" points="${p.head}" />`;
   }
 
   /* =====================================================================
@@ -4134,13 +4466,23 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
       }
     }
 
-    /* ---- Floorplan card — title + 6 zones + 4 steps from Gemini ---- */
+    /* ---- Floorplan card — layout + title + zones + steps from Gemini ---- */
     if (result.floorplan) {
       const fp = result.floorplan;
       const flowTitle = $('#flowTitle');
       if (flowTitle && fp.title) flowTitle.textContent = fp.title;
       /* If Gemini also provides a summary, prefer it over vmdRouting one-liner */
       if (flowDesc && fp.summary) flowDesc.textContent = fp.summary;
+
+      /* Circulation layout — swap the floorplan grid arrangement + flow arrow */
+      const fpEl = $('#floorplan');
+      const validLayouts = ['loop', 'linear', 'island', 'split'];
+      const layout = validLayouts.includes(fp.layout) ? fp.layout : 'loop';
+      if (fpEl) {
+        fpEl.classList.remove('fp-loop','fp-linear','fp-island','fp-split');
+        fpEl.classList.add('fp-' + layout);
+        drawFlowArrow(layout);
+      }
 
       /* 6 zones — render into existing fixed-position grid cells */
       if (Array.isArray(fp.zones)) {
@@ -4154,6 +4496,9 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
             const sub = z.subname ? `<br>${escapeHTML(z.subname)}` : '';
             nmEl.innerHTML = `${escapeHTML(z.name || '')}${sub}`;
           }
+          /* tooltip description (shown on hover, follows cursor) */
+          cell.dataset.tipName = (z.name || '').replace(/\s*·\s*$/, '');
+          cell.dataset.desc    = z.desc || z.subname || '';
         });
       }
 
@@ -4274,7 +4619,7 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
   const STAGES = [
     { pct: 18,  step: '스타일 분석',          ttl: '컨셉을 분석하는 중…' },
     { pct: 38,  step: '공간 컨셉 도출',       ttl: '컨셉 키워드를 구성하는 중…' },
-    { pct: 60,  step: 'Imagen 4 · 렌더링',     ttl: '대리석과 조명을 그리는 중…' },
+    { pct: 60,  step: '무드보드 렌더링',       ttl: '대리석과 조명을 그리는 중…' },
     { pct: 78,  step: '동선·배치 최적화',     ttl: '동선을 설계하는 중…' },
     { pct: 94,  step: '개설 예산 산출',       ttl: '개설 예산을 산출하는 중…' },
     { pct: 100, step: '기획안 완성',          ttl: '큐레이션 완료' },
@@ -4284,7 +4629,7 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
     /* Guard — block generation if no Gemini key is available anywhere */
     if (!getApiKey()) {
       const input = $('#apiKeyInput');
-      alert('Gemini API 키가 필요합니다.\n패널 하단의 "Gemini Key" 입력란에 키를 입력해 주세요.');
+      alert('AI 키가 필요합니다.\n패널 하단의 "AI Key" 입력란에 키를 입력해 주세요.');
       if (input) {
         input.focus();
         input.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -4411,7 +4756,7 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
         <div><div class="k">Collection</div><div class="v">${escapeHTML(state.collection)}</div></div>
         <div><div class="k">Location</div><div class="v">${escapeHTML(locText)}</div></div>
         <div><div class="k">Curated</div><div class="v">${escapeHTML(now)}</div></div>
-        <div><div class="k">Engine</div><div class="v">Gemini 2.5 Pro · Imagen</div></div>
+        <div><div class="k">Engine</div><div class="v">AI Curation Suite</div></div>
       </div>
     `;
     return cov;
@@ -4437,7 +4782,7 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
   const SLOT_LABELS = {
     ext_hero:   '01-exterior-storefront',
     ext_iso:    '02-exterior-eyelevel',
-    int_vista:  '03-interior-showroom',
+    ext_v2:     '03-exterior-wideangle',
     amb_half:   '04-ambassador-halfbody',
     amb_full:   '05-ambassador-fullbody',
   };
@@ -4526,11 +4871,3 @@ const API_KEY = "AIzaSyAsPU82-RSq38gOBGOehLPK_wEem974FGU";
   $$('.card, .summary, .mood-large, .gemini-band, .moodboard-section, .hero-render, .mb-cell, .palette-panel').forEach((el, i) => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(24px)';
-    el.style.transition = `opacity 600ms cubic-bezier(.65,0,.35,1) ${i * 80}ms, transform 600ms cubic-bezier(.65,0,.35,1) ${i * 80}ms`;
-    io.observe(el);
-  });
-})();
-</script>
-
-</body>
-</html>
