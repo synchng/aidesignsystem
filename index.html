@@ -514,6 +514,85 @@ nav.nav .actions {
 .brand-id-note[hidden] { display: none; }
 .brand-id-note b { color: var(--moss); font-weight: 600; }
 
+/* ----- 앰배서더 이름 + 구글 얼굴 검색 버튼 ----- */
+.amb-name-wrap { display: flex; gap: 10px; align-items: stretch; }
+.amb-name-wrap > input { flex: 1 1 auto; }
+.amb-google-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  text-decoration: none;
+  align-self: stretch;
+  display: inline-flex; align-items: center;
+}
+
+/* ----- 구글 얼굴 검색 결과 그리드 + 선택 ----- */
+.amb-face-row { margin: 12px 0 6px; }
+.amb-face-row .lab {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 8px;
+}
+.face-search-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.face-search-status { font-size: 11px; color: var(--text-3); letter-spacing: 0.02em; white-space: nowrap; }
+.face-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.face-results[hidden] { display: none; }
+.face-results .face-opt {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  background: var(--surface);
+  padding: 0;
+  transition: border-color 180ms var(--ease), transform 180ms var(--ease);
+}
+.face-results .face-opt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.face-results .face-opt:hover { transform: translateY(-2px); border-color: var(--border-2); }
+.face-results .face-opt.selected { border-color: var(--moss); }
+.face-results .face-opt.selected::after {
+  content: "✓"; position: absolute; top: 4px; right: 4px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--moss); color: #fff;
+  font-size: 11px; line-height: 18px; text-align: center;
+}
+.face-selected {
+  display: flex; gap: 14px; align-items: center;
+  padding: 12px; border-radius: 10px;
+  background: rgba(31,61,44,0.06); border: 1px solid rgba(31,61,44,0.16);
+  margin-bottom: 10px;
+}
+.face-selected[hidden] { display: none; }
+.face-selected img {
+  width: 64px; height: 80px; object-fit: cover;
+  border-radius: 6px; flex: 0 0 auto;
+}
+.face-selected-meta { display: flex; flex-direction: column; gap: 3px; }
+.face-selected-meta .fs-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.face-selected-meta .fs-note { font-size: 11px; color: var(--text-2); }
+.face-selected-meta .fs-clear {
+  align-self: flex-start; margin-top: 4px;
+  font-size: 11px; color: var(--burgundy);
+  background: none; border: none; cursor: pointer; padding: 0;
+  text-decoration: underline;
+}
+.face-cse-row { margin-top: 4px; }
+.face-cse-row[hidden] { display: none; }
+.face-cse-row input {
+  width: 100%; font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px; padding: 9px 12px;
+  background: var(--surface); border: 1px solid var(--border-2);
+  border-radius: 8px; color: var(--text-2);
+}
+.face-cse-row input:focus { outline: none; border-color: var(--text); color: var(--text); }
+
 /* ----- 제품 사진 업로드 — 이미지는 원본 비율 그대로 (object-fit: contain) ----- */
 .prod-photo-row { margin-bottom: 18px; }
 .prod-photo-row > .lab {
@@ -630,7 +709,6 @@ nav.nav .actions {
   background: var(--moss-2);
   animation: pulse 2.4s var(--ease) infinite;
 }
-
 
 /* ----- Track A/B indicators inside gen-card ----- */
 .gen-tracks {
@@ -2454,10 +2532,10 @@ body.pdf-export .pdf-cover { display: block; }
       <span class="eyebrow">High-end Department Stores</span>
     </div>
 
-    <h3>
-     실무에 필요한 무드보드, <span class="light"> 쉽고 빠르게.</span><br>
-      <span class="moss">완성되는 기획안 </span>
-    </h3>
+    <h1>
+      Your appearance <span class="light">impacts</span><br>
+      your life in <span class="moss">many ways.</span>
+    </h1>
 
     <p class="deck">
 앰배서더 · 히어로 상품 · 컨셉만 입력하면, <strong style="color: var(--moss)">하이엔드 백화점 팝업 스토어</strong>의 공간 컨셉 · 무드보드 · 동선 · 개설 예산을 <strong>5분 안에 한 장의 기획안</strong>으로 완성합니다. 브랜드의 첫인상을, 가장 빠르게.
@@ -2480,9 +2558,29 @@ body.pdf-export .pdf-cover { display: block; }
 
         <div class="amb-input-row">
           <div class="field" style="flex: 1 1 100%">
-            <label>앰배서더 이름 — 자유 입력</label>
-            <input id="ambInput" type="text" value="정해인"
-              placeholder="예: 정해인, 변우석, 한소희, NewJeans 민지, Jisoo …" autocomplete="off" />
+            <label>앰배서더 이름 — 자유 입력 후 얼굴 검색</label>
+            <div class="amb-name-wrap">
+              <input id="ambInput" type="text" value="정해인"
+                placeholder="예: 정해인, 변우석, 한소희, NewJeans 민지, Jisoo …" autocomplete="off" />
+              <button id="ambFaceSearchBtn" type="button" class="btn btn-outline amb-google-btn">구글 얼굴 검색</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 구글 얼굴 검색 결과 — 선택한 얼굴이 앰배서더 컷 렌더링에 레퍼런스로 적용 -->
+        <div class="amb-face-row">
+          <div class="face-search-head">
+            <span class="lab">이름 검색 · 얼굴을 클릭하면 그 얼굴로 앰배서더 컷이 생성됩니다</span>
+            <span class="face-search-status" id="faceStatus"></span>
+          </div>
+          <div class="face-results" id="faceResults" hidden></div>
+          <div class="face-selected" id="faceSelected" hidden>
+            <img id="faceSelectedImg" alt="선택한 앰배서더 얼굴">
+            <div class="face-selected-meta">
+              <span class="fs-name" id="faceSelectedName">—</span>
+              <span class="fs-note" id="faceSelectedNote">이 얼굴이 앰배서더 컷에 반영됩니다</span>
+              <button type="button" class="fs-clear" id="faceClear">선택 해제</button>
+            </div>
           </div>
         </div>
 
@@ -2630,8 +2728,6 @@ body.pdf-export .pdf-cover { display: block; }
           <span>✦</span>&nbsp; Curate with AI
         </button>
       </div>
-
-      
 
     </div>
   </div>
@@ -3007,12 +3103,7 @@ body.pdf-export .pdf-cover { display: block; }
 
 <script>
 /* =========================================================================
-   GEMINI API KEY
-   The key is supplied at runtime via the "Gemini Key" input field at the
-   bottom of the brief panel and persisted in sessionStorage (this tab only).
-   Leave this constant empty unless you want to ship the file with a built-in
-   default key — in that case, rotate it before publishing the file anywhere
-   public.
+   GEMINI API KEY — built-in. Rotate before publishing this file publicly.
    ========================================================================= */
 const API_KEY = "AQ.Ab8RN6JEh2-om4U69QSaUzb1VHOkcjf30B8qRLskWCtlYIforQ";
 
@@ -3023,7 +3114,8 @@ const API_KEY = "AQ.Ab8RN6JEh2-om4U69QSaUzb1VHOkcjf30B8qRLskWCtlYIforQ";
   /* ---------- STATE ---------- */
   const state = {
     ambassador: { id: 'jhi', name: '정해인', role: 'Actor',
-      tone: 'Quiet Luxury — 정제된, 따뜻한 ebony · brass' },
+      tone: 'Quiet Luxury — 정제된, 따뜻한 ebony · brass',
+      image: null /* { mime, base64 } when a face photo is uploaded */ },
     product: { id: 'perfume', name: 'Eau de Maison 100ml',
       cat: 'Fragrance', price: '₩220,000', mat: 'Glass · Brushed Brass',
       image: null /* { mime, base64, name, size } when user uploads a photo */ },
@@ -3187,6 +3279,131 @@ const API_KEY = "AQ.Ab8RN6JEh2-om4U69QSaUzb1VHOkcjf30B8qRLskWCtlYIforQ";
   });
 
   syncAmbState();
+
+  /* =====================================================================
+     INPUT: Google face search (Custom Search Image API) — type an
+     ambassador name, list candidate faces, pick one to drive the
+     ambassador image generation.
+     - Reuses the Google (Gemini) API key; needs a Programmable Search
+       Engine ID (cx), entered once and saved in sessionStorage.
+     - Picked face is captured to base64 when the host allows CORS, then
+       injected into the ambassador image prompts as a face reference.
+       If capture is blocked, the name is still used (resembling …).
+     ===================================================================== */
+  state.ambassadorFace = null;  /* { b64, mime, url, name } */
+  (function setupFaceSearch(){
+    const btn    = document.getElementById('ambFaceSearchBtn');
+    const results= document.getElementById('faceResults');
+    const status = document.getElementById('faceStatus');
+    const selWrap= document.getElementById('faceSelected');
+    const selImg = document.getElementById('faceSelectedImg');
+    const selName= document.getElementById('faceSelectedName');
+    const selNote= document.getElementById('faceSelectedNote');
+    const clearBtn=document.getElementById('faceClear');
+    if (!btn) return;
+
+    async function urlToB64(url){
+      const r = await fetch(url, { mode: 'cors' });
+      if (!r.ok) throw new Error('img http ' + r.status);
+      const blob = await r.blob();
+      return await new Promise((res, rej) => {
+        const fr = new FileReader();
+        fr.onload = () => res(String(fr.result));
+        fr.onerror = rej;
+        fr.readAsDataURL(blob);
+      });
+    }
+
+    function clearSelection(){
+      state.ambassadorFace = null;
+      if (selWrap) selWrap.hidden = true;
+      $$('#faceResults .face-opt').forEach(o => o.classList.remove('selected'));
+    }
+
+    async function selectFace(opt, item){
+      $$('#faceResults .face-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      const name = (ambInput.value || '').trim() || '앰배서더';
+      selImg.src   = item.thumb;
+      selName.textContent = name;
+      selWrap.hidden = false;
+      selNote.textContent = '얼굴 캡처 중…';
+      state.ambassadorFace = { b64: null, mime: null, url: item.full, name };
+      /* Wikimedia (upload.wikimedia.org) sends CORS headers → capture works */
+      try {
+        const dataUrl = await urlToB64(item.full).catch(() => urlToB64(item.thumb));
+        const [meta, b64] = dataUrl.split(',');
+        const mime = (meta.match(/data:([^;]+);/) || [, 'image/jpeg'])[1];
+        state.ambassadorFace.b64  = b64;
+        state.ambassadorFace.mime = mime;
+        selNote.textContent = '✓ 이 얼굴이 앰배서더 컷에 반영됩니다';
+      } catch (e) {
+        selNote.textContent = '얼굴 픽셀 적용 불가 — 이름 기반으로 반영됩니다';
+      }
+    }
+
+    /* Wikimedia Commons image search — keyless, CORS-enabled, hotlink-friendly */
+    async function runSearch(){
+      const name = (ambInput.value || '').trim();
+      if (!name) { ambInput.focus(); return; }
+      status.textContent = '얼굴 검색 중…';
+      results.hidden = false;
+      results.innerHTML = '';
+      const api = (host) =>
+        `https://${host}/w/api.php?action=query&format=json&origin=*` +
+        `&generator=search&gsrnamespace=6&gsrlimit=18&gsrsearch=${encodeURIComponent(name)}` +
+        `&prop=imageinfo&iiprop=url|mime&iiurlwidth=240`;
+      try {
+        /* try Korean Wikipedia commons-style first, then global Commons */
+        let items = await fetchFaces(api('commons.wikimedia.org'), name);
+        if (!items.length) items = await fetchFaces(api('ko.wikipedia.org'), name);
+        if (!items.length) { status.textContent = '결과 없음 — 다른 이름으로 시도'; return; }
+        status.textContent = `${items.length}개 · 얼굴을 선택하세요`;
+        items.forEach(item => {
+          const opt = document.createElement('button');
+          opt.type = 'button'; opt.className = 'face-opt';
+          const im = document.createElement('img');
+          im.src = item.thumb; im.alt = name; im.loading = 'lazy';
+          im.onerror = () => { opt.remove(); };
+          opt.appendChild(im);
+          opt.addEventListener('click', () => selectFace(opt, item));
+          results.appendChild(opt);
+        });
+      } catch (err) {
+        console.error(err);
+        status.textContent = '검색 실패 — 네트워크 확인';
+      }
+    }
+
+    async function fetchFaces(url, name){
+      const res  = await fetch(url);
+      const data = await res.json();
+      const pages = data?.query?.pages ? Object.values(data.query.pages) : [];
+      return pages
+        .map(p => (p.imageinfo && p.imageinfo[0]) ? p.imageinfo[0] : null)
+        .filter(ii => ii && /image\/(jpeg|png|webp)/.test(ii.mime || ''))
+        .filter(ii => !/\b(logo|icon|map|flag|signature|chart|diagram)\b/i.test(ii.url || ''))
+        .map(ii => ({ thumb: ii.thumburl || ii.url, full: ii.url }))
+        .slice(0, 12);
+    }
+
+    btn.addEventListener('click', runSearch);
+    ambInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); runSearch(); } });
+    if (clearBtn) clearBtn.addEventListener('click', clearSelection);
+
+    /* Auto-search as the user types — faces appear directly below, no button needed */
+    let faceTimer = null;
+    ambInput.addEventListener('input', () => {
+      clearTimeout(faceTimer);
+      const name = (ambInput.value || '').trim();
+      if (name.length < 2) { results.hidden = true; results.innerHTML = ''; status.textContent = ''; return; }
+      status.textContent = '입력 대기 중…';
+      faceTimer = setTimeout(runSearch, 650);
+    });
+
+    /* Show faces for the default ambassador on first load */
+    if ((ambInput.value || '').trim().length >= 2) runSearch();
+  })();
 
   /* ---------- INPUT: product — free typing + category (material·price inferred by AI) ---------- */
   const prodInput      = $('#prodInput');
@@ -3580,33 +3797,8 @@ const API_KEY = "AQ.Ab8RN6JEh2-om4U69QSaUzb1VHOkcjf30B8qRLskWCtlYIforQ";
      The fake-progress STAGES animation is preserved and runs in parallel
      with the real API calls. Real results overlay the concept-driven render.
      Note: API_KEY is declared at the top of this <script> block (global).
-     Priority: user-entered input → sessionStorage → file-level API_KEY.
      ===================================================================== */
-  const STORAGE_KEY = 'MAISON_GEMINI_KEY';
-  const apiKeyInput = $('#apiKeyInput');
-  const apiKeyLab   = $('#apiKeyLab');
-
-  /* Restore previously-typed key from sessionStorage */
-  if (apiKeyInput) {
-    const saved = sessionStorage.getItem(STORAGE_KEY) || '';
-    if (saved) apiKeyInput.value = saved;
-    if (apiKeyLab) apiKeyLab.classList.toggle('is-set', !!saved);
-
-    apiKeyInput.addEventListener('input', () => {
-      const v = apiKeyInput.value.trim();
-      if (v) sessionStorage.setItem(STORAGE_KEY, v);
-      else   sessionStorage.removeItem(STORAGE_KEY);
-      if (apiKeyLab) apiKeyLab.classList.toggle('is-set', !!v);
-    });
-  }
-
-  function getApiKey() {
-    const typed = (apiKeyInput && apiKeyInput.value.trim()) || '';
-    if (typed) return typed;
-    const stored = sessionStorage.getItem(STORAGE_KEY) || '';
-    if (stored) return stored;
-    return API_KEY;
-  }
+  function getApiKey() { return API_KEY; }
 
   function setTrack(id, status) {
     const el = $('#track' + id);
@@ -3929,33 +4121,34 @@ const API_KEY = "AQ.Ab8RN6JEh2-om4U69QSaUzb1VHOkcjf30B8qRLskWCtlYIforQ";
   async function generateOneImage(slotDef) {
     const parts = [];
     const photo = state.product && state.product.image;
+    const face  = state.ambassadorFace;   /* { b64, mime } from Google face pick */
 
-    /* EXTERIOR slots — product photo used as visual identity / design inspiration
-       for the pop-up architecture (palette, material finish, silhouette language) */
-    const isExterior = /^(ext_hero|ext_iso|ext_v2)$/.test(slotDef.slot);
+    /* EXTERIOR slots — product photo drives the architecture's visual identity */
+    const isExterior  = /^(ext_hero|ext_iso|ext_v2)$/.test(slotDef.slot);
+    /* AMBASSADOR slots — the picked face + product appear in the editorial */
+    const isAmbassador = /^(amb_half|amb_full)$/.test(slotDef.slot);
 
-    /* AMBASSADOR slots — product appears directly in the scene */
-    const isInterior = /^(amb_half|amb_full)$/.test(slotDef.slot);
-
-    if (photo && isExterior) {
+    if (isExterior && photo) {
       parts.push({ inline_data: { mime_type: photo.mime, data: photo.base64 } });
       parts.push({ text:
         `[PRODUCT REFERENCE] The attached image shows the hero product for this pop-up. ` +
-        `Extract its visual identity — dominant colors, material finish (glossy/matte/metallic/fabric), ` +
-        `form language (sharp/rounded/organic/geometric), and overall brand mood — ` +
-        `then apply that aesthetic DNA to the pop-up store exterior architecture. ` +
-        `The building facade, materials, lighting, and spatial mood should feel like a direct extension of the product. ` +
+        `Extract its visual identity — dominant colors, material finish, form language, brand mood — ` +
+        `and apply that aesthetic DNA to the pop-up store exterior architecture. ` +
         `Do NOT show the product itself in this exterior image.\n\n` +
         slotDef.prompt
       });
-    } else if (photo && isInterior) {
-      parts.push({ inline_data: { mime_type: photo.mime, data: photo.base64 } });
-      parts.push({ text:
-        `[REFERENCE] The attached image is the actual hero product. ` +
-        `Render the new scene using THIS exact product — preserve its silhouette, ` +
-        `material finish, color and proportions. Do not invent a different product.\n\n` +
-        slotDef.prompt
-      });
+    } else if (isAmbassador && (face?.b64 || photo)) {
+      let note = '';
+      if (face?.b64) {
+        parts.push({ inline_data: { mime_type: face.mime || 'image/jpeg', data: face.b64 } });
+        note += `[FACE REFERENCE] The attached portrait is the ambassador. ` +
+                `Render the model with THIS exact face and likeness — same facial features, hair and overall look. `;
+      }
+      if (photo) {
+        parts.push({ inline_data: { mime_type: photo.mime, data: photo.base64 } });
+        note += `[PRODUCT REFERENCE] Also shown is the hero product; feature it naturally in the scene. `;
+      }
+      parts.push({ text: note + '\n\n' + slotDef.prompt });
     } else {
       parts.push({ text: slotDef.prompt });
     }
@@ -4579,14 +4772,9 @@ const API_KEY = "AQ.Ab8RN6JEh2-om4U69QSaUzb1VHOkcjf30B8qRLskWCtlYIforQ";
   ];
 
   function runGeneration() {
-    /* Guard — block generation if no Gemini key is available anywhere */
+    /* Guard — block generation if the built-in key is missing */
     if (!getApiKey()) {
-      const input = $('#apiKeyInput');
-      alert('AI 키가 필요합니다.\n패널 하단의 "AI Key" 입력란에 키를 입력해 주세요.');
-      if (input) {
-        input.focus();
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      alert('API 키가 설정되어 있지 않습니다. 파일 상단의 API_KEY 상수를 확인해 주세요.');
       return;
     }
     generating.classList.add('is-on');
